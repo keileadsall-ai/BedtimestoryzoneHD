@@ -1,6 +1,6 @@
 {
   "name": "fear-plus-ultra",
-  "version": "3.0.0",
+  "version": "6.6.6",
   "main": "server.js",
   "scripts": { "start": "node server.js" },
   "dependencies": { "express": "^4.18.2" }
