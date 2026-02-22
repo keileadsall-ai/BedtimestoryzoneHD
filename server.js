@@ -13,4 +13,4 @@ app.get('/api/config', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`BedtimeStoryZoneHD LIVE on port ${PORT}`));
+app.listen(PORT, () => console.log(`Killermov HD running on port ${PORT}`));
