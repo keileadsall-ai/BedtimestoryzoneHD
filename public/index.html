@@ -16,14 +16,28 @@
             background-image: radial-gradient(circle at center, #1a0000 0%, #000 100%);
         }
 
-        /* LOADER SAFETY KILL */
+        /* UPDATED MEDUSA LOADER */
         #loader {
             position: fixed; inset: 0; background: black; z-index: 10000;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             transition: 0.5s;
         }
-        .skull { width: 140px; filter: drop-shadow(0 0 25px var(--blood)); animation: heartThump 0.8s infinite; }
-        @keyframes heartThump { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.3); } 40% { transform: scale(1.1); } }
+        .voodoo-container {
+            width: 280px; height: 280px; 
+            border-radius: 50%; overflow: hidden;
+            border: 3px solid var(--blood);
+            box-shadow: 0 0 40px var(--blood);
+        }
+        .medusa-heart { 
+            width: 100%; height: 100%; 
+            object-fit: cover;
+            animation: ritualThump 0.9s infinite; 
+        }
+        @keyframes ritualThump { 
+            0%, 100% { transform: scale(1); filter: brightness(1); } 
+            15% { transform: scale(1.1); filter: brightness(1.3); } 
+            40% { transform: scale(1.05); } 
+        }
 
         /* HEADER */
         header { 
@@ -44,7 +58,7 @@
             transition: 0.4s cubic-bezier(0.1, 0.7, 0.1, 1); padding: 80px 25px;
         }
         #side-menu.open { left: 0; box-shadow: 20px 0 60px #000; }
-        .side-link { padding: 15px 0; color: #555; font-size: 1.8rem; cursor: pointer; border-bottom: 1px solid #111; }
+        .side-link { padding: 15px 0; color: #555; font-size: 1.8rem; cursor: pointer; border-bottom: 1px solid #111; transition: 0.3s; }
         .side-link:hover { color: var(--blood); padding-left: 10px; }
 
         /* GRID */
@@ -53,7 +67,7 @@
         .card:hover { transform: scale(1.08); border-color: var(--blood); box-shadow: 0 0 30px rgba(179,0,0,0.5); }
         .card img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* COHESIVE CREEPY DETAILS (Based on your Screenshots) */
+        /* COHESIVE CINEMA DETAILS */
         #ritual-screen {
             position: fixed; inset: 0; background: var(--void); z-index: 5000; 
             display: none; overflow-y: auto;
@@ -78,7 +92,6 @@
             border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 15px;
             box-shadow: 0 0 20px rgba(179,0,0,0.4); margin-bottom: 30px;
         }
-
         .player-mount { 
             width: 100%; aspect-ratio: 16/9; background: #000; 
             border: 1px solid #333; margin: 30px 0; display: none;
@@ -96,8 +109,10 @@
 <body>
 
 <div id="loader">
-    <img src="https://img.icons8.com/ios-filled/200/b30000/skull.png" class="skull">
-    <h2 style="font-family:'Nosifer'; color:var(--blood); margin-top:20px;">SUMMONING...</h2>
+    <div class="voodoo-container">
+        <img src="IMG_8259.jpeg" class="medusa-heart">
+    </div>
+    <h2 style="font-family:'Nosifer'; color:var(--blood); margin-top:30px; letter-spacing: 3px;">CONSUMING THE VOID...</h2>
 </div>
 
 <div id="side-menu">
@@ -158,7 +173,6 @@
     const API_KEY = 'b9c746781e1e9b084c4cc4f0420156d4';
     let page = 1, mode = 'movies', fetching = false, selected = null, currentS = 1;
 
-    // Swipe Menu
     let touchStart = 0;
     document.addEventListener('touchstart', e => touchStart = e.touches[0].clientX);
     document.addEventListener('touchend', e => {
@@ -167,7 +181,6 @@
         if(diff < -120) document.getElementById('side-menu').classList.remove('open');
     });
 
-    // Infinite Scroll
     const obs = new IntersectionObserver(e => { if(e[0].isIntersecting && !fetching) { page++; load(); } });
     obs.observe(document.getElementById('sentinel'));
 
@@ -237,7 +250,6 @@
         document.getElementById('play-btn').style.display = 'none';
     }
 
-    // THE DEBRID-BRIDGE (UNCHANGED PER INSTRUCTION)
     function ignitePlayer(eNum, el) {
         if(el) { document.querySelectorAll('#e-row .pill').forEach(p => p.classList.remove('active')); el.classList.add('active'); }
         const mount = document.getElementById('player-mount');
@@ -275,7 +287,6 @@
         document.getElementById('continue-grid').innerHTML = h.map(i => `<div class="card" style="min-width:100px; height:150px;" onclick='openDetails(${JSON.stringify(i)})'><img src="https://image.tmdb.org/t/p/w185${i.poster_path}"></div>`).join('');
     }
 
-    // SAFETY KILL LOADER
     window.onload = () => {
         load(); renderHistory();
         setTimeout(() => {
