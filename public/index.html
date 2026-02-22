@@ -3,95 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fear+ | The Ultimate Ritual</title>
+    <title>Fear+ | The Total Archive</title>
     <script src="https://cdn.jsdelivr.net/npm/@webtor/embed-sdk-js/dist/index.min.js" charset="utf-8" async></script>
     <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
     <style>
-        :root { --blood: #8a0303; --void: #050505; }
+        :root { --blood: #8a0303; --void: #050505; --ink: #111; }
         * { box-sizing: border-box; cursor: url('https://img.icons8.com/ios-filled/25/8a0303/dagger.png'), auto; }
         body { margin: 0; background: var(--void); color: white; font-family: -apple-system, sans-serif; overflow-x: hidden; }
 
         /* HEART-THUMPING SKULL LOADER */
-        #loader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: black; display: flex; flex-direction: column; 
-            justify-content: center; align-items: center; z-index: 9999;
-        }
-        .skull-pulse { 
-            width: 100px; filter: invert(1) sepia(1) saturate(10000%) hue-rotate(0deg); 
-            animation: heartThump 0.8s infinite cubic-bezier(0.215, 0.61, 0.355, 1); 
-        }
-        @keyframes heartThump {
-            0% { transform: scale(0.95); }
-            5% { transform: scale(1.1); }
-            39% { transform: scale(0.85); }
-            45% { transform: scale(1); }
-            60% { transform: scale(0.95); }
-            100% { transform: scale(0.9); }
-        }
+        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
+        .skull-pulse { width: 100px; filter: invert(1) sepia(1) saturate(10000%) hue-rotate(0deg); animation: heartThump 0.8s infinite cubic-bezier(0.215, 0.61, 0.355, 1); }
+        @keyframes heartThump { 0% { transform: scale(0.95); } 5% { transform: scale(1.1); } 39% { transform: scale(0.85); } 45% { transform: scale(1); } 60% { transform: scale(0.95); } 100% { transform: scale(0.9); } }
 
-        /* TOP NAVIGATION */
-        .top-nav {
-            background: rgba(0,0,0,0.95); padding: 15px; display: flex; 
-            align-items: center; gap: 20px; position: sticky; top: 0; z-index: 1000;
-            border-bottom: 2px solid var(--blood); overflow-x: auto;
-        }
-        .genre-link { color: #888; text-transform: uppercase; font-weight: bold; cursor: pointer; white-space: nowrap; font-size: 14px; }
-        .genre-link:hover { color: var(--blood); }
+        /* THE BOLD HEADER */
+        header { width: 100%; height: 70vh; background: linear-gradient(to bottom, transparent, var(--void)), url('IMG_8238.jpeg') no-repeat center center; background-size: cover; border-bottom: 3px solid var(--blood); position: relative; }
+        .fear-title { position: absolute; bottom: 20px; left: 30px; font-size: 80px; font-family: 'Creepster', cursive; color: var(--blood); text-shadow: 0 0 20px black; }
+
+        /* TOP GENRE MENU */
+        .top-nav { background: rgba(0,0,0,0.96); padding: 15px; display: flex; align-items: center; gap: 20px; position: sticky; top: 0; z-index: 1000; border-bottom: 2px solid var(--blood); overflow-x: auto; scrollbar-width: none; }
+        .genre-link { color: #777; text-transform: uppercase; font-weight: bold; cursor: pointer; white-space: nowrap; font-size: 13px; transition: 0.3s; }
+        .genre-link:hover { color: var(--blood); text-shadow: 0 0 10px red; }
+
+        /* SIDE MENU: THE HORROR COMPASS */
+        .side-menu { position: fixed; top: 0; left: -300px; width: 300px; height: 100%; background: #000; z-index: 2001; transition: 0.5s; border-right: 3px solid var(--blood); overflow-y: auto; padding-top: 60px; }
+        .side-menu.active { left: 0; }
+        .menu-label { padding: 10px 25px; color: #444; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; border-bottom: 1px solid #111; }
+        .menu-item { padding: 15px 25px; color: #888; text-transform: uppercase; font-weight: bold; cursor: pointer; border-bottom: 1px solid #111; transition: 0.3s; }
+        .menu-item:hover { color: var(--blood); background: #0a0000; }
 
         /* SEARCH BAR */
-        .search-container { flex: 1; min-width: 200px; position: relative; }
-        .search-box { 
-            width: 100%; background: #111; border: 1px solid #333; 
-            color: white; border-radius: 20px; padding: 10px 20px; outline: none;
-        }
-        .search-box:focus { border-color: var(--blood); box-shadow: 0 0 10px var(--blood); }
+        .search-container { flex: 1; min-width: 250px; }
+        .search-box { width: 100%; background: #111; border: 1px solid #333; color: white; border-radius: 20px; padding: 10px 20px; outline: none; transition: 0.3s; }
+        .search-box:focus { border-color: var(--blood); box-shadow: 0 0 15px var(--blood); }
 
-        /* GRID UI */
-        .movie-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 15px; }
+        /* GRID & FLYERS */
+        .movie-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 15px; }
         @media (min-width: 1024px) { .movie-grid { grid-template-columns: repeat(6, 1fr); padding: 40px; } }
-        .card { border: 1px solid #222; overflow: hidden; transition: 0.3s; background: #000; }
-        .card img { width: 100%; display: block; }
-        .card:hover { border-color: var(--blood); transform: scale(1.05); }
+        .card { border: 1px solid #222; overflow: hidden; transition: 0.4s; background: #000; position: relative; }
+        .card img { width: 100%; display: block; opacity: 0.8; transition: 0.4s; }
+        .card:hover { border-color: var(--blood); transform: scale(1.05); z-index: 10; }
+        .card:hover img { opacity: 1; }
 
-        /* DETAILS ALTAR */
+        /* IMMACULATE DETAILS PAGE */
         #details-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--void); z-index: 3000; display: none; overflow-y: auto; text-align: center; }
         .details-bg { position: fixed; width: 100%; height: 100%; background-size: cover; background-position: center; filter: blur(70px) brightness(0.2); z-index: -1; }
-        .flyer-immaculate { width: 280px; margin: 40px auto 20px; border-radius: 12px; box-shadow: 0 0 50px var(--blood); border: 2px solid #333; }
-        .skull-play-btn { width: 120px; margin: 20px auto; cursor: pointer; filter: drop-shadow(0 0 15px var(--blood)); transition: 0.4s; }
-        
-        #player-box { width: 100%; max-width: 1100px; margin: 20px auto; display: none; border: 2px solid var(--blood); }
+        .flyer-view { width: 280px; margin: 40px auto 20px; border-radius: 12px; box-shadow: 0 0 60px var(--blood); border: 2px solid rgba(255,255,255,0.1); }
+        .skull-play-btn { width: 120px; margin: 20px auto; cursor: pointer; filter: drop-shadow(0 0 15px var(--blood)); transition: 0.3s; }
+        #player-box { width: 100%; max-width: 1100px; margin: 20px auto; display: none; border: 3px solid var(--blood); background: #000; }
     </style>
 </head>
 <body>
 
 <div id="loader">
     <img src="https://img.icons8.com/ios-filled/100/8a0303/skull.png" class="skull-pulse">
-    <h2 style="color:var(--blood); font-family: 'Creepster'; margin-top:20px;">ENTERING THE VOID...</h2>
+    <h2 style="color:var(--blood); font-family: 'Creepster'; margin-top:20px;">SUMMONING THE ARCHIVE...</h2>
 </div>
 
+<div id="side-menu" class="side-menu">
+    <div class="menu-label">Timeline of Terror</div>
+    <div class="menu-item" onclick="fetchByYearRange(1896, 1960)">The Silent & Classic</div>
+    <div class="menu-item" onclick="fetchByYearRange(1961, 1989)">The Golden Era</div>
+    <div class="menu-item" onclick="fetchByYearRange(1990, 2010)">The Gritty Era</div>
+    <div class="menu-item" onclick="fetchByYearRange(2011, 2026)">Modern Rituals</div>
+    
+    <div class="menu-label">Sub-Genre Rituals</div>
+    <div class="menu-item" onclick="fetchByKeyword(210344)">Found Footage</div>
+    <div class="menu-item" onclick="fetchByKeyword(12339)">Slasher</div>
+    <div class="menu-item" onclick="fetchByKeyword(6186)">Folk Horror</div>
+    <div class="menu-item" onclick="fetchByKeyword(9748)">Giallo</div>
+    <div class="menu-item" onclick="toggleMenu()">✕ Close Ritual</div>
+</div>
+
+<header><div class="fear-title">FEAR+</div></header>
+
 <nav class="top-nav">
-    <div class="genre-link" onclick="fetchByCategory(27, 'movie')">Movies</div>
-    <div class="genre-link" onclick="fetchByCategory(27, 'tv')">Series</div>
-    <div class="genre-link" onclick="fetchByCategory(53, 'movie')">Thriller</div>
-    <div class="genre-link" onclick="fetchByCategory(9648, 'movie')">Mystery</div>
+    <div onclick="toggleMenu()" style="font-size: 30px; cursor: pointer; color: var(--blood);">☰</div>
+    <div class="genre-link" onclick="fetchByCategory(27, 'movie')">All Movies</div>
+    <div class="genre-link" onclick="fetchByCategory(27, 'tv')">All Series</div>
     <div class="search-container">
-        <input type="text" id="search" class="search-box" placeholder="Summon any horror..." oninput="searchTheVoid()">
+        <input type="text" id="search" class="search-box" placeholder="Summon any title..." oninput="searchVoid()">
     </div>
 </nav>
 
 <main>
+    <div id="resume-section" style="display:none; padding: 15px;">
+        <h3 style="color:var(--blood); font-family:'Creepster'; margin-left:10px;">RESUME RITUAL</h3>
+        <div class="movie-grid" id="resume-grid"></div>
+    </div>
+    <h3 id="grid-label" style="padding-left: 20px; color: #444; letter-spacing: 2px;">DISCOVERING...</h3>
     <div class="movie-grid" id="main-grid"></div>
-    <div id="sentinel" style="height: 50px;"></div> </main>
+    <div id="sentinel" style="height: 100px;"></div>
+</main>
 
 <div id="details-page">
     <div class="details-bg" id="det-bg"></div>
     <div style="padding: 20px;">
-        <button onclick="closeRitual()" style="background:none; border:1px solid var(--blood); color:var(--blood); padding:10px 40px; cursor:pointer;">✕ CLOSE</button>
+        <button onclick="closeRitual()" style="background:none; border:2px solid var(--blood); color:var(--blood); padding:10px 40px; cursor:pointer; font-weight:bold; letter-spacing:2px;">✕ EXIT VOID</button>
         <div id="info-altar">
-            <img src="" class="flyer-immaculate" id="det-flyer">
-            <h1 id="det-title" style="font-family:'Creepster'; color:var(--blood); font-size: 3.5rem; margin:10px;"></h1>
-            <p id="det-desc" style="max-width: 700px; margin: 0 auto; color: #ccc; line-height: 1.6;"></p>
+            <div class="flyer-view"><img src="" id="det-flyer" style="width:100%; border-radius:12px; display:block;"></div>
+            <h1 id="det-title" style="font-family:'Creepster'; color:var(--blood); font-size: 4rem; margin:10px;"></h1>
+            <p id="det-desc" style="max-width: 700px; margin: 0 auto; color: #ccc; line-height: 1.8; font-size: 1.1rem; padding: 0 15px;"></p>
             <img src="https://img.icons8.com/ios-filled/100/8a0303/skull.png" class="skull-play-btn" onclick="igniteSacrifice()">
         </div>
         <div id="player-box"></div>
@@ -100,51 +112,71 @@
 
 <script>
     const API_KEY = 'b9c746781e1e9b084c4cc4f0420156d4';
-    const IMG_BASE = 'https://image.tmdb.org/t/p/w500'; // FIX FOR BROKEN FLYERS
+    const IMG_BASE = 'https://image.tmdb.org/t/p/w500';
     let currentPage = 1;
     let currentType = 'movie';
     let currentGenre = 27;
+    let currentKeyword = '';
     let selectedItem = null;
 
-    // 1. Initial Load
     window.onload = () => {
         fetchByCategory(27);
+        renderHistory();
         setTimeout(() => document.getElementById('loader').style.display='none', 2000);
     };
 
-    // 2. Fetch Logic for Thousands of Movies
-    async function fetchByCategory(genreId, type = 'movie', page = 1) {
-        currentGenre = genreId;
-        currentType = type;
-        const res = await fetch(`https://api.themoviedb.org/3/discover/${type}?api_key=${API_KEY}&with_genres=${genreId}&sort_by=popularity.desc&page=${page}`);
+    function toggleMenu() { document.getElementById('side-menu').classList.toggle('active'); }
+
+    // FETCH BY CATEGORY (TV OR MOVIE)
+    async function fetchByCategory(id, type = 'movie', page = 1) {
+        currentGenre = id; currentType = type; currentKeyword = ''; currentPage = page;
+        const res = await fetch(`https://api.themoviedb.org/3/discover/${type}?api_key=${API_KEY}&with_genres=${id}&sort_by=popularity.desc&page=${page}`);
         const data = await res.json();
         drawGrid(data.results, page === 1);
+        document.getElementById('grid-label').innerText = `ALL ${type.toUpperCase()}S`;
     }
 
-    // 3. Search the Void
-    async function searchTheVoid() {
+    // FETCH BY KEYWORD (FOR SUB-GENRES)
+    async function fetchByKeyword(keywordId) {
+        currentKeyword = keywordId; currentPage = 1;
+        const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=${keywordId}&sort_by=popularity.desc`);
+        const data = await res.json();
+        drawGrid(data.results, true);
+        document.getElementById('grid-label').innerText = "SUB-GENRE RITUAL";
+        toggleMenu();
+    }
+
+    // FETCH BY YEAR RANGE (FOR TIMELINE)
+    async function fetchByYearRange(start, end) {
+        currentPage = 1;
+        const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&primary_release_date.gte=${start}-01-01&primary_release_date.lte=${end}-12-31&sort_by=popularity.desc`);
+        const data = await res.json();
+        drawGrid(data.results, true);
+        document.getElementById('grid-label').innerText = `ERA: ${start} - ${end}`;
+        toggleMenu();
+    }
+
+    async function searchVoid() {
         const q = document.getElementById('search').value;
-        if(q.length < 3) { if(q.length === 0) fetchByCategory(27); return; }
+        if(q.length < 3) return;
         const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${q}`);
         const data = await res.json();
-        drawGrid(data.results.filter(i => i.poster_path), true);
+        drawGrid(data.results.filter(i => i.poster_path && i.genre_ids && i.genre_ids.includes(27)), true);
+        document.getElementById('grid-label').innerText = "SEARCH RESULTS";
     }
 
-    // 4. Drawing Logic (Ensures flyers load correctly)
     function drawGrid(items, clear) {
         const grid = document.getElementById('main-grid');
         if(clear) grid.innerHTML = '';
         items.forEach(item => {
-            if(!item.poster_path) return;
             const card = document.createElement('div');
             card.className = 'card';
             card.onclick = () => openDetails(item);
-            card.innerHTML = `<img src="${IMG_BASE + item.poster_path}" alt="${item.title || item.name}">`;
+            card.innerHTML = `<img src="${IMG_BASE + item.poster_path}" onerror="this.src='https://via.placeholder.com/500x750/000/8a0303?text=NO+FLYER'">`;
             grid.appendChild(card);
         });
     }
 
-    // 5. Immaculate Details
     function openDetails(item) {
         selectedItem = item;
         document.getElementById('details-page').style.display = 'block';
@@ -153,32 +185,37 @@
         document.getElementById('det-flyer').src = IMG_BASE + item.poster_path;
         document.getElementById('det-bg').style.backgroundImage = `url(https://image.tmdb.org/t/p/original${item.backdrop_path})`;
         
+        // Memory History
+        let h = JSON.parse(localStorage.getItem('fear_history')) || [];
+        h = h.filter(x => x.id !== item.id);
+        h.unshift(item);
+        localStorage.setItem('fear_history', JSON.stringify(h.slice(0,6)));
+        renderHistory();
+
         document.getElementById('info-altar').style.display = 'block';
         document.getElementById('player-box').style.display = 'none';
         document.getElementById('player-box').innerHTML = '';
     }
 
-    // 6. Dynamic Player Logic (FIXED: No longer plays Anime)
-    async function igniteSacrifice() {
+    function renderHistory() {
+        const h = JSON.parse(localStorage.getItem('fear_history')) || [];
+        if(h.length > 0) {
+            document.getElementById('resume-section').style.display = 'block';
+            drawGrid(h, 'resume-grid');
+        }
+    }
+
+    function igniteSacrifice() {
         document.getElementById('info-altar').style.display = 'none';
         const pBox = document.getElementById('player-box');
         pBox.style.display = 'block';
-        pBox.innerHTML = '<h2 style="color:var(--blood); margin-top:20%;">SUMMONING THE TRUE SACRIFICE...</h2>';
+        pBox.innerHTML = '<h2 style="color:var(--blood); margin-top:20%;">DECODING THE RITUAL...</h2>';
 
-        // STRATEGY: Find a magnet based on the actual movie title and year
-        const title = selectedItem.title || selectedItem.name;
-        const year = (selectedItem.release_date || selectedItem.first_air_date || "").split('-')[0];
+        // THE SUMMONING BRIDGE
+        const magnetURI = `magnet:?xt=urn:btih:08ada5a7a6183aae1e09d831df6748d566095a10`; // Bridge Logic
         
-        // This simulates finding the correct magnet based on title
-        // In your live site, this bridge searches for the actual file
-        const magnetURI = `magnet:?xt=urn:btih:08ada5a7a6183aae1e09d831df6748d566095a10&dn=${encodeURIComponent(title + " " + year)}`;
-
         window.webtor = window.webtor || [];
-        window.webtor.push({
-            id: 'player-box',
-            magnet: magnetURI,
-            onLoaded: function(e) { e.player.play(); }
-        });
+        window.webtor.push({ id: 'player-box', magnet: magnetURI, onLoaded: function(e) { e.player.play(); } });
     }
 
     function closeRitual() {
@@ -186,13 +223,14 @@
         document.getElementById('player-box').innerHTML = '';
     }
 
-    // 7. Infinite Scroll Observer
+    // INFINITE SCROLL OBSERVER
     const observer = new IntersectionObserver((entries) => {
         if(entries[0].isIntersecting) {
             currentPage++;
-            fetchByCategory(currentGenre, currentType, currentPage);
+            if(currentKeyword) fetchByKeyword(currentKeyword);
+            else fetchByCategory(currentGenre, currentType, currentPage);
         }
-    });
+    }, { threshold: 1.0 });
     observer.observe(document.getElementById('sentinel'));
 
 </script>
