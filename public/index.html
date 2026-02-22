@@ -8,65 +8,99 @@
     <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
     <style>
         :root { --blood: #8a0303; --void: #050505; }
+        * { box-sizing: border-box; }
         body { margin: 0; background: var(--void); color: white; font-family: -apple-system, sans-serif; overflow-x: hidden; }
 
-        /* Immaculate Details Overlay */
+        /* Loader */
+        #loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: black; display: flex; flex-direction: column; 
+            justify-content: center; align-items: center; z-index: 9999;
+        }
+        .skull-pulse { width: 80px; filter: invert(1) sepia(1) saturate(10000%) hue-rotate(0deg); animation: pulse 1.2s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+        /* Banner */
+        header {
+            width: 100%; height: 70vh;
+            background: linear-gradient(to bottom, transparent, var(--void)), url('IMG_8238.jpeg') no-repeat center center;
+            background-size: cover; position: relative; border-bottom: 3px solid var(--blood);
+        }
+        .fear-title {
+            position: absolute; bottom: 20px; left: 20px;
+            font-size: 60px; font-family: 'Creepster', cursive; color: var(--blood);
+        }
+
+        /* Nav */
+        nav {
+            background: rgba(0,0,0,0.9); padding: 15px; display: flex; 
+            overflow-x: auto; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #222;
+        }
+        .genre { margin-right: 20px; color: #888; cursor: pointer; font-weight: bold; text-transform: uppercase; }
+
+        /* Grid */
+        .movie-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 10px; }
+        @media (min-width: 1024px) { .movie-grid { grid-template-columns: repeat(6, 1fr); } }
+        .card { border: 1px solid #222; overflow: hidden; }
+        .card img { width: 100%; display: block; }
+
+        /* IMMACULATE DETAILS PAGE */
         #details-page {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--void); z-index: 500; display: none; overflow-y: auto;
+            background: var(--void); z-index: 2000; display: none; overflow-y: auto;
         }
-
-        /* Sexy Background Blur */
         .details-bg {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background-size: cover; background-position: center;
-            filter: blur(40px) brightness(0.3); z-index: -1;
+            filter: blur(50px) brightness(0.2); z-index: -1;
         }
-
-        .altar { padding: 20px; max-width: 1000px; margin: auto; text-align: center; }
-
-        /* The Sexy Flyer View */
-        .flyer-container {
-            width: 280px; margin: 20px auto;
-            box-shadow: 0 0 50px rgba(0,0,0,0.8), 0 0 20px var(--blood);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 10px; overflow: hidden;
+        .altar { padding: 20px; text-align: center; }
+        .flyer-sexier {
+            width: 250px; margin: 20px auto; border-radius: 10px;
+            box-shadow: 0 0 30px var(--blood); border: 1px solid rgba(255,255,255,0.1);
         }
-        .flyer-container img { width: 100%; display: block; }
+        .flyer-sexier img { width: 100%; display: block; }
 
         /* Skull Play Button */
         .skull-play {
-            width: 100px; cursor: pointer; transition: 0.3s;
-            filter: drop-shadow(0 0 10px var(--blood));
-            margin: 20px auto; display: block;
+            width: 120px; margin: 30px auto; cursor: pointer;
+            filter: drop-shadow(0 0 10px var(--blood)); transition: 0.3s;
         }
-        .skull-play:hover { transform: scale(1.1) rotate(5deg); filter: drop-shadow(0 0 20px red); }
+        .skull-play:hover { transform: scale(1.1); filter: drop-shadow(0 0 20px red); }
 
-        #player-box { width: 100%; aspect-ratio: 16/9; background: #000; border: 2px solid var(--blood); display: none; margin-top: 20px; }
-        video { width: 100%; height: 100%; outline: none; }
-
-        /* UI elements */
-        .meta-data h1 { font-family: 'Creepster'; font-size: 3rem; color: var(--blood); margin: 10px 0; }
-        .meta-data p { color: #ccc; line-height: 1.6; font-size: 1.1rem; }
+        /* Player */
+        #player-box { width: 100%; aspect-ratio: 16/9; background: #000; display: none; border: 2px solid var(--blood); }
+        video { width: 100%; height: 100%; }
     </style>
 </head>
 <body>
 
+<div id="loader">
+    <img src="https://img.icons8.com/ios-filled/100/8a0303/skull.png" class="skull-pulse">
+    <h2 style="color:var(--blood); font-family: 'Creepster';">SUMMONING...</h2>
+</div>
+
+<header><div class="fear-title">FEAR+</div></header>
+
+<nav id="top-nav"></nav>
+
+<main id="main-content">
+    <div class="movie-grid" id="ritual-grid"></div>
+</main>
+
 <div id="details-page">
     <div class="details-bg" id="det-bg"></div>
     <div class="altar">
-        <button onclick="closeRitual()" style="background:none; border:1px solid red; color:white; padding:10px; cursor:pointer; width:100%; margin-bottom:20px;">✕ LEAVE THE VOID</button>
+        <button onclick="closeRitual()" style="background:none; border:1px solid red; color:white; padding:10px; width:100%; margin-bottom:20px;">✕ CLOSE</button>
         
-        <div class="flyer-container" id="flyer-view">
+        <div class="flyer-sexier">
             <img src="" id="det-flyer">
         </div>
 
-        <div class="meta-data">
-            <h1 id="det-title"></h1>
-            <p id="det-desc"></p>
-        </div>
+        <h1 id="det-title" style="font-family:'Creepster'; color:var(--blood); font-size: 3rem;"></h1>
+        <p id="det-desc" style="color:#ccc; font-size: 1.1rem; max-width: 600px; margin: 0 auto;"></p>
 
-        <img src="https://img.icons8.com/ios-filled/100/8a0303/skull.png" class="skull-play" id="play-btn" onclick="startStream()">
+        <img src="https://img.icons8.com/ios-filled/100/8a0303/skull.png" class="skull-play" onclick="startSacrifice()">
 
         <div id="player-box"></div>
     </div>
@@ -75,42 +109,55 @@
 <script>
     const API_KEY = 'b9c746781e1e9b084c4cc4f0420156d4';
     const client = new WebTorrent();
-    let currentItem = null;
+    let selectedHorror = null;
 
-    function openRitual(item) {
-        currentItem = item;
-        document.getElementById('details-page').style.display = 'block';
-        document.getElementById('det-title').innerText = item.title || item.name;
-        document.getElementById('det-desc').innerText = item.overview;
-        document.getElementById('det-flyer').src = "https://image.tmdb.org/t/p/w500" + item.poster_path;
-        document.getElementById('det-bg').style.backgroundImage = `url(https://image.tmdb.org/t/p/original${item.backdrop_path})`;
-        
-        // Reset View
-        document.getElementById('player-box').style.display = 'none';
-        document.getElementById('play-btn').style.display = 'block';
-        document.getElementById('flyer-view').style.display = 'block';
+    // 1. Initial Load
+    window.onload = () => {
+        fetchHorrors();
+        setTimeout(() => document.getElementById('loader').style.display='none', 2000);
+    };
+
+    async function fetchHorrors() {
+        const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&sort_by=popularity.desc`);
+        const data = await res.json();
+        const grid = document.getElementById('ritual-grid');
+        grid.innerHTML = data.results.map(movie => `
+            <div class="card" onclick='openDetails(${JSON.stringify(movie).replace(/'/g, "&apos;")})'>
+                <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}">
+            </div>
+        `).join('');
     }
 
-    async function startStream() {
-        const title = currentItem.title || currentItem.name;
-        document.getElementById('play-btn').style.display = 'none';
-        document.getElementById('flyer-view').style.display = 'none';
-        document.getElementById('player-box').style.display = 'block';
-        document.getElementById('player-box').innerHTML = "⏳ SUMMONING STREAM...";
+    function openDetails(movie) {
+        selectedHorror = movie;
+        document.getElementById('details-page').style.display = 'block';
+        document.getElementById('det-title').innerText = movie.title;
+        document.getElementById('det-desc').innerText = movie.overview;
+        document.getElementById('det-flyer').src = "https://image.tmdb.org/t/p/w500" + movie.poster_path;
+        document.getElementById('det-bg').style.backgroundImage = `url(https://image.tmdb.org/t/p/original${movie.backdrop_path})`;
+        
+        // Reset view
+        document.getElementById('player-box').style.display = 'none';
+        document.getElementById('player-box').innerHTML = '';
+    }
 
-        // SEARCH STRATEGY: 
-        // We query a public helper to find the best magnet link for the title.
-        // For legal and stability reasons, you'd replace this with your chosen Torrent API.
-        const magnetURI = `magnet:?xt=urn:btih:EXAMPLE_HASH&dn=${encodeURIComponent(title)}`;
+    function startSacrifice() {
+        const pBox = document.getElementById('player-box');
+        pBox.style.display = 'block';
+        pBox.innerHTML = '<h2 style="color:red; margin-top:20%;">LOCATING HOST...</h2>';
+        
+        // NOTE: You need a real Magnet URI here. 
+        // For testing, this uses a legal open-source Big Buck Bunny torrent.
+        const magnetURI = 'magnet:?xt=urn:btih:dd8255ecdc7ca55fb0bbf81323d87062db1f6d1c&dn=Big+Buck+Bunny&tr=udp%3A%2F%2Fexplodie.org%3A6969';
 
-        client.add(magnetURI, function (torrent) {
-            const file = torrent.files.find(file => file.name.endsWith('.mp4'));
+        client.add(magnetURI, (torrent) => {
+            const file = torrent.files.find(f => f.name.endsWith('.mp4'));
+            pBox.innerHTML = '';
             file.appendTo('#player-box', { autoplay: true, muted: false });
             
-            // Force Fullscreen & Unmute
-            const video = document.querySelector('video');
-            video.volume = 1.0;
-            video.onplay = () => { video.requestFullscreen(); };
+            // Auto-Fullscreen
+            const v = pBox.querySelector('video');
+            v.onplay = () => v.requestFullscreen();
         });
     }
 
