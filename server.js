@@ -9,6 +9,4 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(PORT, () => {
-    console.log(`The ritual has begun on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Fear+ ritual active on ${PORT}`));
