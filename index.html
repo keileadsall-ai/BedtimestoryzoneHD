@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>BedtimeStoryZoneHD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,900;1,900&family=Inter:wght@300;400;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold: #D4AF37; --red: #E50914; --black: #050505; }
+        body { background: var(--black); color: white; font-family: 'Inter', sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
+        
+        /* The Witching Hour Filter (Applied via JS) */
+        .witching-hour { filter: sepia(1) saturate(2) hue-rotate(-50deg) contrast(1.2); }
+
+        #loader { position: fixed; inset: 0; background: var(--black); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s cubic-bezier(0.95, 0.05, 0.795, 0.035); }
+        .loader-medusa { width: 140px; height: 140px; border-radius: 50%; background: url('logo.png'); background-size: cover; border: 3px solid var(--gold); box-shadow: 0 0 60px var(--red); animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(0.9); opacity: 0.6; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(0.9); opacity: 0.6; } }
+
+        /* Glitch Animation for Loader */
+        .glitch-text { animation: glitch 1s linear infinite; }
+        @keyframes glitch { 2% { text-shadow: 2px 0 red, -2px 0 blue; } 4% { text-shadow: -2px 0 red, 2px 0 blue; } 6% { text-shadow: 0 0 transparent; } }
+
+        #side-menu { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: #000; border-right: 1px solid var(--gold); z-index: 3000; transform: translateX(-100%); transition: 0.4s ease; box-shadow: 20px 0 50px rgba(0,0,0,0.9); }
+        .menu-open { transform: translateX(0) !important; }
+
+        .hero-banner { height: 55vh; position: relative; background: linear-gradient(to bottom, transparent, var(--black)), url('cursed_bg.jpg'); background-size: cover; background-position: center; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 30px; }
+        .zonhd-logo { font-family: 'Playfair Display', serif; font-size: clamp(2.5rem, 10vw, 4.5rem); color: var(--gold); text-shadow: 0 0 30px var(--red); font-style: italic; line-height: 0.9; text-align: center; }
+
+        .movie-card { aspect-ratio: 2/3; border-radius: 6px; overflow: hidden; cursor: pointer; transition: 0.4s; border: 2px solid transparent; }
+        .focusable:focus { outline: none; border-color: var(--red) !important; transform: scale(1.1); z-index: 100; box-shadow: 0 0 40px rgba(229, 9, 20, 0.6); }
+
+        #selector-overlay { display: none; position: fixed; inset: 0; background: #000; z-index: 4000; overflow-y: auto; }
+        #details-backdrop { position: absolute; top: 0; width: 100%; height: 100%; opacity: 0.35; background-size: cover; background-position: center; filter: blur(50px); }
+        
+        .rating-badge { border: 1.5px solid var(--gold); color: var(--gold); padding: 2px 8px; border-radius: 4px; font-weight: 900; }
+        .panic-btn { background: linear-gradient(45deg, #4b0000, #ff0000); color: white; padding: 12px; border-radius: 4px; font-weight: 800; border: 2px solid var(--gold); animation: pulse 2s infinite; }
+    </style>
+</head>
+<body class="no-scrollbar">
+
+    <div id="loader">
+        <div class="loader-medusa"></div>
+        <p class="glitch-text text-red-600 mt-8 tracking-[0.6em] font-black uppercase text-xs">Accessing Forbidden Archive...</p>
+    </div>
+
+    <div id="side-menu" class="p-8 no-scrollbar overflow-y-auto">
+        <h2 class="text-red-600 font-black mb-6 italic border-b border-red-900 pb-2 uppercase text-sm">Phobia Vault</h2>
+        <div id="nav-phobias" class="flex flex-col gap-5 text-zinc-500 font-bold uppercase text-[10px] tracking-widest mb-10">
+            <button class="focusable text-left hover:text-white" onclick="setFilter('keyword', '236633')">Thalassophobia (Ocean)</button>
+            <button class="focusable text-left hover:text-white" onclick="setFilter('keyword', '283045')">Megalophobia (Giants)</button>
+            <button class="focusable text-left hover:text-white" onclick="setFilter('keyword', '195661')">Cleithrophobia (Trapped)</button>
+            <button class="focusable text-left hover:text-white" onclick="setFilter('keyword', '264562')">Chronophobia (Time)</button>
+            <button class="focusable text-left text-red-500 font-black" onclick="triggerPanic()">⚠️ RANDOM SACRIFICE</button>
+        </div>
+        <h2 class="text-gold font-black mb-6 italic border-b border-zinc-800 pb-2 uppercase text-sm">The Necronomicon</h2>
+        <div id="nav-subgenres" class="flex flex-col gap-5 text-zinc-400 font-bold uppercase text-[10px] tracking-widest">
+            <button class="focusable text-left" onclick="setFilter('cursed')">💀 THE CURSED COLLECTION</button>
+            <button class="focusable text-left" onclick="setFilter('keyword', '12339')">Slasher</button>
+            <button class="focusable text-left" onclick="setFilter('keyword', '6152')">Supernatural</button>
+            <button class="focusable text-left" onclick="setFilter('keyword', '15250')">Found Footage</button>
+            <button class="focusable text-left" onclick="setFilter('keyword', '12432')">Body Horror</button>
+            <button class="focusable text-left" onclick="setFilter('keyword', '12377')">Zombie</button>
+        </div>
+    </div>
+
+    <header class="hero-banner">
+        <h1 class="zonhd-logo">BEDTIME STORY<br>ZONE HD</h1>
+        <p id="time-warning" class="text-red-600 font-bold text-[9px] tracking-[1em] uppercase mt-4 opacity-0">The Witching Hour is Upon Us</p>
+    </header>
+
+    <div class="sticky top-0 z-[1000] bg-black/95 border-b border-zinc-900">
+        <input type="text" id="search-input" class="focusable w-[92%] mx-auto block bg-white/5 border border-red-900/30 rounded py-3 px-6 my-4 text-white outline-none" placeholder="Search the void...">
+        <nav class="flex p-4 gap-8 overflow-x-auto no-scrollbar px-6 text-[10px] font-black tracking-widest uppercase">
+            <button onclick="toggleMenu()" class="focusable text-gold text-2xl">☰</button>
+            <button onclick="setFilter('trending')" class="focusable whitespace-nowrap active-filter">Trending</button>
+            <button onclick="setFilter('keyword', '11025')" class="focusable whitespace-nowrap">Dark Animation</button>
+            <button onclick="setFilter('keyword', '210350')" class="focusable whitespace-nowrap">Psychological</button>
+            <button onclick="setFilter('keyword', '155452')" class="focusable whitespace-nowrap">Family Frights</button>
+        </nav>
+    </div>
+
+    <main id="movie-grid" class="p-4 grid grid-cols-2 md:grid-cols-6 gap-4"></main>
+    <div id="load-more-trigger" class="h-24"></div>
+
+    <div id="selector-overlay" class="no-scrollbar">
+        <div id="details-backdrop"></div>
+        <div class="relative z-10 p-6 pt-10 max-w-4xl mx-auto">
+            <button onclick="closeSelector()" class="focusable mb-6 bg-black/50 p-2 rounded-full border border-white/10"><svg width="24" height="24" fill="white" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
+            <div class="flex gap-5 mb-6">
+                <img id="details-poster" class="w-36 rounded shadow-2xl">
+                <div class="flex flex-col justify-end">
+                    <h2 id="show-title" class="text-4xl font-black mb-2 tracking-tighter"></h2>
+                    <div class="flex items-center gap-3">
+                        <span id="show-year" class="text-zinc-400 font-bold"></span>
+                        <span id="show-rating" class="rating-badge"></span>
+                        <span class="text-red-600 font-black text-[10px] tracking-widest">UNRATED</span>
+                    </div>
+                </div>
+            </div>
+            <div id="movie-action-area" class="hidden"><button id="play-movie-btn" onclick="startLuxeStream()" class="focusable btn-play-red">▶ ENTER THE NIGHTMARE</button></div>
+            <div id="tv-action-area-top" class="hidden"><button id="main-tv-btn" onclick="playCurrentEpisode()" class="focusable btn-play-red">▶ BEGIN S1 E1</button></div>
+            <p id="show-desc" class="text-zinc-400 text-sm leading-relaxed mb-10 max-w-2xl"></p>
+            <div id="tv-action-area" class="hidden"><h3 class="text-lg font-bold mb-4 border-b border-zinc-800 pb-2">Chapters</h3><div id="season-buttons" class="flex gap-3 overflow-x-auto no-scrollbar mb-6"></div><div id="episode-grid" class="flex flex-col"></div></div>
+        </div>
+    </div>
+
+    <div id="player-overlay"><button onclick="closePlayer()" class="focusable absolute top-6 left-6 z-[7000] bg-black/80 text-white px-6 py-2 rounded-full border border-red-900 font-black text-[10px]">✕ ESCAPE</button><iframe id="luxe-player" class="w-full h-full" allowfullscreen sandbox="allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-top-navigation"></iframe></div>
+
+    <script>
+        let API_KEY = '', activeType = 'trending', activeID = '', currentPage = 1, isFetching = false;
+
+        async function fetchConfig() {
+            const res = await fetch('/api/config');
+            const data = await res.json();
+            API_KEY = data.tmdb_key;
+            checkWitchingHour();
+            fetchContent(true);
+        }
+
+        // The Witching Hour Script (3 AM Logic)
+        function checkWitchingHour() {
+            const hour = new Date().getHours();
+            if (hour === 3) {
+                document.body.classList.add('witching-hour');
+                document.getElementById('time-warning').style.opacity = '1';
+                activeType = 'cursed'; 
+            }
+        }
+
+        async function fetchContent(reset = false) {
+            if (isFetching || !API_KEY) return;
+            if (reset) { currentPage = 1; document.getElementById('movie-grid').innerHTML = ''; }
+            isFetching = true;
+
+            let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&page=${currentPage}&include_adult=true&sort_by=popularity.desc`;
+            if (activeType === 'trending') url = `https://api.themoviedb.org/3/trending/all/day?api_key=${API_KEY}&page=${currentPage}`;
+            if (activeType === 'keyword') url += `&with_keywords=${activeID}`;
+            if (activeType === 'cursed') url += `&certification_country=US&certification=NR&vote_average.gte=5`;
+            
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                const grid = document.getElementById('movie-grid');
+                data.results.forEach(m => {
+                    if (m.genre_ids && !m.genre_ids.includes(27) && activeType === 'trending') return;
+                    if (!m.poster_path) return;
+                    const card = document.createElement('div');
+                    card.className = "movie-card focusable"; card.tabIndex = 0;
+                    card.onclick = () => openDetails(m.id, m.media_type || (m.first_air_date ? 'tv' : 'movie'));
+                    card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${m.poster_path}" class="w-full h-full object-cover">`;
+                    grid.appendChild(card);
+                });
+                currentPage++;
+            } catch (e) {}
+            isFetching = false;
+        }
+
+        // Panic Button Logic
+        async function triggerPanic() {
+            toggleMenu();
+            const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&include_adult=true&page=${Math.floor(Math.random() * 10) + 1}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            const random = data.results[Math.floor(Math.random() * data.results.length)];
+            openDetails(random.id, 'movie');
+        }
+
+        // Rest of your original functional logic...
+        const observer = new IntersectionObserver((entries) => { if (entries[0].isIntersecting) fetchContent(); }, { threshold: 0.1 });
+        observer.observe(document.getElementById('load-more-trigger'));
+
+        async function openDetails(id, type) {
+            const res = await fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}`);
+            const data = await res.json();
+            window.currentMedia = { id, type, s: 1, e: 1 };
+            document.getElementById('show-title').innerText = data.name || data.title;
+            document.getElementById('show-desc').innerText = data.overview;
+            document.getElementById('show-year').innerText = (data.release_date || data.first_air_date || '').split('-')[0];
+            document.getElementById('show-rating').innerText = `★ ${data.vote_average.toFixed(1)}`;
+            document.getElementById('details-poster').src = `https://image.tmdb.org/t/p/w500${data.poster_path}`;
+            document.getElementById('details-backdrop').style.backgroundImage = `url(https://image.tmdb.org/t/p/original${data.backdrop_path})`;
+            document.getElementById('movie-action-area').classList.toggle('hidden', type !== 'movie');
+            document.getElementById('tv-action-area-top').classList.toggle('hidden', type !== 'tv');
+            document.getElementById('tv-action-area').classList.toggle('hidden', type !== 'tv');
+            if (type === 'tv') renderSeasons(data);
+            document.getElementById('selector-overlay').style.display = 'block';
+        }
+
+        function renderSeasons(data) {
+            const container = document.getElementById('season-buttons'); container.innerHTML = '';
+            data.seasons.forEach(s => {
+                if (s.season_number === 0) return;
+                const btn = document.createElement('button');
+                btn.className = "focusable px-4 py-2 bg-zinc-900 rounded text-xs font-bold border border-white/5";
+                btn.innerText = `S${s.season_number}`; btn.onclick = () => loadEpisodes(data.id, s.season_number);
+                container.appendChild(btn);
+            });
+            if(container.firstChild) container.firstChild.click();
+        }
+
+        async function loadEpisodes(showId, seasonNum) {
+            const res = await fetch(`https://api.themoviedb.org/3/tv/${showId}/season/${seasonNum}?api_key=${API_KEY}`);
+            const data = await res.json();
+            const grid = document.getElementById('episode-grid'); grid.innerHTML = '';
+            data.episodes.forEach(e => {
+                const epRow = document.createElement('div'); epRow.className = "episode-row p-3 flex gap-4 focusable";
+                epRow.onclick = () => { window.currentMedia.s = seasonNum; window.currentMedia.e = e.episode_number; startLuxeStream(); };
+                epRow.innerHTML = `<div class="w-24 h-14 bg-zinc-800 rounded"></div><div><p class="text-xs font-bold">E${e.episode_number}: ${e.name}</p></div>`;
+                grid.appendChild(epRow);
+            });
+        }
+
+        function startLuxeStream() {
+            const { type, id, s, e } = window.currentMedia;
+            const iframe = document.getElementById('luxe-player');
+            iframe.src = type === 'movie' ? `https://vidsrc.cc/v2/embed/movie/${id}` : `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}`;
+            document.getElementById('player-overlay').style.display = 'block';
+        }
+
+        function closeSelector() { document.getElementById('selector-overlay').style.display = 'none'; }
+        function closePlayer() { document.getElementById('luxe-player').src = ""; document.getElementById('player-overlay').style.display = 'none'; }
+        function toggleMenu() { document.getElementById('side-menu').classList.toggle('menu-open'); }
+        function setFilter(type, id = '') { activeType = type; activeID = id; fetchContent(true); if(type !== 'panic') toggleMenu(); window.scrollTo(0,0); }
+
+        window.onload = () => { setTimeout(() => { document.getElementById('loader').style.opacity = '0'; setTimeout(() => document.getElementById('loader').remove(), 800); }, 1500); fetchConfig(); };
+
+        // Simple Remote Nav
+        document.addEventListener('keydown', e => {
+            const cur = document.activeElement;
+            const targets = Array.from(document.querySelectorAll('.focusable')).filter(el => el.offsetParent !== null);
+            if (e.key === 'Backspace') { closePlayer(); closeSelector(); return; }
+            if (e.key === 'Enter') { cur.click(); return; }
+            let dir = e.key.replace('Arrow','').toLowerCase();
+            if (['up','down','left','right'].includes(dir)) {
+                e.preventDefault();
+                let best = null, min = Infinity;
+                const r1 = cur.getBoundingClientRect(); const c1 = { x: r1.left + r1.width / 2, y: r1.top + r1.height / 2 };
+                targets.forEach(t => {
+                    if (t === cur) return;
+                    const r2 = t.getBoundingClientRect(); const c2 = { x: r2.left + r2.width / 2, y: r2.top + r2.height / 2 };
+                    if (dir === 'up' && c2.y >= c1.y) return; if (dir === 'down' && c2.y <= c1.y) return;
+                    if (dir === 'left' && c2.x >= c1.x) return; if (dir === 'right' && c2.x <= c1.x) return;
+                    const d = Math.sqrt(Math.pow(c2.x - c1.x, 2) + Math.pow(c2.y - c1.y, 2));
+                    if (d < min) { min = d; best = t; }
+                });
+                if (best) best.focus();
+            }
+        });
+    </script>
+</body>
+</html>
