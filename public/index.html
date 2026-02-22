@@ -3,187 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Fear+ | The Ritual</title>
     <script src="https://cdn.jsdelivr.net/npm/webtorrent@latest/webtorrent.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
     <style>
-        :root { --blood: #8a0303; --void: #050505; --smoke: #1a1a1a; }
-        
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --blood: #8a0303; --void: #050505; }
         body { margin: 0; background: var(--void); color: white; font-family: -apple-system, sans-serif; overflow-x: hidden; }
 
-        /* Pulsating Skull Loader */
-        #loader {
+        /* Immaculate Details Overlay */
+        #details-page {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: black; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000;
+            background: var(--void); z-index: 500; display: none; overflow-y: auto;
         }
-        .skull { width: 80px; filter: invert(1) sepia(1) saturate(10000%) hue-rotate(0deg); animation: pulse 1.2s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 0.8; } }
 
-        /* Banner: iPhone vs TV */
-        header {
-            width: 100%; height: 80vh;
-            background: linear-gradient(to bottom, transparent, var(--void)), url('IMG_8238.jpeg') no-repeat center center;
-            background-size: cover; position: relative; border-bottom: 2px solid var(--blood);
+        /* Sexy Background Blur */
+        .details-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center;
+            filter: blur(40px) brightness(0.3); z-index: -1;
         }
-        @media (min-width: 1024px) { header { height: 65vh; } }
 
-        /* Bleeding Title */
-        .fear-title {
-            position: absolute; bottom: 20px; left: 20px;
-            font-size: 55px; font-family: 'Creepster', cursive;
-            color: var(--blood); text-shadow: 0 0 15px black;
-        }
-        .fear-title::after {
-            content: "FEAR+"; position: absolute; top: 0; left: 0; width: 100%; height: 0;
-            -webkit-text-fill-color: #ff0000; border-bottom: 2px solid #ff0000;
-            overflow: hidden; animation: bleed 6s infinite alternate ease-in-out; filter: blur(1px);
-        }
-        @keyframes bleed { 0% { height: 0%; } 100% { height: 100%; } }
+        .altar { padding: 20px; max-width: 1000px; margin: auto; text-align: center; }
 
-        /* Responsive Nav */
-        nav.top-menu {
-            background: rgba(0,0,0,0.95); padding: 12px; display: flex; align-items: center; 
-            overflow-x: auto; white-space: nowrap; position: sticky; top: 0; z-index: 100;
-            scrollbar-width: none; border-bottom: 1px solid #222;
+        /* The Sexy Flyer View */
+        .flyer-container {
+            width: 280px; margin: 20px auto;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8), 0 0 20px var(--blood);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px; overflow: hidden;
         }
-        nav::-webkit-scrollbar { display: none; }
-        .genre-link { padding: 8px 15px; margin-right: 10px; font-size: 14px; text-transform: uppercase; color: #888; font-weight: bold; cursor: pointer; }
-        .genre-link:hover { color: var(--blood); }
-        .search-box { margin-left: auto; background: #111; border: 1px solid #333; color: white; border-radius: 20px; padding: 6px 15px; outline: none; width: 150px; }
+        .flyer-container img { width: 100%; display: block; }
 
-        /* Grids: 2 columns Mobile / 6 columns TV */
-        .movie-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 10px; }
-        @media (min-width: 1024px) { .movie-grid { grid-template-columns: repeat(6, 1fr); gap: 20px; padding: 40px; } }
-        
-        .card { background: #111; border: 1px solid #222; overflow: hidden; position: relative; transition: 0.3s; }
-        .card img { width: 100%; display: block; }
-        .card:active { transform: scale(0.95); } /* iPhone touch feedback */
-
-        /* Details & Player */
-        #details-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--void); z-index: 500; display: none; overflow-y: auto; }
-        .altar { padding: 20px; max-width: 1200px; margin: auto; }
-        #player-box { width: 100%; aspect-ratio: 16/9; background: #000; border: 1px solid var(--blood); display: flex; align-items: center; justify-content: center; }
-        
-        /* Landscape Optimized */
-        @media (orientation: landscape) and (max-width: 1000px) {
-            .altar { padding: 0; }
-            #player-box { height: 100vh; border: none; margin: 0; }
-            .meta-data { display: none; } /* Hide text when watching in landscape mobile */
+        /* Skull Play Button */
+        .skull-play {
+            width: 100px; cursor: pointer; transition: 0.3s;
+            filter: drop-shadow(0 0 10px var(--blood));
+            margin: 20px auto; display: block;
         }
+        .skull-play:hover { transform: scale(1.1) rotate(5deg); filter: drop-shadow(0 0 20px red); }
+
+        #player-box { width: 100%; aspect-ratio: 16/9; background: #000; border: 2px solid var(--blood); display: none; margin-top: 20px; }
+        video { width: 100%; height: 100%; outline: none; }
+
+        /* UI elements */
+        .meta-data h1 { font-family: 'Creepster'; font-size: 3rem; color: var(--blood); margin: 10px 0; }
+        .meta-data p { color: #ccc; line-height: 1.6; font-size: 1.1rem; }
     </style>
 </head>
 <body>
 
-<div id="loader">
-    <img src="https://img.icons8.com/ios-filled/100/8a0303/skull.png" class="skull">
-    <h2 style="color:var(--blood); font-family: 'Creepster'; margin-top:20px;">SUMMONING...</h2>
-</div>
-
-<header><div class="fear-title">FEAR+</div></header>
-
-<nav class="top-menu">
-    <div class="genre-link" onclick="fetchRitual('movie', 27)">Movies</div>
-    <div class="genre-link" onclick="fetchRitual('tv', 27)">Series</div>
-    <div class="genre-link" onclick="fetchRitual('movie', 53)">Thriller</div>
-    <div class="genre-link" onclick="fetchRitual('movie', 9648)">Mystery</div>
-    <input type="text" class="search-box" id="search" placeholder="Search..." oninput="searchRitual()">
-</nav>
-
-<section id="continue-section" style="display:none; padding: 10px;">
-    <h3 style="color:var(--blood); margin-left:10px;">RESUME</h3>
-    <div class="movie-grid" id="continue-grid"></div>
-</section>
-
-<main>
-    <h3 style="padding-left: 20px; color: #444;">TRENDING SACRIFICES</h3>
-    <div class="movie-grid" id="main-grid"></div>
-</main>
-
 <div id="details-page">
+    <div class="details-bg" id="det-bg"></div>
     <div class="altar">
-        <button onclick="closeRitual()" style="color:white; background:none; border:1px solid red; padding:10px 20px; margin-bottom:15px; width: 100%;">✕ EXIT VOID</button>
-        <div id="player-box"></div>
-        <div class="meta-data">
-            <h1 id="det-title" style="color:var(--blood)"></h1>
-            <p id="det-desc" style="color:#888;"></p>
-            <div id="tv-controls" style="display:none;">
-                <h4>EPISODES</h4>
-                <div id="episodes" style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 5px;"></div>
-            </div>
+        <button onclick="closeRitual()" style="background:none; border:1px solid red; color:white; padding:10px; cursor:pointer; width:100%; margin-bottom:20px;">✕ LEAVE THE VOID</button>
+        
+        <div class="flyer-container" id="flyer-view">
+            <img src="" id="det-flyer">
         </div>
+
+        <div class="meta-data">
+            <h1 id="det-title"></h1>
+            <p id="det-desc"></p>
+        </div>
+
+        <img src="https://img.icons8.com/ios-filled/100/8a0303/skull.png" class="skull-play" id="play-btn" onclick="startStream()">
+
+        <div id="player-box"></div>
     </div>
 </div>
 
 <script>
     const API_KEY = 'b9c746781e1e9b084c4cc4f0420156d4';
-    const BASE_URL = 'https://api.themoviedb.org/3';
     const client = new WebTorrent();
-
-    window.onload = () => {
-        setTimeout(() => document.getElementById('loader').style.display='none', 2000);
-        fetchRitual('movie', 27);
-        renderContinue();
-    };
-
-    async function fetchRitual(type, genreId) {
-        const res = await fetch(`${BASE_URL}/discover/${type}?api_key=${API_KEY}&with_genres=${genreId}&sort_by=popularity.desc`);
-        const data = await res.json();
-        drawGrid(data.results, 'main-grid');
-    }
-
-    async function searchRitual() {
-        const q = document.getElementById('search').value;
-        if(q.length < 3) { if(q.length === 0) fetchRitual('movie', 27); return; }
-        const res = await fetch(`${BASE_URL}/search/multi?api_key=${API_KEY}&query=${q}`);
-        const data = await res.json();
-        drawGrid(data.results.filter(i => i.poster_path), 'main-grid');
-    }
-
-    function drawGrid(items, gridId) {
-        const grid = document.getElementById(gridId);
-        grid.innerHTML = items.map(item => `
-            <div class="card" onclick='openRitual(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
-                <img src="https://image.tmdb.org/t/p/w500${item.poster_path}">
-            </div>
-        `).join('');
-    }
+    let currentItem = null;
 
     function openRitual(item) {
+        currentItem = item;
         document.getElementById('details-page').style.display = 'block';
         document.getElementById('det-title').innerText = item.title || item.name;
         document.getElementById('det-desc').innerText = item.overview;
+        document.getElementById('det-flyer').src = "https://image.tmdb.org/t/p/w500" + item.poster_path;
+        document.getElementById('det-bg').style.backgroundImage = `url(https://image.tmdb.org/t/p/original${item.backdrop_path})`;
         
-        let history = JSON.parse(localStorage.getItem('fear_history')) || [];
-        history = history.filter(h => h.id !== item.id);
-        history.unshift(item);
-        localStorage.setItem('fear_history', JSON.stringify(history.slice(0,4)));
-        renderContinue();
-
-        document.getElementById('player-box').innerHTML = '<h3 style="color:red">SACRIFICE COMMENCING...</h3>';
-        
-        if(item.first_air_date) {
-            document.getElementById('tv-controls').style.display = 'block';
-            let eps = '';
-            for(let i=1; i<=12; i++) eps += `<button style="background:#222; color:white; border:none; padding:10px;">E${i}</button>`;
-            document.getElementById('episodes').innerHTML = eps;
-        } else {
-            document.getElementById('tv-controls').style.display = 'none';
-        }
+        // Reset View
+        document.getElementById('player-box').style.display = 'none';
+        document.getElementById('play-btn').style.display = 'block';
+        document.getElementById('flyer-view').style.display = 'block';
     }
 
-    function renderContinue() {
-        const history = JSON.parse(localStorage.getItem('fear_history')) || [];
-        if(history.length > 0) {
-            document.getElementById('continue-section').style.display = 'block';
-            drawGrid(history, 'continue-grid');
-        }
+    async function startStream() {
+        const title = currentItem.title || currentItem.name;
+        document.getElementById('play-btn').style.display = 'none';
+        document.getElementById('flyer-view').style.display = 'none';
+        document.getElementById('player-box').style.display = 'block';
+        document.getElementById('player-box').innerHTML = "⏳ SUMMONING STREAM...";
+
+        // SEARCH STRATEGY: 
+        // We query a public helper to find the best magnet link for the title.
+        // For legal and stability reasons, you'd replace this with your chosen Torrent API.
+        const magnetURI = `magnet:?xt=urn:btih:EXAMPLE_HASH&dn=${encodeURIComponent(title)}`;
+
+        client.add(magnetURI, function (torrent) {
+            const file = torrent.files.find(file => file.name.endsWith('.mp4'));
+            file.appendTo('#player-box', { autoplay: true, muted: false });
+            
+            // Force Fullscreen & Unmute
+            const video = document.querySelector('video');
+            video.volume = 1.0;
+            video.onplay = () => { video.requestFullscreen(); };
+        });
     }
 
     function closeRitual() {
         document.getElementById('details-page').style.display = 'none';
-        document.getElementById('player-box').innerHTML = '';
+        client.torrents.forEach(t => t.destroy());
     }
 </script>
 </body>
