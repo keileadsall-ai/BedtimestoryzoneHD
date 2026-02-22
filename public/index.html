@@ -16,7 +16,7 @@
             background-image: radial-gradient(circle at center, #1a0000 0%, #000 100%);
         }
 
-        /* UPDATED MEDUSA LOADER */
+        /* MEDUSA LOADER */
         #loader {
             position: fixed; inset: 0; background: black; z-index: 10000;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -67,7 +67,7 @@
         .card:hover { transform: scale(1.08); border-color: var(--blood); box-shadow: 0 0 30px rgba(179,0,0,0.5); }
         .card img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* COHESIVE CINEMA DETAILS */
+        /* CINEMA DETAILS */
         #ritual-screen {
             position: fixed; inset: 0; background: var(--void); z-index: 5000; 
             display: none; overflow-y: auto;
@@ -112,7 +112,7 @@
     <div class="voodoo-container">
         <img src="IMG_8259.jpeg" class="medusa-heart">
     </div>
-    <h2 style="font-family:'Nosifer'; color:var(--blood); margin-top:30px; letter-spacing: 3px;">CONSUMING THE VOID...</h2>
+    <h2 style="font-family:'Nosifer'; color:var(--blood); margin-top:30px; letter-spacing: 3px;">Dead Yet?</h2>
 </div>
 
 <div id="side-menu">
@@ -284,7 +284,7 @@
         const h = JSON.parse(localStorage.getItem('fear_history') || '[]');
         if(h.length === 0) return;
         document.getElementById('resume-ritual').style.display = 'block';
-        document.getElementById('continue-grid').innerHTML = h.map(i => `<div class="card" style="min-width:100px; height:150px;" onclick='openDetails(${JSON.stringify(i)})'><img src="https://image.tmdb.org/t/p/w185${i.poster_path}"></div>`).join('');
+        document.getElementById('continue-grid').innerHTML = h.map(i => `<div class="card" style="min-width:100px; height:160px;" onclick='openDetails(${JSON.stringify(i)})'><img src="https://image.tmdb.org/t/p/w185${i.poster_path}"></div>`).join('');
     }
 
     window.onload = () => {
