@@ -2,186 +2,246 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fear+ | The Actual Ritual</title>
-    <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&display=swap" rel="stylesheet">
     <style>
-        :root { --blood: #8a0303; --void: #050505; }
+        :root { --blood: #8a0303; --void: #050505; --smoke: rgba(20, 20, 20, 0.9); }
         * { box-sizing: border-box; cursor: url('https://img.icons8.com/ios-filled/25/8a0303/dagger.png'), auto; }
-        body { margin: 0; background: var(--void); color: white; font-family: -apple-system, sans-serif; overflow-x: hidden; }
+        
+        body { 
+            margin: 0; background: var(--void); color: white; 
+            font-family: 'Segoe UI', sans-serif; overflow-x: hidden; 
+        }
 
-        /* HEART-THUMPING SKULL LOADER */
-        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
-        .skull-pulse { width: 100px; filter: invert(1) sepia(1) saturate(10000%) hue-rotate(0deg); animation: heartThump 0.8s infinite cubic-bezier(0.215, 0.61, 0.355, 1); }
-        @keyframes heartThump { 0% { transform: scale(0.95); } 5% { transform: scale(1.1); } 39% { transform: scale(0.85); } 45% { transform: scale(1); } 60% { transform: scale(0.95); } 100% { transform: scale(0.9); } }
+        /* SMOKY OVERLAY */
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://www.transparenttextures.com/patterns/asfalt-dark.png');
+            opacity: 0.3; pointer-events: none; z-index: 10;
+        }
 
-        /* BOLD HEADER */
-        header { width: 100%; height: 60vh; background: linear-gradient(to bottom, transparent, var(--void)), url('IMG_8238.jpeg') no-repeat center center; background-size: cover; border-bottom: 3px solid var(--blood); position: relative; }
-        .fear-title { position: absolute; bottom: 20px; left: 30px; font-size: 70px; font-family: 'Creepster'; color: var(--blood); text-shadow: 0 0 20px black; }
+        /* PULSING SKULL LOADER */
+        #loader { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: black; display: flex; flex-direction: column; 
+            justify-content: center; align-items: center; z-index: 9999; 
+        }
+        .skull-pulse { 
+            width: 120px; filter: drop-shadow(0 0 20px var(--blood)); 
+            animation: heartThump 0.8s infinite; 
+        }
+        @keyframes heartThump { 
+            0% { transform: scale(1); } 15% { transform: scale(1.25); } 
+            30% { transform: scale(1); } 45% { transform: scale(1.15); } 100% { transform: scale(1); } 
+        }
 
-        /* TOP NAV & SEARCH */
-        .nav-bar { background: rgba(0,0,0,0.96); padding: 15px; display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid #333; }
-        .search-box { flex: 1; background: #111; border: 1px solid #444; border-radius: 20px; padding: 10px 20px; color: white; outline: none; }
-        .search-box:focus { border-color: var(--blood); box-shadow: 0 0 15px var(--blood); }
+        /* HEADER BANNER */
+        header { 
+            width: 100%; height: 75vh; 
+            background: linear-gradient(to bottom, transparent, var(--void)), url('IMG_8238.jpeg') no-repeat center top; 
+            background-size: cover; position: relative; border-bottom: 4px solid var(--blood);
+        }
+        .fear-title { 
+            position: absolute; bottom: 40px; left: 40px; 
+            font-size: 120px; font-family: 'Nosifer'; color: var(--blood); 
+            text-shadow: 10px 10px 30px black; letter-spacing: -5px;
+        }
 
-        /* SIDE MENU */
-        .side-menu { position: fixed; top: 0; left: -300px; width: 300px; height: 100%; background: #000; z-index: 2001; transition: 0.4s; border-right: 2px solid var(--blood); overflow-y: auto; padding-top: 60px; }
-        .side-menu.active { left: 0; }
-        .menu-item { padding: 15px 25px; border-bottom: 1px solid #111; cursor: pointer; color: #888; font-weight: bold; text-transform: uppercase; }
-        .menu-item:hover { color: var(--blood); background: #110000; }
+        /* HORIZONTAL GENRE NAV */
+        .genre-nav {
+            display: flex; overflow-x: auto; padding: 20px; gap: 20px;
+            background: rgba(0,0,0,0.8); sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid #222; scrollbar-width: none;
+        }
+        .genre-pill {
+            white-space: nowrap; padding: 10px 25px; border: 1px solid var(--blood);
+            border-radius: 50px; font-family: 'Creepster'; font-size: 1.2rem;
+            transition: 0.3s; color: #ccc;
+        }
+        .genre-pill:hover { background: var(--blood); color: white; transform: translateY(-3px); }
 
-        /* GRID UI */
-        .movie-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 10px; }
-        @media (min-width: 1024px) { .movie-grid { grid-template-columns: repeat(6, 1fr); padding: 40px; } }
-        .card { border: 1px solid #222; transition: 0.4s; overflow: hidden; position: relative; }
-        .card img { width: 100%; display: block; opacity: 0.8; }
-        .card:hover { border-color: var(--blood); transform: scale(1.05); z-index: 10; }
-        .card:hover img { opacity: 1; }
+        /* GRID */
+        .movie-grid { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
+            gap: 15px; padding: 20px; 
+        }
+        .card { 
+            background: #111; border: 1px solid #222; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            position: relative; overflow: hidden; border-radius: 5px;
+        }
+        .card img { width: 100%; transition: 0.5s; }
+        .card:hover { border-color: var(--blood); transform: scale(1.08); z-index: 50; box-shadow: 0 0 25px var(--blood); }
 
-        /* IMMACULATE DETAILS PAGE */
-        #details-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--void); z-index: 3000; display: none; overflow-y: auto; text-align: center; }
-        .details-bg { position: fixed; width: 100%; height: 100%; background-size: cover; background-position: center; filter: blur(60px) brightness(0.2); z-index: -1; }
-        .flyer-immaculate { width: 280px; margin: 40px auto 20px; border-radius: 15px; box-shadow: 0 0 50px var(--blood); border: 2px solid rgba(255,255,255,0.1); }
-        .skull-play { width: 120px; margin: 20px auto; cursor: pointer; filter: drop-shadow(0 0 15px var(--blood)); transition: 0.3s; }
+        /* TV SELECTOR UI */
+        .selector-altar {
+            display: flex; justify-content: center; gap: 15px; margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        select {
+            background: #111; color: var(--blood); border: 1px solid var(--blood);
+            padding: 10px; font-family: 'Creepster'; font-size: 1.1rem; outline: none;
+        }
 
-        /* THE ACTUAL PLAYER */
-        #player-box { width: 100%; max-width: 1200px; margin: 20px auto; display: none; border: 3px solid var(--blood); height: 600px; background: #000; }
-        iframe { width: 100%; height: 100%; border: none; }
+        #details-page { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: var(--void); z-index: 3000; display: none; overflow-y: auto; 
+        }
+        iframe { width: 100%; height: 80vh; border: none; background: #000; }
+        
+        #sentinel { height: 100px; width: 100%; }
     </style>
 </head>
 <body>
 
 <div id="loader">
     <img src="https://img.icons8.com/ios-filled/100/8a0303/skull.png" class="skull-pulse">
-    <h2 style="color:var(--blood); font-family: 'Creepster'; margin-top:20px;">SUMMONING THE TRUE SACRIFICE...</h2>
-</div>
-
-<div id="side-menu" class="side-menu">
-    <div class="menu-item" onclick="fetchRitual('movie', 27)">All Horror Movies</div>
-    <div class="menu-item" onclick="fetchRitual('tv', 27)">Horror Series</div>
-    <div class="menu-item" onclick="fetchDecade(1970, 1989)">The Slasher Vault</div>
-    <div class="menu-item" onclick="fetchDecade(2010, 2026)">Modern Rituals</div>
-    <div class="menu-item" onclick="toggleMenu()">✕ Close</div>
+    <h2 style="color:var(--blood); font-family: 'Creepster'; margin-top:20px; letter-spacing: 5px;">BLEEDING OUT DATA...</h2>
 </div>
 
 <header><div class="fear-title">FEAR+</div></header>
 
-<div class="nav-bar">
-    <div onclick="toggleMenu()" style="font-size: 30px; cursor: pointer; color: var(--blood);">☰</div>
-    <input type="text" id="search" class="search-box" placeholder="Summon any title..." oninput="searchVoid()">
+<div class="genre-nav" id="top-nav">
+    <div class="genre-pill" onclick="changeRitual('movie', 27)">All Movies</div>
+    <div class="genre-pill" onclick="changeRitual('tv', 10765)">Sci-Fi Horror</div>
+    <div class="genre-pill" onclick="changeRitual('movie', 53)">Thrillers</div>
+    <div class="genre-pill" onclick="changeRitual('movie', 9648)">Mystery</div>
 </div>
 
-<main id="main-content">
-    <div id="continue-section" style="display:none; padding: 10px;">
-        <h3 style="color:var(--blood); font-family:'Creepster';">RESUME RITUAL</h3>
+<main>
+    <div id="continue-section" style="display:none; padding: 20px;">
+        <h2 style="color:var(--blood); font-family:'Creepster';">RESUME SUFFERING</h2>
         <div class="movie-grid" id="continue-grid"></div>
     </div>
+    
+    <h2 style="padding-left: 20px; color:var(--blood); font-family:'Creepster';" id="grid-title">TRENDING SACRIFICES</h2>
     <div class="movie-grid" id="ritual-grid"></div>
-</main>
+    <div id="sentinel"></div> </main>
 
 <div id="details-page">
-    <div class="details-bg" id="det-bg"></div>
     <div style="padding: 20px;">
-        <button onclick="closeRitual()" style="background:none; border:1px solid var(--blood); color:var(--blood); padding:10px 40px; cursor:pointer;">EXIT</button>
-        <div id="info-altar">
-            <img src="" class="flyer-immaculate" id="det-flyer">
-            <h1 id="det-title" style="font-family:'Creepster'; color:var(--blood); font-size: 4rem; margin:10px;"></h1>
-            <p id="det-desc" style="max-width: 700px; margin: 0 auto; color: #ccc; line-height: 1.6;"></p>
-            <img src="https://img.icons8.com/ios-filled/100/8a0303/skull.png" class="skull-play" onclick="igniteSacrifice()">
+        <button onclick="closeRitual()" style="background:var(--blood); color:white; border:none; padding:10px 30px; font-family:'Creepster'; cursor:pointer;">← BACK TO THE VOID</button>
+        <div id="altar-content">
+            <h1 id="det-title" style="font-family:'Nosifer'; color:var(--blood); text-align:center; font-size:3rem;"></h1>
+            
+            <div id="tv-controls" class="selector-altar" style="display:none;">
+                <select id="season-select" onchange="updateEpisodes()"></select>
+                <select id="episode-select"></select>
+                <button onclick="igniteSacrifice()" style="background:var(--blood); border:none; color:white; padding:10px 20px; font-family:'Creepster';">SUMMON EPISODE</button>
+            </div>
+
+            <div id="player-container"></div>
+            <p id="det-desc" style="max-width:800px; margin: 30px auto; color:#888; text-align:center; line-height:1.8;"></p>
         </div>
-        <div id="player-box"></div>
     </div>
 </div>
 
 <script>
     const API_KEY = 'b9c746781e1e9b084c4cc4f0420156d4';
     const IMG_BASE = 'https://image.tmdb.org/t/p/w500';
+    let currentPage = 1;
+    let currentGenre = 27;
+    let currentType = 'movie';
     let selectedItem = null;
 
-    function toggleMenu() { document.getElementById('side-menu').classList.toggle('active'); }
+    // INFINITE SCROLL LOGIC
+    const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+            currentPage++;
+            fetchRitual(currentType, currentGenre, true);
+        }
+    }, { threshold: 1.0 });
 
-    async function fetchRitual(type = 'movie', genreId = 27) {
-        const res = await fetch(`https://api.themoviedb.org/3/discover/${type}?api_key=${API_KEY}&with_genres=${genreId}&sort_by=popularity.desc`);
-        const data = await res.json();
-        drawGrid(data.results);
+    observer.observe(document.getElementById('sentinel'));
+
+    async function changeRitual(type, genre) {
+        currentType = type;
+        currentGenre = genre;
+        currentPage = 1;
+        document.getElementById('ritual-grid').innerHTML = '';
+        await fetchRitual(type, genre);
     }
 
-    async function fetchDecade(start, end) {
-        const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&primary_release_date.gte=${start}-01-01&primary_release_date.lte=${end}-12-31&sort_by=popularity.desc`);
+    async function fetchRitual(type, genreId, append = false) {
+        const url = `https://api.themoviedb.org/3/discover/${type}?api_key=${API_KEY}&with_genres=${genreId}&page=${currentPage}&sort_by=popularity.desc`;
+        const res = await fetch(url);
         const data = await res.json();
-        drawGrid(data.results);
-        toggleMenu();
+        drawGrid(data.results, append);
     }
 
-    async function searchVoid() {
-        const q = document.getElementById('search').value;
-        if(q.length < 3) return;
-        const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${q}`);
-        const data = await res.json();
-        drawGrid(data.results.filter(i => i.poster_path));
-    }
-
-    function drawGrid(items) {
+    function drawGrid(items, append) {
         const grid = document.getElementById('ritual-grid');
-        grid.innerHTML = items.map(item => `
+        const html = items.map(item => `
             <div class="card" onclick='openRitual(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
-                <img src="${IMG_BASE + item.poster_path}">
+                <img src="${item.poster_path ? IMG_BASE + item.poster_path : 'https://via.placeholder.com/500x750?text=No+Poster'}">
             </div>
         `).join('');
+        
+        if (append) grid.innerHTML += html;
+        else grid.innerHTML = html;
     }
 
-    function openRitual(item) {
+    async function openRitual(item) {
         selectedItem = item;
         document.getElementById('details-page').style.display = 'block';
         document.getElementById('det-title').innerText = item.title || item.name;
         document.getElementById('det-desc').innerText = item.overview;
-        document.getElementById('det-flyer').src = IMG_BASE + item.poster_path;
-        document.getElementById('det-bg').style.backgroundImage = `url(https://image.tmdb.org/t/p/original${item.backdrop_path})`;
         
-        let h = JSON.parse(localStorage.getItem('fear_history')) || [];
-        h = h.filter(x => x.id !== item.id);
-        h.unshift(item);
-        localStorage.setItem('fear_history', JSON.stringify(h.slice(0,6)));
-        renderHistory();
-
-        document.getElementById('info-altar').style.display = 'block';
-        document.getElementById('player-box').style.display = 'none';
-        document.getElementById('player-box').innerHTML = '';
-    }
-
-    function renderHistory() {
-        const h = JSON.parse(localStorage.getItem('fear_history')) || [];
-        if(h.length > 0) {
-            document.getElementById('continue-section').style.display = 'block';
-            document.getElementById('continue-grid').innerHTML = h.map(item => `
-                <div class="card" onclick='openRitual(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
-                    <img src="${IMG_BASE + item.poster_path}">
-                </div>
-            `).join('');
+        const isTV = !!item.first_air_date;
+        const tvControls = document.getElementById('tv-controls');
+        
+        if (isTV) {
+            tvControls.style.display = 'flex';
+            await loadSeasons(item.id);
+        } else {
+            tvControls.style.display = 'none';
+            igniteSacrifice();
         }
     }
 
-    function igniteSacrifice() {
-        document.getElementById('info-altar').style.display = 'none';
-        const pBox = document.getElementById('player-box');
-        pBox.style.display = 'block';
+    async function loadSeasons(id) {
+        const res = await fetch(`https://api.themoviedb.org/3/tv/${id}?api_key=${API_KEY}`);
+        const data = await res.json();
+        const sSelect = document.getElementById('season-select');
+        sSelect.innerHTML = data.seasons.map(s => `<option value="${s.season_number}">${s.name}</option>`).join('');
+        updateEpisodes();
+    }
 
-        // THE ULTIMATE RESOLVER: Switches to a TMDB-based ID resolver
-        // This ensures the actual movie pressed is what plays.
-        const type = selectedItem.release_date ? 'movie' : 'tv';
-        const id = selectedItem.id;
-        
-        // Multi-source scraper bridge
-        pBox.innerHTML = `<iframe src="https://vidsrc.me/embed/${type}?tmdb=${id}" allowfullscreen></iframe>`;
+    async function updateEpisodes() {
+        const sNum = document.getElementById('season-select').value;
+        const res = await fetch(`https://api.themoviedb.org/3/tv/${selectedItem.id}/season/${sNum}?api_key=${API_KEY}`);
+        const data = await res.json();
+        const eSelect = document.getElementById('episode-select');
+        eSelect.innerHTML = data.episodes.map(e => `<option value="${e.episode_number}">Ep ${e.episode_number}: ${e.name}</option>`).join('');
+    }
+
+    function igniteSacrifice() {
+        const pContainer = document.getElementById('player-container');
+        const isTV = !!selectedItem.first_air_date;
+        let url = "";
+
+        if (isTV) {
+            const s = document.getElementById('season-select').value;
+            const e = document.getElementById('episode-select').value;
+            url = `https://vidsrc.to/embed/tv/${selectedItem.id}/${s}/${e}`;
+        } else {
+            url = `https://vidsrc.to/embed/movie/${selectedItem.id}`;
+        }
+
+        pContainer.innerHTML = `<iframe src="${url}" allowfullscreen></iframe>`;
     }
 
     function closeRitual() {
         document.getElementById('details-page').style.display = 'none';
-        document.getElementById('player-box').innerHTML = '';
+        document.getElementById('player-container').innerHTML = '';
     }
 
-    fetchRitual();
-    setTimeout(() => document.getElementById('loader').style.display='none', 2000);
+    // Initialize
+    window.onload = () => {
+        fetchRitual('movie', 27);
+        setTimeout(() => document.getElementById('loader').style.fadeOut = 'slow', 2000);
+        setTimeout(() => document.getElementById('loader').style.display = 'none', 2500);
+    };
 </script>
 </body>
 </html>
