@@ -11,20 +11,19 @@
         :root { --gold: #D4AF37; --red: #E50914; --black: #050505; }
         body { background: var(--black); color: white; font-family: 'Inter', sans-serif; margin: 0; padding: 0; overflow-x: hidden; touch-action: pan-y; }
         
-        /* The Witching Hour Filter */
-        .witching-hour { filter: sepia(1) saturate(2) hue-rotate(-50deg) contrast(1.2); }
-
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
         #loader { position: fixed; inset: 0; background: var(--black); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
-        .loader-medusa { width: 120px; height: 120px; border-radius: 50%; background: url('logo.png'); background-size: cover; border: 3px solid var(--gold); box-shadow: 0 0 40px var(--red); animation: pulse 2s infinite ease-in-out; }
+        .loader-medusa { width: 120px; height: 120px; border-radius: 50%; background: url('IMG_8035.jpeg'); background-size: cover; border: 3px solid var(--gold); box-shadow: 0 0 40px var(--red); animation: pulse 2s infinite ease-in-out; }
         @keyframes pulse { 0%, 100% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } }
 
         #side-menu { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: #000; border-right: 1px solid var(--gold); z-index: 3000; transform: translateX(-100%); transition: 0.4s ease; box-shadow: 20px 0 50px rgba(0,0,0,0.9); }
         .menu-open { transform: translateX(0) !important; }
 
-        .hero-banner { height: 50vh; position: relative; background: linear-gradient(to bottom, transparent, var(--black)), url('cursed_bg.jpg'); background-size: cover; background-position: center; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 20px; }
+        .hero-banner { height: 50vh; position: relative; background: linear-gradient(to bottom, transparent, var(--black)), url('IMG_8035.jpeg'); background-size: cover; background-position: center; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 20px; }
         .zonhd-logo { font-family: 'Playfair Display', serif; font-size: clamp(2.5rem, 10vw, 4.5rem); color: var(--gold); text-shadow: 0 0 25px var(--red); font-style: italic; text-align: center; line-height: 0.9; }
 
-        .movie-card { aspect-ratio: 2/3; border-radius: 8px; overflow: hidden; cursor: pointer; transition: 0.3s; border: 3px solid transparent; }
+        .movie-card { aspect-ratio: 2/3; border-radius: 8px; overflow: hidden; cursor: pointer; transition: 0.3s; border: 3px solid transparent; position: relative; }
         .focusable:focus { outline: none; border-color: var(--red) !important; transform: scale(1.08); box-shadow: 0 0 25px rgba(229, 9, 20, 0.6); z-index: 50; }
 
         #selector-overlay { display: none; position: fixed; inset: 0; background: #000; z-index: 4000; overflow-y: auto; }
@@ -33,15 +32,14 @@
         .rating-badge { border: 1.5px solid var(--gold); color: var(--gold); padding: 1px 6px; border-radius: 4px; font-weight: 800; font-size: 13px; }
         .btn-play-red { background: linear-gradient(45deg, #4b0000, #ff0000); color: white; font-weight: 700; padding: 14px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; max-width: 400px; margin: 15px 0; border: 2px solid var(--gold); }
         
-        .episode-row { display: flex; gap: 15px; padding: 15px 0; border-bottom: 1px solid #222; cursor: pointer; border: 3px solid transparent; }
+        .episode-row { display: flex; gap: 15px; padding: 15px; border-bottom: 1px solid #222; cursor: pointer; border: 3px solid transparent; border-radius: 8px; }
         .ep-thumbnail { width: 120px; aspect-ratio: 16/9; background-size: cover; border-radius: 4px; flex-shrink: 0; position: relative; background-color: #111; }
 
         #player-overlay { display: none; position: fixed; inset: 0; background: #000; z-index: 5000; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
         .active-filter { color: var(--gold) !important; border-bottom: 2px solid var(--gold); }
     </style>
 </head>
-<body class="no-scrollbar">
+<body>
     <div id="loader"><div class="loader-medusa"></div><p class="text-red-600 mt-6 tracking-[0.5em] font-black uppercase text-xs">Accessing Forbidden Archive...</p></div>
 
     <div id="side-menu" class="p-8 no-scrollbar overflow-y-auto">
@@ -64,7 +62,6 @@
 
     <header class="hero-banner">
         <h1 class="zonhd-logo">BEDTIME STORY<br>ZONE HD</h1>
-        <p id="time-warning" class="text-red-600 tracking-[0.8em] text-[10px] font-bold uppercase mt-2 opacity-0">The Witching Hour is Upon Us</p>
     </header>
 
     <div class="sticky top-0 z-[1000] bg-black/95 border-b border-zinc-900">
@@ -84,13 +81,12 @@
     </section>
 
     <main id="movie-grid" class="p-4 grid grid-cols-2 md:grid-cols-5 gap-4"></main>
+    <div id="load-more-trigger" class="h-20"></div>
 
     <div id="selector-overlay" class="no-scrollbar">
         <div id="details-backdrop"></div>
         <div class="relative z-10 p-6 pt-10 max-w-4xl mx-auto">
-            <button id="close-sel-btn" onclick="closeSelector()" class="focusable mb-6 bg-black/50 p-2 rounded-full border border-white/10">
-                <svg width="24" height="24" fill="white" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
-            </button>
+            <button id="close-sel-btn" onclick="closeSelector()" class="focusable mb-6 bg-black/50 p-2 rounded-full border border-white/10"><svg width="24" height="24" fill="white" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
             <div class="flex gap-5 mb-6">
                 <img id="details-poster" class="w-32 rounded-lg shadow-2xl">
                 <div class="flex flex-col justify-end">
@@ -98,7 +94,7 @@
                     <div class="flex items-center gap-3">
                         <span id="show-year" class="text-zinc-400 text-sm font-bold"></span>
                         <span id="show-rating" class="rating-badge"></span>
-                        <span class="text-red-600 font-black text-[10px] tracking-widest">UNRATED</span>
+                        <span class="text-red-600 font-black text-[10px] tracking-widest uppercase">Unrated</span>
                     </div>
                 </div>
             </div>
@@ -119,45 +115,45 @@
     </div>
 
     <script>
-        let API_KEY = '', activeType = 'trending', activeID = '', currentMedia = {};
+        let API_KEY = '', activeType = 'trending', activeID = '', currentMedia = {}, currentPage = 1, isFetching = false;
 
         async function fetchConfig() {
             const res = await fetch('/api/config');
             const data = await res.json();
             API_KEY = data.tmdb_key;
-            checkWitchingHour();
             renderContinueWatching();
-            fetchContent();
+            fetchContent(true);
         }
 
-        function checkWitchingHour() {
-            const hour = new Date().getHours();
-            if (hour === 3) {
-                document.body.classList.add('witching-hour');
-                document.getElementById('time-warning').style.opacity = '1';
-            }
-        }
+        async function fetchContent(reset = false) {
+            if (isFetching || !API_KEY) return;
+            if (reset) { currentPage = 1; document.getElementById('movie-grid').innerHTML = ''; }
+            isFetching = true;
 
-        async function fetchContent() {
-            let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&sort_by=popularity.desc`;
-            if (activeType === 'trending') url = `https://api.themoviedb.org/3/trending/all/day?api_key=${API_KEY}`;
-            if (activeType === 'keyword') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_keywords=${activeID}&with_genres=27`;
-            if (activeType === 'search') url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${activeID}`;
+            let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&page=${currentPage}&sort_by=popularity.desc`;
+            if (activeType === 'trending') url = `https://api.themoviedb.org/3/trending/all/day?api_key=${API_KEY}&page=${currentPage}`;
+            if (activeType === 'keyword') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_keywords=${activeID}&with_genres=27&page=${currentPage}`;
+            if (activeType === 'search') url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${activeID}&page=${currentPage}`;
             
-            const res = await fetch(url);
-            const data = await res.json();
-            const grid = document.getElementById('movie-grid');
-            grid.innerHTML = '';
-            data.results.forEach(m => {
-                if (!m.poster_path) return;
-                const card = document.createElement('div');
-                card.className = "movie-card focusable";
-                card.tabIndex = 0;
-                card.onclick = () => openDetails(m.id, m.media_type || (m.first_air_date ? 'tv' : 'movie'));
-                card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${m.poster_path}" class="w-full h-full object-cover">`;
-                grid.appendChild(card);
-            });
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                const grid = document.getElementById('movie-grid');
+                data.results.forEach(m => {
+                    if (!m.poster_path) return;
+                    const card = document.createElement('div');
+                    card.className = "movie-card focusable"; card.tabIndex = 0;
+                    card.onclick = () => openDetails(m.id, m.media_type || (m.first_air_date ? 'tv' : 'movie'));
+                    card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${m.poster_path}" class="w-full h-full object-cover">`;
+                    grid.appendChild(card);
+                });
+                currentPage++;
+            } catch (e) { console.error(e); }
+            isFetching = false;
         }
+
+        const observer = new IntersectionObserver((entries) => { if (entries[0].isIntersecting) fetchContent(); }, { threshold: 0.1 });
+        observer.observe(document.getElementById('load-more-trigger'));
 
         async function openDetails(id, type) {
             const res = await fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}`);
@@ -177,15 +173,11 @@
             
             if (type === 'tv') renderSeasons(data);
             document.getElementById('selector-overlay').style.display = 'block';
-            setTimeout(() => {
-                const playBtn = (type === 'movie') ? document.getElementById('play-movie-btn') : document.getElementById('main-tv-btn');
-                if(playBtn) playBtn.focus();
-            }, 300);
+            setTimeout(() => { ((type === 'movie') ? document.getElementById('play-movie-btn') : document.getElementById('main-tv-btn')).focus(); }, 300);
         }
 
         function renderSeasons(data) {
-            const container = document.getElementById('season-buttons');
-            container.innerHTML = '';
+            const container = document.getElementById('season-buttons'); container.innerHTML = '';
             data.seasons.forEach(s => {
                 if (s.season_number === 0) return;
                 const btn = document.createElement('button');
@@ -200,18 +192,14 @@
         async function loadEpisodes(showId, seasonNum) {
             const res = await fetch(`https://api.themoviedb.org/3/tv/${showId}/season/${seasonNum}?api_key=${API_KEY}`);
             const data = await res.json();
-            const grid = document.getElementById('episode-grid');
-            grid.innerHTML = '';
+            const grid = document.getElementById('episode-grid'); grid.innerHTML = '';
             data.episodes.forEach(e => {
-                const epRow = document.createElement('div');
-                epRow.className = "episode-row focusable";
-                epRow.tabIndex = 0;
+                const epRow = document.createElement('div'); epRow.className = "episode-row focusable"; epRow.tabIndex = 0;
                 epRow.onclick = () => { currentMedia.s = seasonNum; currentMedia.e = e.episode_number; startLuxeStream(); };
                 const thumb = e.still_path ? `https://image.tmdb.org/t/p/w300${e.still_path}` : '';
-                epRow.innerHTML = `<div class="ep-thumbnail" style="background-image:url(${thumb})"><div class="ep-play-btn text-white text-xs">▶</div></div><div class="flex-1"><div class="text-white font-bold text-sm">E${e.episode_number} ${e.name}</div><div class="text-zinc-500 text-xs line-clamp-2 mt-1">${e.overview}</div></div>`;
+                epRow.innerHTML = `<div class="ep-thumbnail" style="background-image:url(${thumb})"><div class="absolute inset-0 flex items-center justify-center bg-black/20">▶</div></div><div class="flex-1"><div class="text-white font-bold text-sm">E${e.episode_number} ${e.name}</div><div class="text-zinc-500 text-xs line-clamp-2 mt-1">${e.overview}</div></div>`;
                 grid.appendChild(epRow);
             });
-            document.getElementById('main-tv-btn').innerText = `▶ BEGIN S${seasonNum} E1`;
         }
 
         function playCurrentEpisode() { currentMedia.e = 1; startLuxeStream(); }
@@ -238,12 +226,9 @@
             const section = document.getElementById('continue-section');
             const grid = document.getElementById('continue-grid');
             if (history.length === 0) { section.classList.add('hidden'); return; }
-            section.classList.remove('hidden');
-            grid.innerHTML = '';
+            section.classList.remove('hidden'); grid.innerHTML = '';
             history.forEach(item => {
-                const card = document.createElement('div');
-                card.className = "min-w-[110px] max-w-[110px] cursor-pointer focusable movie-card";
-                card.tabIndex = 0;
+                const card = document.createElement('div'); card.className = "min-w-[110px] max-w-[110px] cursor-pointer focusable movie-card"; card.tabIndex = 0;
                 card.onclick = () => openDetails(item.id, item.type);
                 card.innerHTML = `<div class="aspect-[2/3] rounded-lg overflow-hidden border border-white/10 mb-2"><img src="https://image.tmdb.org/t/p/w300${item.poster}" class="w-full h-full object-cover"></div><p class="text-[8px] text-red-600 font-black uppercase tracking-tighter">${item.type === 'tv' ? `S${item.s} E${item.e}` : 'MOVIE'}</p>`;
                 grid.appendChild(card);
@@ -252,25 +237,14 @@
 
         function closeSelector() { document.getElementById('selector-overlay').style.display = 'none'; document.getElementById('btn-trending').focus(); }
         function closePlayer() { document.getElementById('luxe-player').src = ""; document.getElementById('player-overlay').style.display = 'none'; document.getElementById('close-sel-btn').focus(); }
-        
-        function toggleMenu() { 
-            const menu = document.getElementById('side-menu');
-            menu.classList.toggle('menu-open'); 
-            if(menu.classList.contains('menu-open')) {
-                setTimeout(() => {
-                    const firstBtn = document.querySelector('#side-menu .focusable');
-                    if(firstBtn) firstBtn.focus();
-                }, 300);
-            }
-        }
+        function toggleMenu() { document.getElementById('side-menu').classList.toggle('menu-open'); }
 
         function setFilter(type, id = '') { 
             activeType = type; activeID = id; 
             document.querySelectorAll('nav button').forEach(b => b.classList.remove('active-filter'));
-            fetchContent(); 
+            fetchContent(true); 
             document.getElementById('side-menu').classList.remove('menu-open');
             window.scrollTo(0,0);
-            document.getElementById('btn-trending').focus();
         }
 
         function handleSearch(e) { if (e.key === 'Enter') setFilter('search', e.target.value); }
@@ -278,57 +252,34 @@
         window.onload = () => { 
             setTimeout(() => { document.getElementById('loader').style.opacity = '0'; setTimeout(() => document.getElementById('loader').remove(), 500); }, 1000);
             fetchConfig();
-            const mc = new Hammer(document.body);
-            mc.on("swiperight", () => toggleMenu());
+            new Hammer(document.body).on("swiperight", () => toggleMenu());
         };
 
-        // --- REMOTE CONTROL ENGINE ---
         document.addEventListener('keydown', function(e) {
             const current = document.activeElement;
             const focusables = Array.from(document.querySelectorAll('.focusable')).filter(el => el.offsetParent !== null);
-            
-            if (e.key === 'Backspace' || e.keyCode === 8 || e.keyCode === 10009) {
-                e.preventDefault();
+            if (e.key === 'Backspace' || e.keyCode === 8) {
                 if (document.getElementById('player-overlay').style.display === 'block') closePlayer();
                 else if (document.getElementById('selector-overlay').style.display === 'block') closeSelector();
                 else if (document.getElementById('side-menu').classList.contains('menu-open')) toggleMenu();
-                return;
             }
-
-            if (e.key === 'Enter' || e.keyCode === 13) {
-                if (current && current.classList.contains('focusable')) current.click();
-                return;
-            }
-
-            let dir = '';
-            if (e.key === 'ArrowUp') dir = 'up';
-            if (e.key === 'ArrowDown') dir = 'down';
-            if (e.key === 'ArrowLeft') dir = 'left';
-            if (e.key === 'ArrowRight') dir = 'right';
-
-            if (dir) {
+            if (e.key === 'Enter') { if (current && current.classList.contains('focusable')) current.click(); }
+            let dir = e.key.replace('Arrow','').toLowerCase();
+            if (['up','down','left','right'].includes(dir)) {
                 e.preventDefault();
                 const next = findNext(current, focusables, dir);
-                if (next) {
-                    next.focus();
-                    next.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-                }
+                if (next) { next.focus(); next.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
             }
         });
 
         function findNext(cur, targets, dir) {
-            if (!cur || cur === document.body) return targets[0];
-            const r1 = cur.getBoundingClientRect();
-            const c1 = { x: r1.left + r1.width / 2, y: r1.top + r1.height / 2 };
+            const r1 = cur.getBoundingClientRect(); const c1 = { x: r1.left + r1.width / 2, y: r1.top + r1.height / 2 };
             let best = null, min = Infinity;
             targets.forEach(t => {
                 if (t === cur) return;
-                const r2 = t.getBoundingClientRect();
-                const c2 = { x: r2.left + r2.width / 2, y: r2.top + r2.height / 2 };
-                if (dir === 'up' && c2.y >= c1.y) return;
-                if (dir === 'down' && c2.y <= c1.y) return;
-                if (dir === 'left' && c2.x >= c1.x) return;
-                if (dir === 'right' && c2.x <= c1.x) return;
+                const r2 = t.getBoundingClientRect(); const c2 = { x: r2.left + r2.width / 2, y: r2.top + r2.height / 2 };
+                if (dir === 'up' && c2.y >= c1.y) return; if (dir === 'down' && c2.y <= c1.y) return;
+                if (dir === 'left' && c2.x >= c1.x) return; if (dir === 'right' && c2.x <= c1.x) return;
                 const d = Math.sqrt(Math.pow(c2.x - c1.x, 2) + Math.pow(c2.y - c1.y, 2));
                 if (d < min) { min = d; best = t; }
             });
