@@ -16,6 +16,15 @@
             background-image: radial-gradient(circle at center, #1a0000 0%, #000 100%);
         }
 
+        /* TV REMOTE FOCUS STYLES - CRITICAL FOR FIRESTICK */
+        :focus {
+            outline: 4px solid var(--blood) !important;
+            outline-offset: 4px;
+            transform: scale(1.1) !important;
+            z-index: 9999;
+            box-shadow: 0 0 40px var(--blood) !important;
+        }
+
         /* MEDUSA LOADER */
         #loader {
             position: fixed; inset: 0; background: black; z-index: 10000;
@@ -58,12 +67,12 @@
             transition: 0.4s cubic-bezier(0.1, 0.7, 0.1, 1); padding: 80px 25px;
         }
         #side-menu.open { left: 0; box-shadow: 20px 0 60px #000; }
-        .side-link { padding: 15px 0; color: #555; font-size: 1.8rem; cursor: pointer; border-bottom: 1px solid #111; transition: 0.3s; }
-        .side-link:hover { color: var(--blood); padding-left: 10px; }
+        .side-link { padding: 15px 0; color: #555; font-size: 1.8rem; cursor: pointer; border-bottom: 1px solid #111; transition: 0.3s; outline: none;}
+        .side-link:hover, .side-link:focus { color: var(--blood); padding-left: 10px; }
 
         /* GRID */
         .horror-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; padding: 15px; }
-        .card { aspect-ratio: 2/3; background: #080808; border: 1px solid #111; cursor: pointer; transition: 0.4s; overflow: hidden; }
+        .card { aspect-ratio: 2/3; background: #080808; border: 1px solid #111; cursor: pointer; transition: 0.4s; overflow: hidden; outline: none; }
         .card:hover { transform: scale(1.08); border-color: var(--blood); box-shadow: 0 0 30px rgba(179,0,0,0.5); }
         .card img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -90,7 +99,7 @@
             background: var(--blood); color: white; border: none; width: 100%; 
             padding: 20px; font-family: 'Creepster'; font-size: 2rem; 
             border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 15px;
-            box-shadow: 0 0 20px rgba(179,0,0,0.4); margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(179,0,0,0.4); margin-bottom: 30px; outline: none;
         }
         .player-mount { 
             width: 100%; aspect-ratio: 16/9; background: #000; 
@@ -101,7 +110,7 @@
         .season-row { display: flex; overflow-x: auto; gap: 10px; margin: 20px 0; padding-bottom: 10px; }
         .pill { 
             padding: 12px 25px; background: #111; border: 1px solid #333; 
-            color: #888; border-radius: 8px; font-family: 'Creepster'; cursor: pointer; white-space: nowrap;
+            color: #888; border-radius: 8px; font-family: 'Creepster'; cursor: pointer; white-space: nowrap; outline: none;
         }
         .pill.active { border-color: var(--blood); color: var(--blood); background: #1a0000; }
     </style>
@@ -117,12 +126,12 @@
 
 <div id="side-menu">
     <h3 style="color:var(--blood); font-family:'Nosifer';">THE VAULTS</h3>
-    <div class="side-link" onclick="setMode('shudder')">SHUDDER</div>
-    <div class="side-link" onclick="setMode('fx')">FX HORROR</div>
-    <div class="side-link" onclick="setMode('hulu')">HULU BLOOD</div>
-    <div class="side-link" onclick="setMode('hoodoo')">HOODOO FILMS</div>
-    <div class="side-link" onclick="setMode('70s')">70s SLASHERS</div>
-    <div class="side-link" onclick="setMode('unrated')">UNRATED VAULT</div>
+    <div class="side-link" tabindex="0" onclick="setMode('shudder')">SHUDDER</div>
+    <div class="side-link" tabindex="0" onclick="setMode('fx')">FX HORROR</div>
+    <div class="side-link" tabindex="0" onclick="setMode('hulu')">HULU BLOOD</div>
+    <div class="side-link" tabindex="0" onclick="setMode('hoodoo')">HOODOO FILMS</div>
+    <div class="side-link" tabindex="0" onclick="setMode('70s')">70s SLASHERS</div>
+    <div class="side-link" tabindex="0" onclick="setMode('unrated')">UNRATED VAULT</div>
 </div>
 
 <header><div class="logo">FEAR+</div></header>
@@ -143,7 +152,7 @@
 <div id="ritual-screen">
     <div id="hero-bg" class="hero-bg"><div class="hero-overlay"></div></div>
     <div class="details-body">
-        <button onclick="closeRitual()" style="background:transparent; border:none; color:white; font-size:2rem; cursor:pointer; margin-bottom:20px;">←</button>
+        <button id="close-btn" tabindex="0" onclick="closeRitual()" style="background:transparent; border:none; color:white; font-size:2rem; cursor:pointer; margin-bottom:20px;">←</button>
         <div class="meta-row">
             <img id="det-poster" class="main-poster">
             <div>
@@ -152,7 +161,7 @@
             </div>
         </div>
 
-        <button id="play-btn" class="play-btn" onclick="showPlayer()">
+        <button id="play-btn" tabindex="0" class="play-btn" onclick="showPlayer()">
             <img src="https://img.icons8.com/ios-filled/50/ffffff/play--v1.png" style="width:30px;">
             PLAY NOW
         </button>
@@ -208,8 +217,11 @@
             if(!item.poster_path) return;
             const card = document.createElement('div');
             card.className = 'card';
+            card.setAttribute('tabindex', '0'); // ALLOW REMOTE FOCUS
             card.innerHTML = `<img src="https://image.tmdb.org/t/p/w342${item.poster_path}">`;
             card.onclick = () => openDetails(item);
+            // TRIGGER ON ENTER KEY FOR REMOTE
+            card.onkeydown = (e) => { if(e.key === 'Enter') openDetails(item); };
             grid.appendChild(card);
         });
     }
@@ -228,12 +240,13 @@
             document.getElementById('tv-controls').style.display = 'block';
             const res = await fetch(`https://api.themoviedb.org/3/tv/${item.id}?api_key=${API_KEY}`);
             const data = await res.json();
-            document.getElementById('s-row').innerHTML = data.seasons.map(s => `<div class="pill" onclick="syncEpisodes(${s.season_number}, this)">S${s.season_number}</div>`).join('');
+            document.getElementById('s-row').innerHTML = data.seasons.map(s => `<div class="pill" tabindex="0" onclick="syncEpisodes(${s.season_number}, this)">S${s.season_number}</div>`).join('');
             syncEpisodes(1);
         } else {
             document.getElementById('tv-controls').style.display = 'none';
         }
         saveHistory(item);
+        document.getElementById('play-btn').focus(); // AUTO FOCUS PLAY BUTTON
     }
 
     async function syncEpisodes(sNum, el) {
@@ -241,7 +254,7 @@
         if(el) { document.querySelectorAll('#s-row .pill').forEach(p => p.classList.remove('active')); el.classList.add('active'); }
         const res = await fetch(`https://api.themoviedb.org/3/tv/${selected.id}/season/${sNum}?api_key=${API_KEY}`);
         const data = await res.json();
-        document.getElementById('e-row').innerHTML = data.episodes.map(e => `<div class="pill" onclick="ignitePlayer(${e.episode_number}, this)">E${e.episode_number}</div>`).join('');
+        document.getElementById('e-row').innerHTML = data.episodes.map(e => `<div class="pill" tabindex="0" onclick="ignitePlayer(${e.episode_number}, this)">E${e.episode_number}</div>`).join('');
     }
 
     function showPlayer() {
@@ -257,7 +270,8 @@
         const isTV = !!selected.first_air_date;
         let url = isTV ? `https://vidsrc.cc/v2/embed/tv/${selected.id}/${currentS}/${eNum || 1}` 
                        : `https://vidsrc.cc/v2/embed/movie/${selected.id}`;
-        mount.innerHTML = `<iframe src="${url}" allow="autoplay; fullscreen; encrypted-media" allowfullscreen sandbox="allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-top-navigation"></iframe>`;
+        mount.innerHTML = `<iframe id="tv-frame" src="${url}" allow="autoplay; fullscreen; encrypted-media" allowfullscreen sandbox="allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-top-navigation"></iframe>`;
+        document.getElementById('tv-frame').focus();
     }
 
     function handleSearch(e) {
@@ -284,7 +298,7 @@
         const h = JSON.parse(localStorage.getItem('fear_history') || '[]');
         if(h.length === 0) return;
         document.getElementById('resume-ritual').style.display = 'block';
-        document.getElementById('continue-grid').innerHTML = h.map(i => `<div class="card" style="min-width:100px; height:160px;" onclick='openDetails(${JSON.stringify(i)})'><img src="https://image.tmdb.org/t/p/w185${i.poster_path}"></div>`).join('');
+        document.getElementById('continue-grid').innerHTML = h.map(i => `<div class="card" tabindex="0" style="min-width:100px; height:160px;" onclick='openDetails(${JSON.stringify(i)})'><img src="https://image.tmdb.org/t/p/w185${i.poster_path}"></div>`).join('');
     }
 
     window.onload = () => {
@@ -294,6 +308,62 @@
             if(l) { l.style.opacity = '0'; setTimeout(() => l.style.display = 'none', 500); }
         }, 1500);
     };
+
+    // ==========================================
+    // FIRESTICK REMOTE SPATIAL NAVIGATION ENGINE
+    // ==========================================
+    document.addEventListener('keydown', (e) => {
+        const menu = document.getElementById('side-menu');
+        const active = document.activeElement;
+
+        // 1. OPEN SIDE MENU (Firestick Remote: 'Menu' button or 'm' key)
+        if (e.key === 'm' || e.key === 'ContextMenu') {
+            menu.classList.toggle('open');
+            if(menu.classList.contains('open')) menu.querySelector('.side-link').focus();
+            return;
+        }
+
+        // 2. BACK BUTTON (Close details or menu)
+        if (e.key === 'Backspace' || e.key === 'Escape') {
+            if(menu.classList.contains('open')) {
+                menu.classList.remove('open');
+            } else {
+                closeRitual();
+            }
+        }
+
+        // 3. DPAD NAVIGATION
+        const focusable = Array.from(document.querySelectorAll('input, .card, .side-link, .pill, button, [tabindex="0"]'))
+                               .filter(el => el.offsetParent !== null); // Only visible ones
+
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+            e.preventDefault();
+            let next = getNearestElement(active, focusable, e.key);
+            if (next) next.focus();
+        }
+    });
+
+    function getNearestElement(current, targets, direction) {
+        const r1 = current.getBoundingClientRect();
+        let bestDist = Infinity, bestEl = null;
+
+        targets.forEach(el => {
+            if (el === current) return;
+            const r2 = el.getBoundingClientRect();
+            
+            // Check if el is in the right direction
+            const isRightDir = (direction === 'ArrowRight' && r2.left >= r1.right) ||
+                               (direction === 'ArrowLeft' && r2.right <= r1.left) ||
+                               (direction === 'ArrowDown' && r2.top >= r1.bottom) ||
+                               (direction === 'ArrowUp' && r2.bottom <= r1.top);
+
+            if (isRightDir) {
+                const dist = Math.sqrt(Math.pow(r2.left - r1.left, 2) + Math.pow(r2.top - r1.top, 2));
+                if (dist < bestDist) { bestDist = dist; bestEl = el; }
+            }
+        });
+        return bestEl;
+    }
 </script>
 </body>
 </html>
