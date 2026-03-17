@@ -10,6 +10,7 @@
         
         @media screen and (min-width: 900px) {
             body { padding: 2% 5% !important; }
+            .details-content { flex-direction: row !important; align-items: flex-start !important; gap: 40px !important; margin-top: -120px !important; }
         }
 
         * { box-sizing: border-box; scrollbar-width: none; -webkit-tap-highlight-color: transparent; }
@@ -23,62 +24,52 @@
 
         :focus { outline: 4px solid var(--blood) !important; outline-offset: 4px; transform: scale(1.05) !important; z-index: 9999; box-shadow: 0 0 50px var(--blood) !important; }
 
-        .menu-btn { position: fixed; top: 20px; left: 20px; z-index: 3000; background: var(--blood); color: white; border: none; padding: 12px 20px; font-family: 'Creepster'; cursor: pointer; border-radius: 5px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .menu-btn { position: fixed; top: 20px; left: 20px; z-index: 3000; background: var(--blood); color: white; border: none; padding: 12px 20px; font-family: 'Creepster'; cursor: pointer; border-radius: 5px; }
 
+        /* LOADER */
         #loader { position: fixed; inset: 0; background: black; z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.8s; }
         .voodoo-container { width: 250px; height: 250px; border-radius: 50%; overflow: hidden; border: 3px solid var(--blood); }
         .medusa-heart { width: 100%; height: 100%; object-fit: cover; animation: ritualThump 0.9s infinite; }
         @keyframes ritualThump { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.1); } }
 
-        header { width: 100%; height: 50vh; background: linear-gradient(to bottom, transparent, var(--void)), url('IMG_8238.jpeg') no-repeat center top; background-size: cover; border-bottom: 3px solid var(--blood); position: relative; }
+        header { width: 100%; height: 45vh; background: linear-gradient(to bottom, transparent, var(--void)), url('IMG_8238.jpeg') no-repeat center top; background-size: cover; border-bottom: 3px solid var(--blood); position: relative; }
         .logo { position: absolute; bottom: 30px; left: 5%; font-family: 'Nosifer'; font-size: clamp(3rem, 15vw, 7rem); color: var(--blood); text-shadow: 0 0 30px #000; }
 
+        /* SEARCH BAR */
         .sticky-altar { position: sticky; top: 0; z-index: 1000; background: var(--smoke); backdrop-filter: blur(10px); padding: 15px; border-bottom: 1px solid #222; }
         .search-input { width: 100%; background: #000; border: 1px solid var(--blood); padding: 18px; color: var(--blood); font-family: 'Creepster'; font-size: 1.5rem; outline: none; }
 
-        #side-menu { position: fixed; top: 0; left: -320px; width: 300px; height: 100%; background: #000; border-right: 3px solid var(--blood); z-index: 4000; transition: 0.3s; padding: 80px 25px; }
+        /* SIDE MENU */
+        #side-menu { position: fixed; top: 0; left: -320px; width: 300px; height: 100%; background: #000; border-right: 3px solid var(--blood); z-index: 4000; transition: 0.3s; padding: 80px 25px; box-shadow: 20px 0 60px #000; }
         #side-menu.open { left: 0; }
         .side-link { padding: 15px 0; color: #555; font-size: 1.8rem; cursor: pointer; border-bottom: 1px solid #111; outline: none; transition: 0.3s; }
         .side-link:focus, .side-link:hover { color: var(--blood); padding-left: 10px; }
 
+        /* NEW HOMESCREEN TAB ROWS */
+        .shelf-title { color: var(--blood); font-family: 'Creepster'; font-size: 1.8rem; padding: 20px 20px 0; margin: 0; }
+        .shelf-row { display: flex; overflow-x: auto; gap: 12px; padding: 15px 20px; scroll-behavior: smooth; }
+        
         .horror-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; padding: 15px; }
-        .card { aspect-ratio: 2/3; background: #080808; border: 1px solid #111; cursor: pointer; overflow: hidden; outline: none; transition: 0.4s; }
+        .card { aspect-ratio: 2/3; background: #080808; border: 1px solid #111; cursor: pointer; overflow: hidden; outline: none; transition: 0.4s; flex-shrink: 0; width: 140px; }
         .card img { width: 100%; height: 100%; object-fit: cover; }
 
-        .compact-card { width: 90px; height: 135px; flex-shrink: 0; border: 1px solid #222; outline: none; cursor: pointer; overflow: hidden; transition: 0.3s; }
-        .compact-card img { width: 100%; height: 100%; object-fit: cover; }
-
-        /* ========================================= */
-        /* DETAILS OVERLAY (SCREENSHOT MATCH) */
-        /* ========================================= */
+        /* DETAILS OVERLAY */
         #ritual-screen { position: fixed; inset: 0; background: #000; z-index: 5000; display: none; overflow-y: auto; font-family: sans-serif; }
-        
-        .hero-bg { width: 100%; height: 60vh; background-size: cover; background-position: center; position: relative; }
-        .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent, #000 95%); }
-        .back-btn { position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.5); border: none; color: white; width: 45px; height: 45px; border-radius: 50%; font-size: 1.5rem; cursor: pointer; z-index: 100; display: flex; align-items: center; justify-content: center; }
+        .hero-bg { width: 100%; height: 55vh; background-size: cover; background-position: center; position: relative; }
+        .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent, #000 98%); }
+        .back-btn { position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.6); border: none; color: white; width: 45px; height: 45px; border-radius: 50%; font-size: 1.5rem; cursor: pointer; z-index: 100; display: flex; align-items: center; justify-content: center; }
 
-        .details-content { padding: 0 20px; max-width: 1000px; margin: -180px auto 0; position: relative; z-index: 10; }
-        
-        /* POSTER & TITLE ROW */
-        .info-header { display: flex; align-items: flex-end; gap: 20px; margin-bottom: 30px; }
-        .main-poster { width: 140px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); flex-shrink: 0; }
-        .title-meta h1 { font-size: 1.8rem; margin: 0 0 10px; color: white; font-weight: bold; }
-        .meta-tags { display: flex; align-items: center; gap: 12px; font-size: 0.9rem; color: #aaa; }
-        .rating-chip { background: transparent; border: 1px solid #ffc107; color: #ffc107; padding: 2px 8px; border-radius: 4px; display: flex; align-items: center; gap: 5px; font-weight: bold; }
+        .details-content { padding: 0 20px; max-width: 1200px; margin: -100px auto 0; position: relative; z-index: 10; display: flex; flex-direction: column; }
+        .info-header { display: flex; align-items: flex-end; gap: 20px; margin-bottom: 25px; }
+        .main-poster { width: 130px; border-radius: 8px; box-shadow: 0 10px 30px #000; flex-shrink: 0; }
+        .title-meta h1 { font-size: clamp(1.5rem, 5vw, 2.5rem); margin: 0 0 8px; color: white; font-weight: bold; }
+        .rating-chip { border: 1px solid #ffc107; color: #ffc107; padding: 2px 8px; border-radius: 4px; font-weight: bold; }
 
-        /* ACTIONS ROW */
-        .action-row { display: flex; gap: 15px; margin-bottom: 30px; align-items: center; }
-        .play-btn { 
-            flex: 1; background: #e50914; color: white; border: none; padding: 16px; 
-            border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-        }
-        .fav-btn { background: rgba(255,255,255,0.1); border: none; color: white; width: 55px; height: 55px; border-radius: 50%; font-size: 1.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-
-        .description { color: #ccc; line-height: 1.6; font-size: 1rem; margin-bottom: 30px; }
+        .play-btn { background: #e50914; color: white; border: none; padding: 18px; border-radius: 8px; font-size: 1.2rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 25px; width: 100%; }
+        .description { color: #ccc; line-height: 1.6; font-size: 1rem; margin-bottom: 30px; font-family: sans-serif; }
 
         .season-row { display: flex; overflow-x: auto; gap: 8px; padding: 10px 0; }
-        .pill { padding: 10px 18px; background: #1a1a1a; border: none; color: #888; border-radius: 8px; cursor: pointer; outline: none; }
+        .pill { padding: 10px 18px; background: #1a1a1a; border: none; color: #888; border-radius: 6px; cursor: pointer; white-space: nowrap; }
         .pill.active { background: #e50914; color: white; }
 
         .player-mount { width: 100%; aspect-ratio: 16/9; background: #000; border: 1px solid #333; margin: 20px 0; display: none; }
@@ -99,27 +90,43 @@
     <div class="side-link" tabindex="0" onclick="setMode('movies')">ALL MOVIES</div>
     <div class="side-link" tabindex="0" onclick="setMode('shudder')">SHUDDER</div>
     <div class="side-link" tabindex="0" onclick="setMode('fx')">FX HORROR</div>
+    <div class="side-link" tabindex="0" onclick="setMode('hulu')">HULU BLOOD</div>
+    <div class="side-link" tabindex="0" onclick="setMode('hoodoo')">HOODOO FILMS</div>
+    <div class="side-link" tabindex="0" onclick="setMode('70s')">70s SLASHERS</div>
 </div>
 
 <header><div class="logo">FEAR+</div></header>
 
 <div class="sticky-altar">
-    <input type="text" id="search" class="search-input" placeholder="SEARCH SACRIFICE..." onkeyup="handleSearch(event)">
+    <input type="text" id="search" class="search-input" placeholder="SEARCH FOR A SACRIFICE..." onkeydown="handleTVEnter(event)">
 </div>
 
-<main>
+<main id="home-content">
+    <h2 class="shelf-title">TRENDING TERROR</h2>
+    <div class="shelf-row" id="shelf-trending"></div>
+
+    <h2 class="shelf-title">UNRATED VAULT</h2>
+    <div class="shelf-row" id="shelf-unrated"></div>
+
+    <h2 class="shelf-title" id="grid-title">LATEST BLOOD</h2>
     <div class="horror-grid" id="main-grid"></div>
-    <section id="resume-ritual" style="display:none; padding:20px;">
-        <h2 style="color:var(--blood); font-family:'Creepster'; font-size:1.5rem; margin-bottom:15px;">CONTINUE WATCHING</h2>
-        <div id="continue-grid" style="display:flex; overflow-x:auto; gap:10px;"></div>
+
+    <section id="resume-ritual" style="display:none;">
+        <h2 class="shelf-title">CONTINUE WATCHING</h2>
+        <div class="shelf-row" id="continue-grid"></div>
     </section>
+
     <div id="sentinel" style="height: 100px;"></div>
 </main>
+
+<div id="search-results" style="display:none; position:fixed; inset:0; background:#000; z-index:2500; padding-top:100px; overflow-y:auto;">
+    <h2 class="shelf-title">SEARCH RESULTS</h2>
+    <div class="horror-grid" id="search-grid"></div>
+</div>
 
 <div id="ritual-screen">
     <button class="back-btn" onclick="closeRitual()">←</button>
     <div id="hero-bg" class="hero-bg"><div class="hero-overlay"></div></div>
-    
     <div class="details-content">
         <div class="info-header">
             <img id="det-poster" class="main-poster">
@@ -131,22 +138,15 @@
                 </div>
             </div>
         </div>
-
-        <div class="action-row">
-            <button id="play-btn" class="play-btn" onclick="showPlayer()">
-                <div style="background: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; color: black; font-size: 0.8rem;">▶</div>
-                Play Now
-            </button>
-            <button class="fav-btn">♡</button>
-        </div>
-
+        <button id="play-btn" class="play-btn" onclick="showPlayer()">
+            <div style="background: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; color: black; font-size: 0.8rem;">▶</div>
+            Play Now
+        </button>
         <div id="det-desc" class="description"></div>
-
         <div id="tv-controls" style="display:none;">
             <div id="s-row" class="season-row"></div>
             <div id="e-row" class="season-row"></div>
         </div>
-
         <div id="player-mount" class="player-mount"></div>
     </div>
 </div>
@@ -155,27 +155,73 @@
     const API_KEY = 'b9c746781e1e9b084c4cc4f0420156d4';
     let page = 1, mode = 'movies', fetching = false, selected = null, currentS = 1;
 
-    function summonVoice() {
-        const msg = new SpeechSynthesisUtterance("Fear Plus");
-        msg.rate = 0.5; msg.pitch = 0.1;
-        window.speechSynthesis.speak(msg);
+    function handleTVEnter(e) {
+        if (e.key === 'Enter') {
+            const query = e.target.value;
+            if(!query) {
+                document.getElementById('search-results').style.display = 'none';
+                return;
+            }
+            document.getElementById('search-results').style.display = 'block';
+            document.getElementById('search-grid').innerHTML = '';
+            fetch(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${query}`)
+                .then(r => r.json()).then(d => render(d.results, 'search-grid'));
+            history.pushState(null, null, window.location.pathname);
+        }
     }
+
+    function handleBackAction() {
+        const menu = document.getElementById('side-menu');
+        const ritual = document.getElementById('ritual-screen');
+        const search = document.getElementById('search-results');
+        
+        if (menu.classList.contains('open')) { toggleSideMenu(); return true; } 
+        if (ritual.style.display === 'block') { closeRitual(); return true; }
+        if (search.style.display === 'block') { 
+            search.style.display = 'none'; 
+            document.getElementById('search').value = '';
+            return true; 
+        }
+        return false;
+    }
+
+    window.addEventListener('popstate', function () {
+        if (handleBackAction()) history.pushState(null, null, window.location.pathname);
+    });
 
     function toggleSideMenu() {
         const m = document.getElementById('side-menu');
         m.classList.toggle('open');
-        if(m.classList.contains('open')) { m.querySelector('.side-link').focus(); summonVoice(); }
+        if(m.classList.contains('open')) {
+            m.querySelector('.side-link').focus();
+            history.pushState(null, null, window.location.pathname);
+        }
     }
 
     async function load(reset = false) {
         if(reset) { page = 1; document.getElementById('main-grid').innerHTML = ''; }
         if(fetching) return; fetching = true;
+        
         let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&page=${page}&sort_by=popularity.desc`;
         if(mode === 'shudder') url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_networks=2506&page=${page}`;
+        else if(mode === 'fx') url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_networks=88&page=${page}`;
+        else if(mode === 'hulu') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_networks=453&page=${page}`;
+        else if(mode === 'hoodoo') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=210214|155477&page=${page}`;
+        else if(mode === '70s') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&primary_release_date.gte=1970-01-01&primary_release_date.lte=1979-12-31&page=${page}`;
+
         const res = await fetch(url);
         const data = await res.json();
         if(data.results) render(data.results, 'main-grid');
         fetching = false;
+    }
+
+    async function loadShelves() {
+        // Trending
+        fetch(`https://api.themoviedb.org/3/trending/all/week?api_key=${API_KEY}`)
+            .then(r => r.json()).then(d => render(d.results.filter(i => i.genre_ids?.includes(27)), 'shelf-trending'));
+        // Unrated
+        fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&certification_country=US&certification.gte=NC-17`)
+            .then(r => r.json()).then(d => render(d.results, 'shelf-unrated'));
     }
 
     function render(items, gridId) {
@@ -183,11 +229,11 @@
         items.forEach(item => {
             if(!item.poster_path) return;
             const card = document.createElement('div');
-            card.className = gridId === 'main-grid' ? 'card' : 'compact-card';
+            card.className = 'card';
             card.setAttribute('tabindex', '0'); 
             card.innerHTML = `<img src="https://image.tmdb.org/t/p/w342${item.poster_path}">`;
-            card.onclick = () => { summonVoice(); openDetails(item); };
-            card.onkeydown = (e) => { if(e.key === 'Enter') { summonVoice(); openDetails(item); } };
+            card.onclick = () => openDetails(item);
+            card.onkeydown = (e) => { if(e.key === 'Enter') openDetails(item); };
             grid.appendChild(card);
         });
     }
@@ -195,20 +241,23 @@
     async function openDetails(item) {
         selected = item;
         document.getElementById('ritual-screen').style.display = 'block';
+        document.getElementById('ritual-screen').scrollTo(0,0);
         document.getElementById('det-title').innerText = item.title || item.name;
         document.getElementById('det-desc').innerText = item.overview;
         document.getElementById('det-poster').src = `https://image.tmdb.org/t/p/w500${item.poster_path}`;
         document.getElementById('hero-bg').style.backgroundImage = `url(https://image.tmdb.org/t/p/original${item.backdrop_path})`;
         document.getElementById('det-year').innerText = (item.release_date || item.first_air_date || '').split('-')[0];
-        document.getElementById('det-rate').innerText = item.vote_average.toFixed(1);
+        document.getElementById('det-rate').innerText = (item.vote_average || 0).toFixed(1);
         
         if(item.first_air_date) {
             document.getElementById('tv-controls').style.display = 'block';
             const res = await fetch(`https://api.themoviedb.org/3/tv/${item.id}?api_key=${API_KEY}`);
             const data = await res.json();
-            document.getElementById('s-row').innerHTML = data.seasons.map(s => `<div class="pill" onclick="syncEpisodes(${s.season_number}, this)">S${s.season_number}</div>`).join('');
+            document.getElementById('s-row').innerHTML = data.seasons.map(s => `<div class="pill" tabindex="0" onclick="syncEpisodes(${s.season_number}, this)">S${s.season_number}</div>`).join('');
             syncEpisodes(1);
         } else { document.getElementById('tv-controls').style.display = 'none'; }
+        
+        history.pushState(null, null, window.location.pathname);
         saveHistory(item);
     }
 
@@ -217,7 +266,7 @@
         if(el) { document.querySelectorAll('#s-row .pill').forEach(p => p.classList.remove('active')); el.classList.add('active'); }
         const res = await fetch(`https://api.themoviedb.org/3/tv/${selected.id}/season/${sNum}?api_key=${API_KEY}`);
         const data = await res.json();
-        document.getElementById('e-row').innerHTML = data.episodes.map(e => `<div class="pill" onclick="ignitePlayer(${e.episode_number}, this)">E${e.episode_number}</div>`).join('');
+        document.getElementById('e-row').innerHTML = data.episodes.map(e => `<div class="pill" tabindex="0" onclick="ignitePlayer(${e.episode_number}, this)">E${e.episode_number}</div>`).join('');
     }
 
     function showPlayer() {
@@ -245,21 +294,18 @@
         if(h.length === 0) return;
         document.getElementById('resume-ritual').style.display = 'block';
         const grid = document.getElementById('continue-grid');
-        grid.innerHTML = '';
-        render(h, 'continue-grid');
+        grid.innerHTML = ''; render(h, 'continue-grid');
     }
 
     function closeRitual() { document.getElementById('ritual-screen').style.display = 'none'; document.getElementById('player-mount').innerHTML = ''; }
     function setMode(m) { mode = m; toggleSideMenu(); load(true); }
 
-    function handleSearch(e) { if(e.key === 'Enter') { document.getElementById('main-grid').innerHTML = ''; fetch(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${e.target.value}`).then(r => r.json()).then(d => render(d.results, 'main-grid')); } }
-
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'm' || e.key === 'ContextMenu' || e.key === 'MediaPlayPause') toggleSideMenu();
-        if (e.key === 'Backspace') { if(document.getElementById('side-menu').classList.contains('open')) toggleSideMenu(); else closeRitual(); }
+        if (e.key === 'm' || e.key === 'ContextMenu' || e.key === 'MediaPlayPause') { e.preventDefault(); toggleSideMenu(); }
+        if (e.key === 'Backspace') { if (handleBackAction()) { e.preventDefault(); history.pushState(null, null, window.location.pathname); } }
     });
 
-    window.onload = () => { load(); renderHistory(); setTimeout(() => document.getElementById('loader').style.display = 'none', 1000); };
+    window.onload = () => { load(); loadShelves(); renderHistory(); history.pushState(null, null, window.location.pathname); setTimeout(() => document.getElementById('loader').style.display = 'none', 1000); };
     const obs = new IntersectionObserver(e => { if(e[0].isIntersecting && !fetching) { page++; load(); } }, { threshold: 0.1 });
     obs.observe(document.getElementById('sentinel'));
 </script>
