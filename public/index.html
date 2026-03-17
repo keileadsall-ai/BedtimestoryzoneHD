@@ -7,6 +7,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Metal+Mania&display=swap" rel="stylesheet">
     <style>
         :root { --blood: #b30000; --void: #020202; --smoke: rgba(10, 10, 10, 0.98); }
+        
+        /* FIX FOR TV SCREEN CUTOFF (OVERSCAN) */
+        @media screen and (min-width: 900px) {
+            body { padding: 2% 5% !important; }
+            .sticky-altar { top: 2% !important; }
+        }
+
         * { box-sizing: border-box; scrollbar-width: none; -webkit-tap-highlight-color: transparent; }
         ::-webkit-scrollbar { display: none; }
 
@@ -16,13 +23,21 @@
             background-image: radial-gradient(circle at center, #1a0000 0%, #000 100%);
         }
 
-        /* TV REMOTE FOCUS STYLES - CRITICAL FOR FIRESTICK */
+        /* TV REMOTE FOCUS STYLES */
         :focus {
             outline: 4px solid var(--blood) !important;
             outline-offset: 4px;
             transform: scale(1.1) !important;
             z-index: 9999;
             box-shadow: 0 0 40px var(--blood) !important;
+        }
+
+        /* NEW: VISIBLE MENU TOGGLE BUTTON */
+        .menu-btn {
+            position: fixed; top: 20px; left: 20px; z-index: 3000;
+            background: var(--blood); color: white; border: none;
+            padding: 10px 15px; font-family: 'Creepster'; font-size: 1.2rem;
+            cursor: pointer; border-radius: 5px; box-shadow: 0 0 15px #000;
         }
 
         /* MEDUSA LOADER */
@@ -124,6 +139,8 @@
     <h2 style="font-family:'Nosifer'; color:var(--blood); margin-top:30px; letter-spacing: 3px;">Dead Yet?</h2>
 </div>
 
+<button class="menu-btn" tabindex="0" onclick="toggleSideMenu()">MENU</button>
+
 <div id="side-menu">
     <h3 style="color:var(--blood); font-family:'Nosifer';">THE VAULTS</h3>
     <div class="side-link" tabindex="0" onclick="setMode('shudder')">SHUDDER</div>
@@ -182,6 +199,13 @@
     const API_KEY = 'b9c746781e1e9b084c4cc4f0420156d4';
     let page = 1, mode = 'movies', fetching = false, selected = null, currentS = 1;
 
+    // TOGGLE MENU FUNCTION
+    function toggleSideMenu() {
+        const menu = document.getElementById('side-menu');
+        menu.classList.toggle('open');
+        if(menu.classList.contains('open')) menu.querySelector('.side-link').focus();
+    }
+
     let touchStart = 0;
     document.addEventListener('touchstart', e => touchStart = e.touches[0].clientX);
     document.addEventListener('touchend', e => {
@@ -217,10 +241,9 @@
             if(!item.poster_path) return;
             const card = document.createElement('div');
             card.className = 'card';
-            card.setAttribute('tabindex', '0'); // ALLOW REMOTE FOCUS
+            card.setAttribute('tabindex', '0'); 
             card.innerHTML = `<img src="https://image.tmdb.org/t/p/w342${item.poster_path}">`;
             card.onclick = () => openDetails(item);
-            // TRIGGER ON ENTER KEY FOR REMOTE
             card.onkeydown = (e) => { if(e.key === 'Enter') openDetails(item); };
             grid.appendChild(card);
         });
@@ -246,7 +269,7 @@
             document.getElementById('tv-controls').style.display = 'none';
         }
         saveHistory(item);
-        document.getElementById('play-btn').focus(); // AUTO FOCUS PLAY BUTTON
+        document.getElementById('play-btn').focus(); 
     }
 
     async function syncEpisodes(sNum, el) {
@@ -309,21 +332,18 @@
         }, 1500);
     };
 
-    // ==========================================
-    // FIRESTICK REMOTE SPATIAL NAVIGATION ENGINE
-    // ==========================================
+    // FIRESTICK REMOTE MAPPING
     document.addEventListener('keydown', (e) => {
         const menu = document.getElementById('side-menu');
         const active = document.activeElement;
 
-        // 1. OPEN SIDE MENU (Firestick Remote: 'Menu' button or 'm' key)
-        if (e.key === 'm' || e.key === 'ContextMenu') {
-            menu.classList.toggle('open');
-            if(menu.classList.contains('open')) menu.querySelector('.side-link').focus();
+        // OPEN SIDE MENU (Firestick 'Menu' button or context menu key)
+        if (e.key === 'm' || e.key === 'ContextMenu' || e.key === 'MediaPlayPause') {
+            toggleSideMenu();
             return;
         }
 
-        // 2. BACK BUTTON (Close details or menu)
+        // BACK BUTTON
         if (e.key === 'Backspace' || e.key === 'Escape') {
             if(menu.classList.contains('open')) {
                 menu.classList.remove('open');
@@ -332,9 +352,9 @@
             }
         }
 
-        // 3. DPAD NAVIGATION
+        // DPAD NAVIGATION
         const focusable = Array.from(document.querySelectorAll('input, .card, .side-link, .pill, button, [tabindex="0"]'))
-                               .filter(el => el.offsetParent !== null); // Only visible ones
+                               .filter(el => el.offsetParent !== null); 
 
         if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
             e.preventDefault();
@@ -350,8 +370,6 @@
         targets.forEach(el => {
             if (el === current) return;
             const r2 = el.getBoundingClientRect();
-            
-            // Check if el is in the right direction
             const isRightDir = (direction === 'ArrowRight' && r2.left >= r1.right) ||
                                (direction === 'ArrowLeft' && r2.right <= r1.left) ||
                                (direction === 'ArrowDown' && r2.top >= r1.bottom) ||
