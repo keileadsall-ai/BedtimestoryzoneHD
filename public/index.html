@@ -4,74 +4,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Fear+ | The Final Ritual</title>
-    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Metal+Mania&family=IM+Fell+English+SC&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Metal+Mania&display=swap" rel="stylesheet">
     <style>
-        :root { --blood: #b30000; --void: #020202; --smoke: rgba(10, 10, 10, 0.98); --glow: rgba(179, 0, 0, 0.4); }
+        :root { --blood: #e50914; --void: #000; --smoke: rgba(10, 10, 10, 0.98); }
         
         @media screen and (min-width: 900px) {
             body { padding: 1% 4% !important; }
-            .details-content { flex-direction: row !important; align-items: flex-start !important; gap: 40px !important; margin-top: -120px !important; }
+            .details-content { max-width: 900px !important; margin-top: -200px !important; }
         }
 
         * { box-sizing: border-box; scrollbar-width: none; -webkit-tap-highlight-color: transparent; }
         ::-webkit-scrollbar { display: none; }
 
         body { 
-            margin: 0; background: var(--void); color: #eee; 
-            font-family: 'Metal Mania', cursive; overflow-x: hidden;
-            background-image: radial-gradient(circle at center, #1a0000 0%, #000 100%);
+            margin: 0; background: var(--void); color: #fff; 
+            font-family: sans-serif; overflow-x: hidden;
         }
 
-        :focus { outline: 4px solid var(--blood) !important; outline-offset: 4px; transform: scale(1.05) !important; z-index: 9999; box-shadow: 0 0 50px var(--blood) !important; }
+        :focus { outline: 4px solid #fff !important; outline-offset: 4px; transform: scale(1.05); z-index: 9999; }
 
-        /* HOME NAVIGATION TABS */
+        /* HOME NAV & MENU */
         .home-nav { display: flex; gap: 15px; padding: 15px 20px; position: sticky; top: 0; z-index: 2000; background: var(--void); }
         .nav-tab { padding: 10px 22px; background: #111; border: 1px solid #333; color: #888; border-radius: 4px; font-family: 'Creepster'; font-size: 1.2rem; cursor: pointer; outline: none; }
-        .nav-tab.active { border-color: var(--blood); color: var(--blood); box-shadow: 0 0 10px var(--glow); }
+        .nav-tab.active { border-color: var(--blood); color: var(--blood); }
 
-        /* SIDE MENU (VAULTS) */
-        #side-menu { position: fixed; top: 0; left: -320px; width: 300px; height: 100%; background: #000; border-right: 3px solid var(--blood); z-index: 4000; transition: 0.3s; padding: 80px 25px; box-shadow: 20px 0 60px #000; }
+        #side-menu { position: fixed; top: 0; left: -320px; width: 300px; height: 100%; background: #000; border-right: 3px solid var(--blood); z-index: 4000; transition: 0.3s; padding: 80px 25px; }
         #side-menu.open { left: 0; }
-        .side-link { padding: 15px 0; color: #555; font-size: 1.8rem; cursor: pointer; border-bottom: 1px solid #111; outline: none; transition: 0.3s; }
-        .side-link:focus, .side-link:hover { color: var(--blood); padding-left: 10px; }
+        .side-link { padding: 15px 0; color: #555; font-size: 1.8rem; cursor: pointer; border-bottom: 1px solid #111; outline: none; font-family: 'Creepster'; }
+        .side-link:focus { color: var(--blood); }
 
-        .menu-btn { position: fixed; top: 20px; left: 20px; z-index: 3000; background: var(--blood); color: white; border: none; padding: 12px 20px; font-family: 'Creepster'; cursor: pointer; border-radius: 5px; }
+        .menu-btn { position: fixed; top: 20px; left: 20px; z-index: 3000; background: var(--blood); color: white; border: none; padding: 10px 15px; font-family: 'Creepster'; cursor: pointer; border-radius: 5px; }
 
-        #loader { position: fixed; inset: 0; background: black; z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.8s; }
-        .voodoo-container { width: 220px; height: 220px; border-radius: 50%; overflow: hidden; border: 3px solid var(--blood); }
-        .medusa-heart { width: 100%; height: 100%; object-fit: cover; animation: ritualThump 0.9s infinite; }
-        @keyframes ritualThump { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.1); } }
-
-        header { width: 100%; height: 40vh; background: linear-gradient(to bottom, transparent, var(--void)), url('IMG_8238.jpeg') no-repeat center top; background-size: cover; border-bottom: 3px solid var(--blood); position: relative; }
-        .logo { position: absolute; bottom: 30px; left: 5%; font-family: 'Nosifer'; font-size: clamp(3rem, 15vw, 7rem); color: var(--blood); text-shadow: 0 0 30px #000; }
+        header { width: 100%; height: 40vh; background: linear-gradient(to bottom, transparent, var(--void)), url('IMG_8238.jpeg') no-repeat center top; background-size: cover; position: relative; }
+        .logo { position: absolute; bottom: 20px; left: 5%; font-family: 'Nosifer'; font-size: clamp(2rem, 10vw, 5rem); color: var(--blood); }
 
         .search-container { padding: 10px 20px; }
-        .search-input { width: 100%; background: #000; border: 1px solid var(--blood); padding: 15px; color: var(--blood); font-family: 'Creepster'; font-size: 1.4rem; outline: none; }
+        .search-input { width: 100%; background: #111; border: 1px solid #333; padding: 15px; color: white; border-radius: 8px; outline: none; }
 
-        .horror-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 12px; padding: 15px; }
-        .card { aspect-ratio: 2/3; background: #080808; border: 1px solid #111; cursor: pointer; overflow: hidden; outline: none; transition: 0.4s; }
+        .horror-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; padding: 15px; }
+        .card { aspect-ratio: 2/3; background: #111; border-radius: 8px; cursor: pointer; overflow: hidden; outline: none; transition: 0.3s; }
         .card img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* DETAILS OVERLAY */
-        #ritual-screen { position: fixed; inset: 0; background: #000; z-index: 5000; display: none; overflow-y: auto; font-family: sans-serif; }
-        .hero-bg { width: 100%; height: 55vh; background-size: cover; background-position: center; position: relative; }
-        .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent, #000 98%); }
-        .back-btn { position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.6); border: none; color: white; width: 45px; height: 45px; border-radius: 50%; font-size: 1.5rem; cursor: pointer; z-index: 100; display: flex; align-items: center; justify-content: center; }
+        /* ========================================= */
+        /* CLEANED UP DETAILS OVERLAY */
+        /* ========================================= */
+        #ritual-screen { position: fixed; inset: 0; background: #000; z-index: 5000; display: none; overflow-y: auto; }
+        .hero-bg { width: 100%; height: 60vh; background-size: cover; background-position: center; position: relative; }
+        .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 20%, #000 95%); }
+        
+        .back-circle { position: absolute; top: 25px; left: 25px; background: rgba(255,255,255,0.1); border: none; color: #fff; width: 45px; height: 45px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; }
 
-        .details-content { padding: 0 20px; max-width: 1200px; margin: -100px auto 0; position: relative; z-index: 10; display: flex; flex-direction: column; }
-        .info-header { display: flex; align-items: flex-end; gap: 20px; margin-bottom: 25px; }
-        .main-poster { width: 130px; border-radius: 8px; box-shadow: 0 10px 30px #000; flex-shrink: 0; }
-        .title-meta h1 { font-size: clamp(1.5rem, 5vw, 2.5rem); margin: 0 0 8px; color: white; }
-        .rating-chip { border: 1px solid #ffc107; color: #ffc107; padding: 2px 8px; border-radius: 4px; font-weight: bold; }
+        .details-content { padding: 0 25px; position: relative; z-index: 5; }
+        
+        .header-row { display: flex; align-items: flex-end; gap: 20px; margin-bottom: 25px; }
+        .det-poster { width: 130px; border-radius: 10px; box-shadow: 0 15px 35px rgba(0,0,0,0.7); flex-shrink: 0; }
+        .det-title-area h1 { margin: 0 0 8px; font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px; }
+        .det-meta { display: flex; align-items: center; gap: 15px; color: #999; font-size: 0.95rem; font-weight: 600; }
+        .star-chip { border: 1px solid #ffc107; color: #ffc107; padding: 2px 8px; border-radius: 5px; font-size: 0.85rem; display: flex; align-items: center; gap: 4px; }
 
-        .play-btn { background: #e50914; color: white; border: none; padding: 18px; border-radius: 8px; font-size: 1.2rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 25px; }
-        .description { color: #ccc; line-height: 1.6; font-size: 1rem; margin-bottom: 30px; }
+        .actions { display: flex; align-items: center; gap: 12px; margin-bottom: 25px; }
+        .main-play-btn { 
+            flex: 1; height: 55px; background: var(--blood); color: #fff; border: none; 
+            border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .play-icon-circle { background: #fff; color: #000; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; padding-left: 2px; }
+        .heart-btn { background: rgba(255,255,255,0.1); border: none; color: #fff; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; cursor: pointer; }
 
-        .season-row { display: flex; overflow-x: auto; gap: 8px; padding: 10px 0; }
-        .pill { padding: 10px 18px; background: #1a1a1a; border: none; color: #888; border-radius: 6px; cursor: pointer; white-space: nowrap; }
-        .pill.active { background: #e50914; color: white; }
+        .det-description { color: #bbb; line-height: 1.6; font-size: 1rem; margin-bottom: 30px; font-weight: 400; }
 
-        .player-mount { width: 100%; aspect-ratio: 16/9; background: #000; border: 1px solid #333; margin: 20px 0; display: none; }
+        .season-row { display: flex; overflow-x: auto; gap: 8px; margin-bottom: 15px; }
+        .pill { padding: 12px 20px; background: #1a1a1a; color: #fff; border-radius: 10px; cursor: pointer; font-weight: 600; white-space: nowrap; border: none; }
+        .pill.active { background: var(--blood); }
+
+        .player-mount { width: 100%; aspect-ratio: 16/9; background: #000; border: 1px solid #222; margin: 20px 0 40px; display: none; }
         iframe { width: 100%; height: 100%; border: none; }
     </style>
 </head>
@@ -102,16 +108,16 @@
 </nav>
 
 <div class="search-container">
-    <input type="text" id="search" class="search-input" placeholder="SEARCH SACRIFICE..." onkeydown="handleSearch(event)">
+    <input type="text" id="search" class="search-input" placeholder="Search for a sacrifice..." onkeydown="handleSearch(event)">
 </div>
 
 <main id="home-content">
     <div class="horror-grid" id="main-grid"></div>
-    <section id="resume-ritual" style="display:none; padding:20px;">
-        <h2 style="color:var(--blood); font-family:'Creepster'; font-size:1.5rem; margin-bottom:15px;">CONTINUE WATCHING</h2>
-        <div id="continue-grid" style="display:flex; overflow-x:auto; gap:10px;"></div>
-    </section>
     <div id="sentinel" style="height: 100px;"></div>
+    <section id="resume-ritual" style="display:none; padding:20px;">
+        <h2 style="color:var(--blood); font-family:'Creepster';">CONTINUE WATCHING</h2>
+        <div class="horror-grid" id="continue-grid" style="grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));"></div>
+    </section>
 </main>
 
 <div id="search-results" style="display:none; position:fixed; inset:0; background:#000; z-index:2500; padding-top:80px; overflow-y:auto;">
@@ -119,28 +125,36 @@
 </div>
 
 <div id="ritual-screen">
-    <button class="back-btn" onclick="closeRitual()">←</button>
+    <button class="back-circle" onclick="closeRitual()">←</button>
     <div id="hero-bg" class="hero-bg"><div class="hero-overlay"></div></div>
+    
     <div class="details-content">
-        <div class="info-header">
-            <img id="det-poster" class="main-poster">
-            <div class="title-meta">
+        <div class="header-row">
+            <img id="det-poster" class="det-poster">
+            <div class="det-title-area">
                 <h1 id="det-title"></h1>
-                <div class="meta-tags">
+                <div class="det-meta">
                     <span id="det-year"></span>
-                    <div class="rating-chip">★ <span id="det-rate"></span></div>
+                    <div class="star-chip">★ <span id="det-rate"></span></div>
                 </div>
             </div>
         </div>
-        <button id="play-btn" class="play-btn" onclick="showPlayer()">
-            <div style="background: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; color: black; font-size: 0.8rem;">▶</div>
-            Play Now
-        </button>
-        <div id="det-desc" class="description"></div>
+
+        <div class="actions">
+            <button id="play-btn" class="main-play-btn" onclick="showPlayer()">
+                <div class="play-icon-circle">▶</div>
+                Play Now
+            </button>
+            <button class="heart-btn">♡</button>
+        </div>
+
+        <div id="det-desc" class="det-description"></div>
+
         <div id="tv-controls" style="display:none;">
             <div id="s-row" class="season-row"></div>
             <div id="e-row" class="season-row"></div>
         </div>
+
         <div id="player-mount" class="player-mount"></div>
     </div>
 </div>
@@ -195,8 +209,6 @@
         if(fetching) return; fetching = true;
         
         let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&page=${page}&sort_by=popularity.desc`;
-        
-        // ACCURATE CONTENT QUERIES
         if(mode === 'trending') url = `https://api.themoviedb.org/3/trending/all/week?api_key=${API_KEY}&page=${page}`;
         else if(mode === 'unrated') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&certification_country=US&certification.gte=NC-17&page=${page}`;
         else if(mode === 'shudder') url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_networks=2506&page=${page}`;
@@ -235,6 +247,7 @@
         document.getElementById('hero-bg').style.backgroundImage = `url(https://image.tmdb.org/t/p/original${item.backdrop_path})`;
         document.getElementById('det-year').innerText = (item.release_date || item.first_air_date || '').split('-')[0];
         document.getElementById('det-rate').innerText = (item.vote_average || 0).toFixed(1);
+        
         if(item.first_air_date) {
             document.getElementById('tv-controls').style.display = 'block';
             const res = await fetch(`https://api.themoviedb.org/3/tv/${item.id}?api_key=${API_KEY}`);
@@ -242,6 +255,7 @@
             document.getElementById('s-row').innerHTML = data.seasons.map(s => `<div class="pill" tabindex="0" onclick="syncEpisodes(${s.season_number}, this)">S${s.season_number}</div>`).join('');
             syncEpisodes(1);
         } else { document.getElementById('tv-controls').style.display = 'none'; }
+        
         history.pushState(null, null, window.location.pathname);
         saveHistory(item);
     }
