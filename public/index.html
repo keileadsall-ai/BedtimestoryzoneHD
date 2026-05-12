@@ -120,29 +120,37 @@
 
             let results = [];
             
-            // Wes Craven - Strict Directing Filter
             if (activeType === 'wes_craven') {
                 const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_crew=5140&sort_by=release_date.desc&page=${currentPage}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 results = data.results;
             }
-            // Black Horror - Curated IDs + Keywords Cluster
+            // MODIFIED BLACK HORROR SECTION
             else if (activeType === 'black_horror') {
-                // Fetch curated list via keyword discovery for African American Cinema (233306) in Horror
-                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_keywords=233306|209825|156036&sort_by=popularity.desc&page=${currentPage}`;
-                const res = await fetch(url);
-                const data = await res.json();
-                results = data.results;
+                const curated = [
+                    { id: 419430, type: 'movie' }, { id: 458723, type: 'movie' }, 
+                    { id: 561, type: 'movie' }, { id: 565028, type: 'movie' },
+                    { id: 41416, type: 'movie' }, { id: 62057, type: 'movie' },
+                    { id: 31057, type: 'movie' }, { id: 21971, type: 'movie' },
+                    { id: 27958, type: 'movie' }, { id: 11442, type: 'movie' },
+                    { id: 641662, type: 'movie' }, { id: 82816, type: 'tv' },
+                    { id: 112053, type: 'tv' }, { id: 104712, type: 'movie' },
+                    { id: 421271, type: 'movie' }, { id: 615666, type: 'movie' },
+                    { id: 627233, type: 'movie' }
+                ];
+                const requests = curated.map(item => fetch(`https://api.themoviedb.org/3/${item.type}/${item.id}?api_key=${API_KEY}`).then(r => r.json()));
+                results = await Promise.all(requests);
+                isLoading = false; 
+                renderGrid(results);
+                return;
             }
-            // Ghastly Series - TV Horror Only
             else if (activeType === 'horror_shows') {
                 const url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 results = data.results;
             }
-            // Unrated - Strict Certification
             else if (activeType === 'unrated') {
                 const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification=NR|UR|NC-17&page=${currentPage}`;
                 const res = await fetch(url);
