@@ -168,44 +168,49 @@
             let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}&sort_by=popularity.desc`;
             
             if (activeType === 'trending') url = `https://api.themoviedb.org/3/trending/all/day?api_key=${API_KEY}&page=${currentPage}`;
-            else if (activeType === 'horror_shows') url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}&sort_by=popularity.desc`;
+            
+            // GHASTLY SERIES: Horror TV + Documentaries (genre 99)
+            else if (activeType === 'horror_shows') url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=${HORROR_ID}|99&page=${currentPage}&sort_by=popularity.desc`;
+            
+            // UNRATED: Only NR, UR, or NC-17
             else if (activeType === 'unrated') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification.gte=NC-17&page=${currentPage}`;
             
-            // WES CRAVEN TOTAL VAULT LOGIC
+            // WES CRAVEN: Full career (Movies & TV)
             else if (activeType === 'person' && activeID === 6650) {
-                url = `https://api.themoviedb.org/3/person/6650/combined_credits?api_key=${API_KEY}`;
-                try {
-                    const res = await fetch(url);
-                    const data = await res.json();
-                    let allCredits = [...data.cast, ...data.crew];
-                    const uniqueCredits = Array.from(new Map(allCredits.map(item => [item.id, item])).values());
-                    uniqueCredits.sort((a, b) => (b.release_date || b.first_air_date || '0').localeCompare(a.release_date || a.first_air_date || '0'));
-                    renderGrid(uniqueCredits);
-                    isLoading = false;
-                    return; 
-                } catch (err) { console.error(err); isLoading = false; return; }
+                const res = await fetch(`https://api.themoviedb.org/3/person/6650/combined_credits?api_key=${API_KEY}`);
+                const data = await res.json();
+                let combined = [...data.cast, ...data.crew];
+                const unique = Array.from(new Map(combined.map(item => [item.id, item])).values());
+                unique.sort((a, b) => (b.release_date || b.first_air_date || '0').localeCompare(a.release_date || a.first_air_date || '0'));
+                renderGrid(unique);
+                isLoading = false; return;
             }
 
             else if (activeType === 'person') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_people=${activeID}&page=${currentPage}`;
             else if (activeType === 'company') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_companies=${activeID}&page=${currentPage}`;
+            
+            // BLACK HORROR: Uses deep-keyword clustering for specific genre matches
             else if (activeType === 'black_horror') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_keywords=209825|260731|233306&page=${currentPage}`;
+            
+            // YOUTH HORROR: PG, PG-13, and TV-14 ratings only
             else if (activeType === 'youth') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification.lte=PG-13&page=${currentPage}`;
+            
+            // ABROAD: All Non-English horror
             else if (activeType === 'abroad') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&without_original_language=en&page=${currentPage}`;
+            
             else if (activeType === 'search') url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${activeID}&page=${currentPage}`;
 
             try {
                 const res = await fetch(url);
                 const data = await res.json();
-                const filtered = data.results.filter(item => 
-                    (item.genre_ids && item.genre_ids.includes(HORROR_ID)) || (activeType === 'search' && item.genre_ids && item.genre_ids.includes(HORROR_ID))
-                );
-                renderGrid(filtered);
+                renderGrid(data.results);
                 currentPage++;
             } catch (err) { console.error(err); } finally { isLoading = false; }
         }
 
         function renderGrid(results) {
             const grid = document.getElementById('movie-grid');
+            if (!results) return;
             results.forEach(m => {
                 if (!m.poster_path) return;
                 const card = document.createElement('div');
@@ -222,7 +227,7 @@
             const data = await res.json();
             currentMedia = { id, type, s: 1, e: 1, title: data.name || data.title, poster: data.poster_path };
             document.getElementById('show-title').innerText = currentMedia.title;
-            document.getElementById('show-desc').innerText = data.overview || "The description has been redacted by the authorities.";
+            document.getElementById('show-desc').innerText = data.overview || "The description has been redacted.";
             document.getElementById('show-year').innerText = (data.release_date || data.first_air_date || '').split('-')[0];
             document.getElementById('show-rating').innerText = data.vote_average ? data.vote_average.toFixed(1) : '6.6';
             document.getElementById('details-poster').src = `https://image.tmdb.org/t/p/w500${data.poster_path}`;
@@ -240,6 +245,7 @@
         function renderSeasons(data) {
             const container = document.getElementById('season-buttons');
             container.innerHTML = '';
+            if(!data.seasons) return;
             data.seasons.forEach(s => {
                 if (s.season_number === 0) return;
                 const btn = document.createElement('button');
@@ -256,6 +262,7 @@
             const data = await res.json();
             const grid = document.getElementById('episode-grid');
             grid.innerHTML = '';
+            if(!data.episodes) return;
             data.episodes.forEach(e => {
                 const epRow = document.createElement('div');
                 epRow.className = "episode-row focusable";
