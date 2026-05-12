@@ -168,10 +168,26 @@
             let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}&sort_by=popularity.desc`;
             
             if (activeType === 'trending') url = `https://api.themoviedb.org/3/trending/all/day?api_key=${API_KEY}&page=${currentPage}`;
-            else if (activeType === 'horror_shows') url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}&sort_by=popularity.desc&without_genres=10767,10763`;
+            else if (activeType === 'horror_shows') url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}&sort_by=popularity.desc`;
             else if (activeType === 'unrated') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification.gte=NC-17&page=${currentPage}`;
-            else if (activeType === 'person') url = `https://api.themoviedb.org/3/discover/multi?api_key=${API_KEY}&with_people=${activeID}&page=${currentPage}`;
-            else if (activeType === 'company') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_companies=${activeID}&page=${currentPage}`;
+            
+            // WES CRAVEN TOTAL VAULT LOGIC
+            else if (activeType === 'person' && activeID === 6650) {
+                url = `https://api.themoviedb.org/3/person/6650/combined_credits?api_key=${API_KEY}`;
+                try {
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    let allCredits = [...data.cast, ...data.crew];
+                    const uniqueCredits = Array.from(new Map(allCredits.map(item => [item.id, item])).values());
+                    uniqueCredits.sort((a, b) => (b.release_date || b.first_air_date || '0').localeCompare(a.release_date || a.first_air_date || '0'));
+                    renderGrid(uniqueCredits);
+                    isLoading = false;
+                    return; 
+                } catch (err) { console.error(err); isLoading = false; return; }
+            }
+
+            else if (activeType === 'person') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_people=${activeID}&page=${currentPage}`;
+            else if (activeType === 'company') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_companies=${activeID}&page=${currentPage}`;
             else if (activeType === 'black_horror') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_keywords=209825|260731|233306&page=${currentPage}`;
             else if (activeType === 'youth') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification.lte=PG-13&page=${currentPage}`;
             else if (activeType === 'abroad') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&without_original_language=en&page=${currentPage}`;
@@ -180,17 +196,8 @@
             try {
                 const res = await fetch(url);
                 const data = await res.json();
-                let results = data.results;
-
-                // Specialized filtering for Wes Craven (ensure TV shows and Movies)
-                if(activeType === 'person' && activeID === '6650') {
-                    const tvRes = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_people=6650&page=${currentPage}`);
-                    const tvData = await tvRes.json();
-                    results = [...results, ...tvData.results];
-                }
-
-                const filtered = results.filter(item => 
-                    (item.genre_ids && item.genre_ids.includes(HORROR_ID)) || (activeType === 'search' && item.genre_ids && item.genre_ids.includes(HORROR_ID)) || activeType === 'person'
+                const filtered = data.results.filter(item => 
+                    (item.genre_ids && item.genre_ids.includes(HORROR_ID)) || (activeType === 'search' && item.genre_ids && item.genre_ids.includes(HORROR_ID))
                 );
                 renderGrid(filtered);
                 currentPage++;
