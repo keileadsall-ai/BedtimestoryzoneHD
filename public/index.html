@@ -170,7 +170,8 @@
             <div class="horror-font text-red-600 bg-black/80 px-4 py-2 rounded border border-red-900">NOW CONSUMING</div>
             <button id="close-player-btn" onclick="closePlayer()" class="focusable bg-red-600 text-white px-6 py-2 rounded font-bold">✕ STOP</button>
         </div>
-        <iframe id="luxe-player" class="w-full h-full" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+        <!-- Sandbox attribute added to prevent top-level redirects -->
+        <iframe id="luxe-player" class="w-full h-full" allowfullscreen allow="autoplay; encrypted-media" sandbox="allow-forms allow-scripts allow-pointer-lock allow-same-origin allow-presentation"></iframe>
     </div>
 
     <script>
@@ -280,7 +281,13 @@
             const playerOverlay = document.getElementById('player-overlay');
             const iframe = document.getElementById('luxe-player');
             playerOverlay.style.display = 'block';
-            iframe.src = (type === 'movie' ? `https://vidsrc.cc/v2/embed/movie/${id}` : `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}`);
+            
+            // Generate URL
+            const url = (type === 'movie' ? `https://vidsrc.cc/v2/embed/movie/${id}` : `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}`);
+            
+            // To prevent redirects, we reset the src and ensure the sandbox is active
+            iframe.src = url;
+            
             setTimeout(() => document.getElementById('close-player-btn').focus(), 500);
         }
 
@@ -316,7 +323,9 @@
             document.getElementById('main-app-wrapper').classList.remove('hidden');
         }
         function closePlayer() { 
-            document.getElementById('luxe-player').src = ""; 
+            const iframe = document.getElementById('luxe-player');
+            // Clear the iframe to kill audio/video immediately
+            iframe.src = ""; 
             document.getElementById('player-overlay').style.display = 'none'; 
         }
         
