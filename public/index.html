@@ -20,13 +20,11 @@
         .horror-font { font-family: 'Creepster', cursive; }
         .nosifer { font-family: 'Nosifer', cursive; }
         
-        /* Loading Screen */
         #loader { position: fixed; inset: 0; background: black; z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.8s; }
         .voodoo-container { width: 180px; height: 180px; border-radius: 50%; border: 3px solid var(--blood); overflow: hidden; box-shadow: 0 0 40px var(--blood); }
         .medusa-heart { width: 100%; height: 100%; object-fit: cover; animation: thump 1s infinite; }
         @keyframes thump { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.1); } }
 
-        /* Side Menu */
         #side-menu { 
             position: fixed; top: 0; left: 0; bottom: 0; width: 300px; 
             background: #000; border-right: 3px solid var(--blood); 
@@ -36,7 +34,6 @@
         
         .nav-active { border-bottom: 2px solid var(--blood); color: var(--blood) !important; }
 
-        /* Content Cards */
         .movie-card { 
             aspect-ratio: 2/3; border-radius: 8px; overflow: hidden; 
             cursor: pointer; transition: 0.3s; border: 2px solid transparent; 
@@ -79,17 +76,21 @@
         <h2 class="nosifer text-red-600 mt-6 text-xl">Entering the Ritual...</h2>
     </div>
 
-    <!-- Sidebar: The Horror Vaults -->
+    <!-- Updated Sidebar with requested Horror Icons -->
     <div id="side-menu" class="p-8 no-scrollbar overflow-y-auto">
         <h2 class="nosifer text-red-600 text-2xl mb-8">THE VAULTS</h2>
         <div class="flex flex-col gap-2 horror-font text-xl">
-            <button class="focusable text-left py-3 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('shudder')">SHUDDER ORIGINALS</button>
-            <button class="focusable text-left py-3 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('network', 88)">FX HORROR</button>
-            <button class="focusable text-left py-3 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('hulu')">HULU BLOOD</button>
-            <button class="focusable text-left py-3 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('network', 453)">AMC+ MACABRE</button>
-            <button class="focusable text-left py-3 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('70s')">70s SLASHERS</button>
-            <button class="focusable text-left py-3 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('80s')">80s GORE</button>
-            <button class="focusable text-left py-3 mt-10 text-zinc-600" onclick="toggleMenu()">CLOSE [X]</button>
+            <button class="focusable text-left py-2 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('person', 17)">WES CRAVEN</button>
+            <button class="focusable text-left py-2 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('person', 3027)">STEPHEN KING</button>
+            <button class="focusable text-left py-2 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('company', 3172)">BLUMHOUSE</button>
+            <button class="focusable text-left py-2 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('company', 3237)">TWISTED PICTURES</button>
+            <button class="focusable text-left py-2 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('company', 1981)">DARK CASTLE</button>
+            <button class="focusable text-left py-2 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('company', 5257)">IFC MIDNIGHT</button>
+            <div class="my-4 border-t border-zinc-800"></div>
+            <button class="focusable text-left py-2 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('shudder')">SHUDDER ORIGINALS</button>
+            <button class="focusable text-left py-2 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('network', 88)">FX HORROR</button>
+            <button class="focusable text-left py-2 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('hulu')">HULU BLOOD</button>
+            <button class="focusable text-left py-2 mt-10 text-zinc-600" onclick="toggleMenu()">CLOSE [X]</button>
         </div>
     </div>
 
@@ -121,14 +122,13 @@
         <div id="sentinel" class="h-20"></div>
     </div>
 
-    <!-- Detail Selection View -->
+    <!-- Detail View -->
     <div id="selector-overlay" class="hidden fixed inset-0 bg-black z-[5000] overflow-y-auto no-scrollbar">
         <div id="details-backdrop" class="absolute top-0 w-full h-[60vh] opacity-40 bg-cover bg-center filter blur-2xl"></div>
         <div class="relative z-10 p-6 max-w-5xl mx-auto">
             <button onclick="closeSelector()" class="focusable mb-8 bg-white/10 p-3 rounded-full border border-white/20">
                 <svg width="24" height="24" fill="white" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
             </button>
-            
             <div class="flex flex-col md:flex-row gap-8 mb-10">
                 <img id="details-poster" class="w-48 rounded-xl shadow-2xl border border-red-900/30">
                 <div class="flex flex-col justify-end">
@@ -138,14 +138,10 @@
                         <span class="border border-red-600 text-red-600 px-2 py-1 rounded">★ <span id="show-rating"></span></span>
                         <span id="media-type-tag" class="text-zinc-500"></span>
                     </div>
-                    <button id="main-play-trigger" onclick="startLuxeStream()" class="focusable btn-play-blood mt-6 horror-font text-2xl tracking-widest">
-                        ▶ COMMENCE
-                    </button>
+                    <button id="main-play-trigger" onclick="startLuxeStream()" class="focusable btn-play-blood mt-6 horror-font text-2xl tracking-widest">▶ COMMENCE</button>
                 </div>
             </div>
-
             <p id="show-desc" class="text-zinc-400 text-lg leading-relaxed mb-10 max-w-3xl"></p>
-
             <div id="tv-controls" class="hidden">
                 <h3 class="horror-font text-red-600 text-2xl mb-4 uppercase">Epitaphs (Episodes)</h3>
                 <div id="season-buttons" class="flex gap-3 overflow-x-auto no-scrollbar mb-6"></div>
@@ -154,7 +150,7 @@
         </div>
     </div>
 
-    <!-- Global Player -->
+    <!-- Player Overlay -->
     <div id="player-overlay">
         <div class="absolute top-6 left-6 right-6 flex justify-between items-center z-[9001]">
             <div class="horror-font text-red-600 bg-black/80 px-4 py-2 rounded border border-red-900 uppercase">Now Consuming</div>
@@ -174,7 +170,6 @@
             isLoading = true;
             if (!append) { currentPage = 1; document.getElementById('movie-grid').innerHTML = ''; }
 
-            // Hard-enforced Horror filtering on all endpoints
             let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}&sort_by=popularity.desc`;
             
             if (activeType === 'trending') {
@@ -182,17 +177,20 @@
             } else if (activeType === 'horror_shows') {
                 url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}`;
             } else if (activeType === 'unrated') {
-                url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification.gte=R&page=${currentPage}`;
+                // Strict NR/Unrated filter
+                url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification=NR&page=${currentPage}`;
             } else if (activeType === 'shudder') {
                 url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_networks=2506&with_genres=${HORROR_ID}&page=${currentPage}`;
             } else if (activeType === 'network') {
-                url = `https://api.themoviedb.org/3/discover/all?api_key=${API_KEY}&with_networks=${activeID}&with_genres=${HORROR_ID}&page=${currentPage}`;
+                url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_networks=${activeID}&with_genres=${HORROR_ID}&page=${currentPage}`;
+            } else if (activeType === 'person') {
+                // Wes Craven or Stephen King filter
+                url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_people=${activeID}&with_genres=${HORROR_ID}&page=${currentPage}`;
+            } else if (activeType === 'company') {
+                // Production Company filters
+                url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_companies=${activeID}&with_genres=${HORROR_ID}&page=${currentPage}`;
             } else if (activeType === 'hulu') {
                 url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_networks=453&page=${currentPage}`;
-            } else if (activeType === '70s') {
-                url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&primary_release_date.gte=1970-01-01&primary_release_date.lte=1979-12-31&page=${currentPage}`;
-            } else if (activeType === '80s') {
-                url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&primary_release_date.gte=1980-01-01&primary_release_date.lte=1989-12-31&page=${currentPage}`;
             } else if (activeType === 'search') {
                 url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${activeID}&page=${currentPage}`;
             }
@@ -200,10 +198,7 @@
             try {
                 const res = await fetch(url);
                 const data = await res.json();
-                // Double-check genre safety for mixed results like 'trending' or 'search'
-                const filtered = data.results.filter(item => 
-                    item.genre_ids && item.genre_ids.includes(HORROR_ID)
-                );
+                const filtered = data.results.filter(item => item.genre_ids && item.genre_ids.includes(HORROR_ID));
                 renderGrid(filtered);
                 currentPage++;
             } catch (err) { console.error(err); } finally { isLoading = false; }
@@ -225,25 +220,16 @@
         async function openDetails(id, type) {
             const res = await fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}`);
             const data = await res.json();
-            
             currentMedia = { id, type, s: 1, e: 1, title: data.name || data.title, poster: data.poster_path };
-            
             document.getElementById('show-title').innerText = currentMedia.title;
-            document.getElementById('show-desc').innerText = data.overview || "The description has been redacted by the authorities.";
+            document.getElementById('show-desc').innerText = data.overview || "The description has been redacted.";
             document.getElementById('show-year').innerText = (data.release_date || data.first_air_date || '').split('-')[0];
             document.getElementById('show-rating').innerText = data.vote_average ? data.vote_average.toFixed(1) : '6.6';
             document.getElementById('details-poster').src = `https://image.tmdb.org/t/p/w500${data.poster_path}`;
             document.getElementById('details-backdrop').style.backgroundImage = `url(https://image.tmdb.org/t/p/original${data.backdrop_path})`;
             document.getElementById('media-type-tag').innerText = type.toUpperCase();
-            
             const tvArea = document.getElementById('tv-controls');
-            if (type === 'tv') {
-                tvArea.classList.remove('hidden');
-                renderSeasons(data);
-            } else {
-                tvArea.classList.add('hidden');
-            }
-
+            if (type === 'tv') { tvArea.classList.remove('hidden'); renderSeasons(data); } else { tvArea.classList.add('hidden'); }
             document.getElementById('main-app-wrapper').classList.add('hidden');
             document.getElementById('selector-overlay').classList.remove('hidden');
             window.scrollTo(0, 0);
@@ -276,14 +262,7 @@
                 epRow.tabIndex = 0;
                 epRow.onclick = () => { currentMedia.s = seasonNum; currentMedia.e = e.episode_number; startLuxeStream(); };
                 const thumb = e.still_path ? `https://image.tmdb.org/t/p/w300${e.still_path}` : '';
-                epRow.innerHTML = `
-                    <div class="ep-thumbnail" style="background-image:url(${thumb})">
-                        <div class="ep-play-icon">▶</div>
-                    </div>
-                    <div class="flex-1">
-                        <div class="text-white font-bold">E${e.episode_number} ${e.name}</div>
-                        <div class="text-zinc-500 text-xs line-clamp-1">${e.overview}</div>
-                    </div>`;
+                epRow.innerHTML = `<div class="ep-thumbnail" style="background-image:url(${thumb})"><div class="ep-play-icon">▶</div></div><div class="flex-1"><div class="text-white font-bold">E${e.episode_number} ${e.name}</div><div class="text-zinc-500 text-xs line-clamp-1">${e.overview}</div></div>`;
                 grid.appendChild(epRow);
             });
         }
@@ -293,17 +272,14 @@
             const playerOverlay = document.getElementById('player-overlay');
             const iframe = document.getElementById('luxe-player');
             playerOverlay.style.display = 'block';
-            // Vidsrc architecture for reliable content delivery
             iframe.src = (type === 'movie' ? `https://vidsrc.cc/v2/embed/movie/${id}` : `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}`);
             setTimeout(() => document.getElementById('close-player-btn').focus(), 500);
         }
 
         function saveToHistory(item) {
             let history = JSON.parse(localStorage.getItem('fear_history_v2') || '[]');
-            history = history.filter(x => x.id !== item.id);
-            history.unshift(item);
-            localStorage.setItem('fear_history_v2', JSON.stringify(history.slice(0, 10)));
-            renderHistory();
+            history = history.filter(x => x.id !== item.id); history.unshift(item);
+            localStorage.setItem('fear_history_v2', JSON.stringify(history.slice(0, 10))); renderHistory();
         }
 
         function renderHistory() {
@@ -311,12 +287,10 @@
             const section = document.getElementById('continue-section');
             const grid = document.getElementById('continue-grid');
             if (history.length === 0) return;
-            section.classList.remove('hidden');
-            grid.innerHTML = '';
+            section.classList.remove('hidden'); grid.innerHTML = '';
             history.forEach(item => {
                 const card = document.createElement('div');
-                card.className = "min-w-[110px] max-w-[110px] cursor-pointer focusable movie-card";
-                card.tabIndex = 0;
+                card.className = "min-w-[110px] max-w-[110px] cursor-pointer focusable movie-card"; card.tabIndex = 0;
                 card.onclick = () => openDetails(item.id, item.type);
                 card.innerHTML = `<img src="https://image.tmdb.org/t/p/w300${item.poster}" class="w-full h-full object-cover">`;
                 grid.appendChild(card);
@@ -324,40 +298,27 @@
         }
 
         function toggleMenu() { document.getElementById('side-menu').classList.toggle('menu-open'); }
-        function closeSelector() { 
-            document.getElementById('selector-overlay').classList.add('hidden'); 
-            document.getElementById('main-app-wrapper').classList.remove('hidden');
-        }
-        function closePlayer() { 
-            document.getElementById('luxe-player').src = ""; 
-            document.getElementById('player-overlay').style.display = 'none'; 
-        }
+        function closeSelector() { document.getElementById('selector-overlay').classList.add('hidden'); document.getElementById('main-app-wrapper').classList.remove('hidden'); }
+        function closePlayer() { document.getElementById('luxe-player').src = ""; document.getElementById('player-overlay').style.display = 'none'; }
         
         function setFilter(type, id = '') {
             activeType = type; activeID = id;
             document.querySelectorAll('nav button').forEach(b => b.classList.remove('nav-active'));
             if(event && event.target.tagName === 'BUTTON') event.target.classList.add('nav-active');
-            fetchContent();
-            document.getElementById('side-menu').classList.remove('menu-open');
-            window.scrollTo(0,0);
+            fetchContent(); toggleMenu(); window.scrollTo(0,0);
         }
 
-        function handleSearch(e) { 
-            if (e.key === 'Enter') { activeType = 'search'; activeID = e.target.value; fetchContent(); e.target.blur(); } 
-        }
+        function handleSearch(e) { if (e.key === 'Enter') { activeType = 'search'; activeID = e.target.value; fetchContent(); e.target.blur(); } }
 
-        // Spatial Navigation Engine
         document.addEventListener('keydown', function(e) {
             const current = document.activeElement;
             const focusables = Array.from(document.querySelectorAll('.focusable')).filter(el => el.offsetParent !== null);
-            
-            if (e.key === 'Backspace' || e.keyCode === 10009) {
+            if (e.key === 'Backspace') {
                 e.preventDefault();
                 if (document.getElementById('player-overlay').style.display === 'block') closePlayer();
                 else if (!document.getElementById('selector-overlay').classList.contains('hidden')) closeSelector();
                 else if (document.getElementById('side-menu').classList.contains('menu-open')) toggleMenu();
             }
-
             if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
                 e.preventDefault();
                 const dir = e.key.replace('Arrow', '').toLowerCase();
@@ -382,16 +343,9 @@
         }
 
         window.onload = () => {
-            fetchContent();
-            renderHistory();
-            setTimeout(() => { 
-                document.getElementById('loader').style.opacity = '0'; 
-                setTimeout(()=>document.getElementById('loader').remove(), 800); 
-            }, 1200);
-            
-            const mc = new Hammer(document.body);
-            mc.on("swiperight", () => toggleMenu());
-            
+            fetchContent(); renderHistory();
+            setTimeout(() => { document.getElementById('loader').style.opacity = '0'; setTimeout(()=>document.getElementById('loader').remove(), 800); }, 1200);
+            const mc = new Hammer(document.body); mc.on("swiperight", () => toggleMenu());
             const obs = new IntersectionObserver(e => { if(e[0].isIntersecting) fetchContent(true); });
             obs.observe(document.getElementById('sentinel'));
         };
