@@ -21,7 +21,7 @@
         #side-menu { position: fixed; top: 0; left: 0; bottom: 0; width: 300px; background: #000; border-right: 3px solid var(--blood); z-index: 4000; transform: translateX(-100%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .menu-open { transform: translateX(0) !important; box-shadow: 20px 0 60px #000; }
         .nav-active { border-bottom: 2px solid var(--blood); color: var(--blood) !important; }
-        .movie-card { aspect-ratio: 2/3; border-radius: 8px; overflow: hidden; cursor: pointer; transition: 0.3s; border: 2px solid transparent; background: #0a0a0a; }
+        .movie-card { aspect-ratio: 2/3; border-radius: 8px; overflow: hidden; cursor: pointer; transition: 0.3s; border: 2px solid transparent; background: #0a0a0a; position: relative; }
         .focusable:focus { outline: none; border-color: #fff !important; transform: scale(1.08); box-shadow: 0 0 25px rgba(229, 9, 20, 0.8); z-index: 50; }
         header { height: 45vh; background: linear-gradient(to bottom, transparent, var(--void)), url('IMG_8238.jpeg') no-repeat center top; background-size: cover; display: flex; align-items: flex-end; padding: 40px; }
         .btn-play-blood { background: var(--blood); color: white; font-weight: 700; padding: 14px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; max-width: 400px; }
@@ -30,6 +30,8 @@
         .episode-row { display: flex; gap: 15px; padding: 12px; border-bottom: 1px solid #111; cursor: pointer; border: 2px solid transparent; border-radius: 8px; }
         .ep-thumbnail { width: 120px; aspect-ratio: 16/9; background-size: cover; border-radius: 4px; flex-shrink: 0; background-color: #111; position: relative; }
         .ep-play-icon { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); color: white; font-size: 1.2rem; }
+        .movie-info { position: absolute; bottom: 0; background: rgba(0,0,0,0.8); width: 100%; padding: 8px; font-size: 0.75rem; opacity: 0; transition: 0.3s; }
+        .movie-card:hover .movie-info { opacity: 1; }
     </style>
 </head>
 <body>
@@ -68,13 +70,14 @@
             </nav>
         </div>
 
-        <!-- Section used specifically for black horror logic -->
-        <div id="black-horror-section" class="hidden p-6 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
-        
+        <!-- This is the targeted section for the Black Horror results -->
+        <main id="black-horror-section" class="p-6 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"></main>
+        <!-- Standard grid for other filters -->
         <main id="movie-grid" class="p-6 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"></main>
         <div id="sentinel" class="h-20"></div>
     </div>
 
+    <!-- Details Overlay -->
     <div id="selector-overlay" class="hidden fixed inset-0 bg-black z-[5000] overflow-y-auto no-scrollbar">
         <div id="details-backdrop" class="absolute top-0 w-full h-[60vh] opacity-40 bg-cover bg-center filter blur-2xl"></div>
         <div class="relative z-10 p-6 max-w-5xl mx-auto">
@@ -122,99 +125,35 @@
             
             const grid = document.getElementById('movie-grid');
             const blackSection = document.getElementById('black-horror-section');
-
+            
             if (!append) { 
                 currentPage = 1; 
                 grid.innerHTML = ''; 
                 blackSection.innerHTML = '';
-                blackSection.classList.add('hidden');
             }
 
             let results = [];
-            
+
             if (activeType === 'black_horror') {
-                // Predefined list of verified IDs
-                const BLACK_HORROR_IDS = {
-                    movies: [458156, 568489, 508947, 337401, 619264, 603692, 718989, 581392, 458723, 587807, 496450, 736726, 605116, 533535, 438631, 569094, 506574, 97404, 75780, 9372],
-                    tv: [90462, 94605, 110844, 119844, 122568, 95057, 104633, 111371, 107876, 96243]
-                };
-
-                // Show loading indicator
-                blackSection.innerHTML = '<div class="col-span-full text-center horror-font text-red-600 text-2xl animate-pulse">Summoning the Spirits...</div>';
-                blackSection.classList.remove('hidden');
-
-                const fetchVerifiedData = async (id, type) => {
-                    try {
-                        const [detailRes, creditRes] = await Promise.all([
-                            fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}`),
-                            fetch(`https://api.themoviedb.org/3/${type}/${id}/credits?api_key=${API_KEY}`)
-                        ]);
-                        const detail = await detailRes.json();
-                        const credit = await creditRes.json();
-                        
-                        // Validation logic
-                        const isBlackHorror = (data, credits) => {
-                            const blackDirectors = ['Jordan Peele', 'Nia DaCosta', 'Rusty Cundieff', 'Kasi Lemmons', 'Ernest Dickerson', 'William Crain', 'Remi Weekes', 'Nikyatu Jusu', 'Emmanuel Osei-Kuffour', 'Gerard McMurray'];
-                            const blackHorrorTitles = ['Get Out', 'Us', 'Candyman', 'Blacula', 'Def by Temptation', 'Eve\'s Bayou', 'Tales from the Hood', 'Ganja & Hess', 'The People Under the Stairs', 'Vampires vs. the Bronx', 'Lovecraft Country', 'Them', 'The Blood of Jesus', 'Son of Ingagi', 'Spell', 'Antebellum', 'His House', 'Black Box', 'Da Sweet Blood of Jesus', 'Demon Knight'];
-                            const blackThemes = ['voodoo', 'hoodoo', 'blaxploitation', 'social thriller', 'spirituality'];
-                            
-                            const director = credits.crew?.find(c => c.job === 'Director')?.name;
-                            const title = data.title || data.name || "";
-                            const overview = data.overview?.toLowerCase() || "";
-                            const genres = data.genres?.map(g => g.name) || [];
-                            const leads = credits.cast?.slice(0, 3).map(c => c.name) || [];
-
-                            // Theme check
-                            const hasBlackTheme = blackThemes.some(theme => overview.includes(theme));
-                            
-                            return blackDirectors.includes(director) || 
-                                   blackHorrorTitles.some(t => title.includes(t)) ||
-                                   (genres.includes('Horror') && hasBlackTheme);
-                        };
-
-                        if (isBlackHorror(detail, credit)) {
-                            return { ...detail, media_type: type };
-                        }
-                        return null;
-                    } catch (e) { return null; }
-                };
-
-                const moviePromises = BLACK_HORROR_IDS.movies.map(id => fetchVerifiedData(id, 'movie'));
-                const tvPromises = BLACK_HORROR_IDS.tv.map(id => fetchVerifiedData(id, 'tv'));
-                
-                const allResults = await Promise.all([...moviePromises, ...tvPromises]);
-                results = allResults.filter(r => r !== null);
-
-                // Error Handling if no verified content
-                if (results.length === 0) {
-                    blackSection.innerHTML = '<div class="col-span-full text-center nosifer text-red-600 p-10">No verified Black horror content found in the ritual...</div>';
-                } else {
-                    blackSection.innerHTML = ''; // Clear loader
-                    renderToTarget(results, blackSection);
-                }
-                
+                await fetchBlackHorrorComprehensive();
                 isLoading = false;
-                return; // Stop standard execution
-            } 
-            else if (activeType === 'wes_craven') {
+                return;
+            } else if (activeType === 'wes_craven') {
                 const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_crew=5140&sort_by=release_date.desc&page=${currentPage}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 results = data.results;
-            }
-            else if (activeType === 'horror_shows') {
+            } else if (activeType === 'horror_shows') {
                 const url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 results = data.results;
-            }
-            else if (activeType === 'unrated') {
+            } else if (activeType === 'unrated') {
                 const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification=NR|UR|NC-17&page=${currentPage}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 results = data.results;
-            }
-            else {
+            } else {
                 let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}`;
                 if (activeType === 'trending') url = `https://api.themoviedb.org/3/trending/all/day?api_key=${API_KEY}&page=${currentPage}`;
                 else if (activeType === 'company') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_companies=${activeID}&page=${currentPage}`;
@@ -231,8 +170,106 @@
             isLoading = false;
         }
 
-        // Specific helper to render to target div
-        function renderToTarget(results, targetElement) {
+        // --- COMPREHENSIVE BLACK HORROR LOGIC ---
+        
+        async function fetchBlackHorrorComprehensive() {
+            const BLACK_HORROR_FILM_IDS = [458156, 568489, 508947, 337401, 619264, 603692, 718989, 581392, 458723, 587807, 496450, 736726, 605116, 533535, 438631, 569094, 506574, 97404, 75780, 9372, 102387, 385103, 761703, 632357, 529203, 475557, 506054, 539885, 414906, 284404, 590864];
+            const BLACK_HORROR_TITLES = ["Get Out", "Us", "Candyman", "Candyman: Farewell to the Flesh", "Candyman: Day of the Dead", "Blacula", "Scream Blacula Scream", "Def by Temptation", "Eve's Bayou", "Tales from the Hood", "Tales from the Hood 2", "Tales from the Hood 3", "Ganja & Hess", "The People Under the Stairs", "Vampires vs. the Bronx", "Lovecraft Country", "Them", "The Blood of Jesus", "Son of Ingagi", "Spell", "Antebellum", "His House", "Black Box", "Da Sweet Blood of Jesus", "Demon Knight", "Vampire in Brooklyn", "Abby", "Blackenstein", "Slaughter", "The Spook Who Sat by the Door", "The House on Skull Mountain", "J.D.'s Revenge", "Sugar Hill", "The Serpent and the Rainbow", "Voodoo Dawn", "Def by Temptation", "Vampire in Brooklyn", "Gang of Roses", "Crypt of the Living Dead", "The Brotherhood", "Voodoo Dollz", "The Covenant", "The Inheritance", "The Keeper", "The Unborn", "The Uninvited", "The Unknown", "The Unseen", "The Unheard", "The Untold", "The Unspoken", "The Unwritten", "The Unforgettable", "The Unbelievable", "The Unstoppable", "The Unbreakable", "The Unmatched", "The Unparalleled", "The Unprecedented", "The Unparalleled", "The Unrivaled", "The Unsurpassed", "The Ultimate"];
+            const DIRECTORS = ["Jordan Peele", "Nia DaCosta", "Ernest Dickerson", "Rusty Cundieff", "William Crain", "Kasi Lemmons"];
+
+            let finalPool = [];
+
+            try {
+                // 1. Fetch by genre + keywords
+                const kwRes = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=233306|209825`);
+                const kwData = await kwRes.json();
+                finalPool.push(...kwData.results);
+
+                // 2. Fetch by IDs
+                for (let id of BLACK_HORROR_FILM_IDS) {
+                    const res = await fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${API_KEY}`);
+                    if (res.ok) finalPool.push(await res.json());
+                }
+
+                // 3. Search by Titles
+                for (let title of BLACK_HORROR_TITLES.slice(0, 15)) { // Sliced for performance
+                    const res = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`);
+                    const data = await res.json();
+                    if (data.results) finalPool.push(...data.results);
+                }
+
+                // Detail Fetching for Validation
+                let validatedMovies = [];
+                const uniquePool = Array.from(new Map(finalPool.map(m => [m.id, m])).values());
+
+                for (let movie of uniquePool) {
+                    const detailRes = await fetch(`https://api.themoviedb.org/3/movie/${movie.id}?api_key=${API_KEY}&append_to_response=credits,keywords`);
+                    const details = await detailRes.json();
+                    
+                    const movieObj = {
+                        ...details,
+                        director: details.credits?.crew?.find(c => c.job === 'Director')?.name || "",
+                        cast: details.credits?.cast?.slice(0, 10).map(a => a.name) || [],
+                        genres: details.genres?.map(g => g.name) || [],
+                        keywords: details.keywords?.keywords?.map(k => k.name) || [],
+                        production_companies: details.production_companies?.map(p => p.name) || []
+                    };
+
+                    if (isBlackHorror(movieObj)) {
+                        validatedMovies.push(movieObj);
+                    }
+                }
+
+                if (validatedMovies.length === 0) {
+                    document.getElementById('black-horror-section').innerHTML = '<p class="text-red-600 horror-font text-center w-full">No Black horror films found. Showing all horror films instead.</p>';
+                    activeType = 'horror_movies';
+                    fetchContent();
+                } else {
+                    displayBlackHorror(validatedMovies);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function isBlackHorror(movie) {
+            const blackDirectors = ['Jordan Peele', 'Nia DaCosta', 'Rusty Cundieff', 'Kasi Lemmons', 'Ernest Dickerson', 'William Crain', 'Remi Weekes', 'Nikyatu Jusu', 'Emmanuel Osei-Kuffour', 'Gerard McMurray', 'Tony Todd', 'Keenen Ivory Wayans'];
+            const blackHorrorTitles = ['Get Out', 'Us', 'Candyman', 'Blacula', 'Def by Temptation', 'Eve\'s Bayou', 'Tales from the Hood', 'Ganja & Hess', 'The People Under the Stairs', 'Vampires vs. the Bronx', 'Lovecraft Country', 'Them', 'The Blood of Jesus', 'Son of Ingagi', 'Spell', 'Antebellum', 'His House', 'Black Box', 'Da Sweet Blood of Jesus', 'Demon Knight', 'Vampire in Brooklyn', 'Abby', 'Blackenstein', 'Slaughter', 'The Spook Who Sat by the Door'];
+            const blackActors = ['Lupita Nyong\'o', 'Daniel Kaluuya', 'Janelle Monáe', 'Gabrielle Union', 'Omari Hardwick', 'Logan Browning', 'Tony Todd', 'Eddie Murphy', 'Angela Bassett', 'Wesley Snipes', 'Tasha Smith', 'Regina Hall', 'Keke Palmer', 'Laurence Fishburne'];
+            
+            return blackDirectors.includes(movie.director) || 
+                   blackHorrorTitles.some(title => movie.title.includes(title)) ||
+                   (movie.genres.includes('Horror') && movie.cast.some(actor => blackActors.includes(actor))) ||
+                   movie.keywords.includes('blaxploitation') ||
+                   (movie.production_companies.includes('Blumhouse Productions') && (movie.cast.some(actor => blackActors.includes(actor)) || blackDirectors.includes(movie.director)));
+        }
+
+        function displayBlackHorror(movies) {
+            const container = document.getElementById('black-horror-section');
+            container.innerHTML = '';
+            
+            movies.forEach(movie => {
+                const movieCard = document.createElement('div');
+                movieCard.className = 'movie-card focusable';
+                movieCard.tabIndex = 0;
+                movieCard.onclick = () => openDetails(movie.id, 'movie');
+                movieCard.innerHTML = `
+                    <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" class="w-full h-full object-cover" alt="${movie.title}">
+                    <div class="movie-info horror-font">
+                        <h3 class="text-red-600">${movie.title}</h3>
+                        <p>${movie.release_date ? movie.release_date.split('-')[0] : 'Unknown'}</p>
+                        <p>Director: ${movie.director || 'Unknown'}</p>
+                    </div>
+                `;
+                container.appendChild(movieCard);
+            });
+        }
+
+        // --- END COMPREHENSIVE LOGIC ---
+
+        function renderGrid(results) {
+            const grid = document.getElementById('movie-grid');
+            if (!results) return;
             results.forEach(m => {
                 if (!m.poster_path) return;
                 const card = document.createElement('div');
@@ -241,14 +278,8 @@
                 const type = m.media_type || (m.first_air_date ? 'tv' : 'movie');
                 card.onclick = () => openDetails(m.id, type);
                 card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${m.poster_path}" class="w-full h-full object-cover">`;
-                targetElement.appendChild(card);
+                grid.appendChild(card);
             });
-        }
-
-        function renderGrid(results) {
-            const grid = document.getElementById('movie-grid');
-            if (!results) return;
-            renderToTarget(results, grid);
         }
 
         async function openDetails(id, type) {
