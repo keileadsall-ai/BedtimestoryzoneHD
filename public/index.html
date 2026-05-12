@@ -5,38 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Fear+ | The Final Ritual</title>
     
-    <!-- Scripts & Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Metal+Mania&family=Inter:wght@300;400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Metal+Mania&family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
 
     <style>
-        :root { 
-            --blood: #e50914; 
-            --void: #000; 
-            --smoke: rgba(10, 10, 10, 0.98); 
-            --gold: #D4AF37;
-        }
+        :root { --blood: #e50914; --void: #000; --ash: #1a1a1a; }
 
         body { 
-            background: var(--void); 
-            color: white; 
-            font-family: 'Inter', sans-serif; 
-            margin: 0; 
-            overflow-x: hidden; 
-            touch-action: pan-y; 
+            background: var(--void); color: white; font-family: 'Inter', sans-serif; 
+            margin: 0; overflow-x: hidden; touch-action: pan-y; 
         }
 
-        /* FEAR+ BRANDING ELEMENTS */
         .horror-font { font-family: 'Creepster', cursive; }
         .nosifer { font-family: 'Nosifer', cursive; }
         
+        /* Loading Screen */
         #loader { position: fixed; inset: 0; background: black; z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.8s; }
         .voodoo-container { width: 180px; height: 180px; border-radius: 50%; border: 3px solid var(--blood); overflow: hidden; box-shadow: 0 0 40px var(--blood); }
         .medusa-heart { width: 100%; height: 100%; object-fit: cover; animation: thump 1s infinite; }
         @keyframes thump { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.1); } }
 
-        /* NAVIGATION & MENU */
+        /* Side Menu */
         #side-menu { 
             position: fixed; top: 0; left: 0; bottom: 0; width: 300px; 
             background: #000; border-right: 3px solid var(--blood); 
@@ -46,17 +36,18 @@
         
         .nav-active { border-bottom: 2px solid var(--blood); color: var(--blood) !important; }
 
-        /* PLAYER & CARDS */
+        /* Content Cards */
         .movie-card { 
             aspect-ratio: 2/3; border-radius: 8px; overflow: hidden; 
             cursor: pointer; transition: 0.3s; border: 2px solid transparent; 
+            background: #0a0a0a;
         }
         
         .focusable:focus {
             outline: none;
             border-color: #fff !important;
             transform: scale(1.08);
-            box-shadow: 0 0 25px rgba(229, 9, 20, 0.6);
+            box-shadow: 0 0 25px rgba(229, 9, 20, 0.8);
             z-index: 50;
         }
 
@@ -69,35 +60,35 @@
 
         .btn-play-blood { 
             background: var(--blood); color: white; font-weight: 700; 
-            padding: 14px; border-radius: 8px; display: flex; align-items: center; 
+            padding: 14px; border-radius: 12px; display: flex; align-items: center; 
             justify-content: center; gap: 10px; width: 100%; max-width: 400px; 
         }
 
         #player-overlay { display: none; position: fixed; inset: 0; background: #000; z-index: 9000; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
-        /* EPISODE ROWS */
         .episode-row { display: flex; gap: 15px; padding: 12px; border-bottom: 1px solid #111; cursor: pointer; border: 2px solid transparent; border-radius: 8px; }
-        .ep-thumbnail { width: 120px; aspect-ratio: 16/9; background-size: cover; border-radius: 4px; flex-shrink: 0; background-color: #111; }
+        .ep-thumbnail { width: 120px; aspect-ratio: 16/9; background-size: cover; border-radius: 4px; flex-shrink: 0; background-color: #111; position: relative; }
+        .ep-play-icon { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); color: white; font-size: 1.2rem; }
     </style>
 </head>
 <body>
 
-    <!-- Startup Ritual (Loader) -->
     <div id="loader">
         <div class="voodoo-container"><img src="IMG_8259.jpeg" class="medusa-heart"></div>
-        <h2 class="nosifer text-red-600 mt-6 text-xl">Dead Yet?</h2>
+        <h2 class="nosifer text-red-600 mt-6 text-xl">Entering the Ritual...</h2>
     </div>
 
-    <!-- The Vaults (Side Menu) -->
+    <!-- Sidebar: The Horror Vaults -->
     <div id="side-menu" class="p-8 no-scrollbar overflow-y-auto">
         <h2 class="nosifer text-red-600 text-2xl mb-8">THE VAULTS</h2>
         <div class="flex flex-col gap-2 horror-font text-xl">
-            <button class="focusable text-left py-3 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('shudder')">SHUDDER</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('shudder')">SHUDDER ORIGINALS</button>
             <button class="focusable text-left py-3 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('network', 88)">FX HORROR</button>
             <button class="focusable text-left py-3 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('hulu')">HULU BLOOD</button>
-            <button class="focusable text-left py-3 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('hoodoo')">HOODOO FILMS</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('network', 453)">AMC+ MACABRE</button>
             <button class="focusable text-left py-3 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('70s')">70s SLASHERS</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('80s')">80s GORE</button>
             <button class="focusable text-left py-3 mt-10 text-zinc-600" onclick="toggleMenu()">CLOSE [X]</button>
         </div>
     </div>
@@ -110,46 +101,45 @@
                 <button id="menu-btn" onclick="toggleMenu()" class="focusable text-red-600 text-3xl px-2">☰</button>
                 <input type="search" id="search-input" 
                        class="focusable flex-1 bg-zinc-900 border border-zinc-800 rounded-lg py-3 px-6 text-white horror-font text-lg outline-none" 
-                       placeholder="Search Sacrifice..." 
+                       placeholder="Search the Graves..." 
                        onkeyup="handleSearch(event)">
             </div>
             <nav class="flex px-6 pb-2 gap-8 overflow-x-auto no-scrollbar horror-font text-lg tracking-widest uppercase">
-                <button id="btn-trending" onclick="setFilter('trending')" class="focusable nav-active whitespace-nowrap">LATEST</button>
-                <button class="focusable whitespace-nowrap" onclick="setFilter('genre', 27)">MOVIES</button>
+                <button id="btn-trending" onclick="setFilter('trending')" class="focusable nav-active whitespace-nowrap">LATEST BLOOD</button>
+                <button class="focusable whitespace-nowrap" onclick="setFilter('horror_movies')">HORROR FILMS</button>
+                <button class="focusable whitespace-nowrap" onclick="setFilter('horror_shows')">GHASTLY SERIES</button>
                 <button class="focusable whitespace-nowrap" onclick="setFilter('unrated')">UNRATED</button>
             </nav>
         </div>
 
-        <!-- Continue Watching (History) -->
         <section id="continue-section" class="hidden px-6 pt-8">
             <h3 class="horror-font text-red-600 text-2xl mb-4 uppercase">Continue Ritual</h3>
             <div id="continue-grid" class="flex gap-4 overflow-x-auto no-scrollbar pb-4"></div>
         </section>
 
-        <!-- Main Content Grid -->
         <main id="movie-grid" class="p-6 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"></main>
         <div id="sentinel" class="h-20"></div>
     </div>
 
-    <!-- Details/Selector Overlay -->
+    <!-- Detail Selection View -->
     <div id="selector-overlay" class="hidden fixed inset-0 bg-black z-[5000] overflow-y-auto no-scrollbar">
-        <div id="details-backdrop" class="absolute top-0 w-full h-[60vh] opacity-40 bg-cover bg-center filter blur-xl"></div>
+        <div id="details-backdrop" class="absolute top-0 w-full h-[60vh] opacity-40 bg-cover bg-center filter blur-2xl"></div>
         <div class="relative z-10 p-6 max-w-5xl mx-auto">
             <button onclick="closeSelector()" class="focusable mb-8 bg-white/10 p-3 rounded-full border border-white/20">
                 <svg width="24" height="24" fill="white" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
             </button>
             
             <div class="flex flex-col md:flex-row gap-8 mb-10">
-                <img id="details-poster" class="w-48 rounded-xl shadow-2xl border border-white/10">
+                <img id="details-poster" class="w-48 rounded-xl shadow-2xl border border-red-900/30">
                 <div class="flex flex-col justify-end">
-                    <h2 id="show-title" class="nosifer text-3xl md:text-5xl text-white mb-4"></h2>
+                    <h2 id="show-title" class="nosifer text-3xl md:text-5xl text-white mb-4 leading-tight"></h2>
                     <div class="flex items-center gap-4 horror-font text-xl text-zinc-400">
                         <span id="show-year"></span>
                         <span class="border border-red-600 text-red-600 px-2 py-1 rounded">★ <span id="show-rating"></span></span>
                         <span id="media-type-tag" class="text-zinc-500"></span>
                     </div>
-                    <button id="main-play-trigger" onclick="startLuxeStream()" class="focusable btn-play-blood mt-6">
-                        <span class="bg-white text-black rounded-full w-6 h-6 flex items-center justify-center text-[10px] pl-0.5">▶</span> PLAY NOW
+                    <button id="main-play-trigger" onclick="startLuxeStream()" class="focusable btn-play-blood mt-6 horror-font text-2xl tracking-widest">
+                        ▶ COMMENCE
                     </button>
                 </div>
             </div>
@@ -157,24 +147,25 @@
             <p id="show-desc" class="text-zinc-400 text-lg leading-relaxed mb-10 max-w-3xl"></p>
 
             <div id="tv-controls" class="hidden">
-                <h3 class="horror-font text-red-600 text-2xl mb-4">Episodes</h3>
+                <h3 class="horror-font text-red-600 text-2xl mb-4 uppercase">Epitaphs (Episodes)</h3>
                 <div id="season-buttons" class="flex gap-3 overflow-x-auto no-scrollbar mb-6"></div>
                 <div id="episode-grid" class="flex flex-col gap-2"></div>
             </div>
         </div>
     </div>
 
-    <!-- Media Player Overlay -->
+    <!-- Global Player -->
     <div id="player-overlay">
         <div class="absolute top-6 left-6 right-6 flex justify-between items-center z-[9001]">
-            <div class="horror-font text-red-600 bg-black/80 px-4 py-2 rounded border border-red-900">NOW CONSUMING</div>
-            <button id="close-player-btn" onclick="closePlayer()" class="focusable bg-red-600 text-white px-6 py-2 rounded font-bold">✕ STOP</button>
+            <div class="horror-font text-red-600 bg-black/80 px-4 py-2 rounded border border-red-900 uppercase">Now Consuming</div>
+            <button id="close-player-btn" onclick="closePlayer()" class="focusable bg-red-600 text-white px-6 py-2 rounded font-bold">✕ CEASE</button>
         </div>
         <iframe id="luxe-player" class="w-full h-full" allowfullscreen allow="autoplay; encrypted-media"></iframe>
     </div>
 
     <script>
         const API_KEY = 'b9c746781e1e9b084c4cc4f0420156d4';
+        const HORROR_ID = 27;
         let activeType = 'trending', activeID = '', currentMedia = {};
         let currentPage = 1, isLoading = false;
 
@@ -183,22 +174,37 @@
             isLoading = true;
             if (!append) { currentPage = 1; document.getElementById('movie-grid').innerHTML = ''; }
 
-            let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&page=${currentPage}`;
+            // Hard-enforced Horror filtering on all endpoints
+            let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}&sort_by=popularity.desc`;
             
-            if (activeType === 'trending') url = `https://api.themoviedb.org/3/trending/all/day?api_key=${API_KEY}&page=${currentPage}`;
-            else if (activeType === 'unrated') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&certification_country=US&certification.gte=NC-17&page=${currentPage}`;
-            else if (activeType === 'shudder') url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_networks=2506&with_genres=27&page=${currentPage}`;
-            else if (activeType === 'network') url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_networks=${activeID}&with_genres=27&page=${currentPage}`;
-            else if (activeType === 'hulu') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_networks=453&page=${currentPage}`;
-            else if (activeType === 'hoodoo') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=210214|155477&page=${currentPage}`;
-            else if (activeType === '70s') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&primary_release_date.gte=1970-01-01&primary_release_date.lte=1979-12-31&page=${currentPage}`;
-            else if (activeType === 'search') url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${activeID}&page=${currentPage}`;
-            else if (activeType === 'genre') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${activeID}&page=${currentPage}`;
+            if (activeType === 'trending') {
+                url = `https://api.themoviedb.org/3/trending/all/day?api_key=${API_KEY}&page=${currentPage}`;
+            } else if (activeType === 'horror_shows') {
+                url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}`;
+            } else if (activeType === 'unrated') {
+                url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification.gte=R&page=${currentPage}`;
+            } else if (activeType === 'shudder') {
+                url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_networks=2506&with_genres=${HORROR_ID}&page=${currentPage}`;
+            } else if (activeType === 'network') {
+                url = `https://api.themoviedb.org/3/discover/all?api_key=${API_KEY}&with_networks=${activeID}&with_genres=${HORROR_ID}&page=${currentPage}`;
+            } else if (activeType === 'hulu') {
+                url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_networks=453&page=${currentPage}`;
+            } else if (activeType === '70s') {
+                url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&primary_release_date.gte=1970-01-01&primary_release_date.lte=1979-12-31&page=${currentPage}`;
+            } else if (activeType === '80s') {
+                url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&primary_release_date.gte=1980-01-01&primary_release_date.lte=1989-12-31&page=${currentPage}`;
+            } else if (activeType === 'search') {
+                url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${activeID}&page=${currentPage}`;
+            }
 
             try {
                 const res = await fetch(url);
                 const data = await res.json();
-                renderGrid(data.results);
+                // Double-check genre safety for mixed results like 'trending' or 'search'
+                const filtered = data.results.filter(item => 
+                    item.genre_ids && item.genre_ids.includes(HORROR_ID)
+                );
+                renderGrid(filtered);
                 currentPage++;
             } catch (err) { console.error(err); } finally { isLoading = false; }
         }
@@ -223,9 +229,9 @@
             currentMedia = { id, type, s: 1, e: 1, title: data.name || data.title, poster: data.poster_path };
             
             document.getElementById('show-title').innerText = currentMedia.title;
-            document.getElementById('show-desc').innerText = data.overview || "No description found in the archives.";
+            document.getElementById('show-desc').innerText = data.overview || "The description has been redacted by the authorities.";
             document.getElementById('show-year').innerText = (data.release_date || data.first_air_date || '').split('-')[0];
-            document.getElementById('show-rating').innerText = data.vote_average ? data.vote_average.toFixed(1) : '0';
+            document.getElementById('show-rating').innerText = data.vote_average ? data.vote_average.toFixed(1) : '6.6';
             document.getElementById('details-poster').src = `https://image.tmdb.org/t/p/w500${data.poster_path}`;
             document.getElementById('details-backdrop').style.backgroundImage = `url(https://image.tmdb.org/t/p/original${data.backdrop_path})`;
             document.getElementById('media-type-tag').innerText = type.toUpperCase();
@@ -270,7 +276,14 @@
                 epRow.tabIndex = 0;
                 epRow.onclick = () => { currentMedia.s = seasonNum; currentMedia.e = e.episode_number; startLuxeStream(); };
                 const thumb = e.still_path ? `https://image.tmdb.org/t/p/w300${e.still_path}` : '';
-                epRow.innerHTML = `<div class="ep-thumbnail" style="background-image:url(${thumb})"></div><div class="flex-1"><div class="text-white font-bold">E${e.episode_number} ${e.name}</div><div class="text-zinc-500 text-xs line-clamp-1">${e.overview}</div></div>`;
+                epRow.innerHTML = `
+                    <div class="ep-thumbnail" style="background-image:url(${thumb})">
+                        <div class="ep-play-icon">▶</div>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-white font-bold">E${e.episode_number} ${e.name}</div>
+                        <div class="text-zinc-500 text-xs line-clamp-1">${e.overview}</div>
+                    </div>`;
                 grid.appendChild(epRow);
             });
         }
@@ -280,20 +293,21 @@
             const playerOverlay = document.getElementById('player-overlay');
             const iframe = document.getElementById('luxe-player');
             playerOverlay.style.display = 'block';
+            // Vidsrc architecture for reliable content delivery
             iframe.src = (type === 'movie' ? `https://vidsrc.cc/v2/embed/movie/${id}` : `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}`);
             setTimeout(() => document.getElementById('close-player-btn').focus(), 500);
         }
 
         function saveToHistory(item) {
-            let history = JSON.parse(localStorage.getItem('fear_history') || '[]');
+            let history = JSON.parse(localStorage.getItem('fear_history_v2') || '[]');
             history = history.filter(x => x.id !== item.id);
             history.unshift(item);
-            localStorage.setItem('fear_history', JSON.stringify(history.slice(0, 10)));
+            localStorage.setItem('fear_history_v2', JSON.stringify(history.slice(0, 10)));
             renderHistory();
         }
 
         function renderHistory() {
-            const history = JSON.parse(localStorage.getItem('fear_history') || '[]');
+            const history = JSON.parse(localStorage.getItem('fear_history_v2') || '[]');
             const section = document.getElementById('continue-section');
             const grid = document.getElementById('continue-grid');
             if (history.length === 0) return;
@@ -301,7 +315,7 @@
             grid.innerHTML = '';
             history.forEach(item => {
                 const card = document.createElement('div');
-                card.className = "min-w-[110px] cursor-pointer focusable movie-card";
+                card.className = "min-w-[110px] max-w-[110px] cursor-pointer focusable movie-card";
                 card.tabIndex = 0;
                 card.onclick = () => openDetails(item.id, item.type);
                 card.innerHTML = `<img src="https://image.tmdb.org/t/p/w300${item.poster}" class="w-full h-full object-cover">`;
@@ -309,7 +323,6 @@
             });
         }
 
-        /* UI CONTROLS */
         function toggleMenu() { document.getElementById('side-menu').classList.toggle('menu-open'); }
         function closeSelector() { 
             document.getElementById('selector-overlay').classList.add('hidden'); 
@@ -333,12 +346,12 @@
             if (e.key === 'Enter') { activeType = 'search'; activeID = e.target.value; fetchContent(); e.target.blur(); } 
         }
 
-        /* SPATIAL NAVIGATION (TV REMOTE SUPPORT) */
+        // Spatial Navigation Engine
         document.addEventListener('keydown', function(e) {
             const current = document.activeElement;
             const focusables = Array.from(document.querySelectorAll('.focusable')).filter(el => el.offsetParent !== null);
             
-            if (e.key === 'Backspace') {
+            if (e.key === 'Backspace' || e.keyCode === 10009) {
                 e.preventDefault();
                 if (document.getElementById('player-overlay').style.display === 'block') closePlayer();
                 else if (!document.getElementById('selector-overlay').classList.contains('hidden')) closeSelector();
@@ -371,7 +384,10 @@
         window.onload = () => {
             fetchContent();
             renderHistory();
-            setTimeout(() => { document.getElementById('loader').style.opacity = '0'; setTimeout(()=>document.getElementById('loader').remove(), 800); }, 1500);
+            setTimeout(() => { 
+                document.getElementById('loader').style.opacity = '0'; 
+                setTimeout(()=>document.getElementById('loader').remove(), 800); 
+            }, 1200);
             
             const mc = new Hammer(document.body);
             mc.on("swiperight", () => toggleMenu());
