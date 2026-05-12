@@ -76,11 +76,12 @@
         <h2 class="nosifer text-red-600 mt-6 text-xl">Entering the Ritual...</h2>
     </div>
 
+    <!-- Sidebar: The Horror Vaults -->
     <div id="side-menu" class="p-8 no-scrollbar overflow-y-auto">
         <h2 class="nosifer text-red-600 text-2xl mb-8">THE VAULTS</h2>
         <div class="flex flex-col gap-2 horror-font text-xl">
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('wes_craven')">WES CRAVEN</button>
-            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('company', 1331)">DARK CASTLE</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('dark_castle')">DARK CASTLE</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('black_horror')">BLACK HORROR</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('youth')">YOUTH HORROR</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('abroad')">HORROR FROM ABROAD</button>
@@ -159,40 +160,69 @@
             isLoading = true;
             if (!append) { currentPage = 1; document.getElementById('movie-grid').innerHTML = ''; }
 
-            let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}&sort_by=popularity.desc`;
+            let results = [];
             
-            // WES CRAVEN (Strict Directed/Written Credit Only)
+            // WES CRAVEN - Full combined credits (Directors, Producers, Writers)
             if (activeType === 'wes_craven') {
-                url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_crew=6650&with_genres=${HORROR_ID}&page=${currentPage}`;
-            }
-
-            // GHASTLY SERIES (TVMaze Protocol + TMDB Horror TV Genre)
-            else if (activeType === 'horror_shows') {
-                url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}&sort_by=popularity.desc`;
-            }
-
-            // BLACK HORROR (Strict Filtered List + Keywords)
-            else if (activeType === 'black_horror') {
-                url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_keywords=209825|260731|233306&page=${currentPage}&sort_by=release_date.desc`;
-            }
-
-            // UNRATED (Strict Certification Match)
-            else if (activeType === 'unrated') {
-                url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification=NR|UR|NC-17&page=${currentPage}`;
-            }
-
-            else if (activeType === 'trending') url = `https://api.themoviedb.org/3/trending/all/day?api_key=${API_KEY}&page=${currentPage}`;
-            else if (activeType === 'company') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_companies=${activeID}&page=${currentPage}`;
-            else if (activeType === 'youth') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification=PG-13|PG&page=${currentPage}`;
-            else if (activeType === 'abroad') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&without_original_language=en&page=${currentPage}`;
-            else if (activeType === 'search') url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${activeID}&page=${currentPage}`;
-
-            try {
-                const res = await fetch(url);
+                const res = await fetch(`https://api.themoviedb.org/3/person/6650/combined_credits?api_key=${API_KEY}`);
                 const data = await res.json();
-                renderGrid(data.results);
-                currentPage++;
-            } catch (err) { console.error(err); } finally { isLoading = false; }
+                results = [...(data.cast || []), ...(data.crew || [])];
+                results = Array.from(new Map(results.map(item => [item.id, item])).values());
+                results.sort((a, b) => (b.release_date || b.first_air_date || '0').localeCompare(a.release_date || a.first_air_date || '0'));
+            }
+            
+            // DARK CASTLE - Using specific production company ID 1331
+            else if (activeType === 'dark_castle') {
+                const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_companies=1331&page=${currentPage}`);
+                const data = await res.json();
+                results = data.results;
+            }
+
+            // GHASTLY SERIES - Horror TV only
+            else if (activeType === 'horror_shows') {
+                const res = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}`);
+                const data = await res.json();
+                results = data.results;
+            }
+
+            // UNRATED - Filtering by specific certification codes
+            else if (activeType === 'unrated') {
+                const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification=NR|UR|NC-17&page=${currentPage}`);
+                const data = await res.json();
+                results = data.results;
+            }
+
+            // BLACK HORROR - Clustering Keywords
+            else if (activeType === 'black_horror') {
+                const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_keywords=209825|233306|260731&page=${currentPage}`);
+                const data = await res.json();
+                results = data.results;
+            }
+
+            // YOUTH HORROR
+            else if (activeType === 'youth') {
+                const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification.lte=PG-13&page=${currentPage}`);
+                const data = await res.json();
+                results = data.results;
+            }
+
+            // Standard Fallbacks
+            else {
+                let fallbackUrl = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}`;
+                if (activeType === 'trending') fallbackUrl = `https://api.themoviedb.org/3/trending/all/day?api_key=${API_KEY}&page=${currentPage}`;
+                else if (activeType === 'abroad') fallbackUrl = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&without_original_language=en&page=${currentPage}`;
+                else if (activeType === 'search') fallbackUrl = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${activeID}&page=${currentPage}`;
+                else if (activeType === 'person') fallbackUrl = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_people=${activeID}&page=${currentPage}`;
+                else if (activeType === 'company') fallbackUrl = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_companies=${activeID}&page=${currentPage}`;
+                
+                const res = await fetch(fallbackUrl);
+                const data = await res.json();
+                results = data.results;
+            }
+
+            renderGrid(results);
+            currentPage++;
+            isLoading = false;
         }
 
         function renderGrid(results) {
@@ -215,7 +245,7 @@
             const data = await res.json();
             currentMedia = { id, type, s: 1, e: 1, title: data.name || data.title, poster: data.poster_path };
             document.getElementById('show-title').innerText = currentMedia.title;
-            document.getElementById('show-desc').innerText = data.overview || "Deep within the vaults...";
+            document.getElementById('show-desc').innerText = data.overview || "No data.";
             document.getElementById('show-year').innerText = (data.release_date || data.first_air_date || '').split('-')[0];
             document.getElementById('show-rating').innerText = data.vote_average ? data.vote_average.toFixed(1) : '★';
             document.getElementById('details-poster').src = `https://image.tmdb.org/t/p/w500${data.poster_path}`;
@@ -249,6 +279,7 @@
             const data = await res.json();
             const grid = document.getElementById('episode-grid');
             grid.innerHTML = '';
+            if(!data.episodes) return;
             data.episodes.forEach(e => {
                 const epRow = document.createElement('div');
                 epRow.className = "episode-row focusable";
