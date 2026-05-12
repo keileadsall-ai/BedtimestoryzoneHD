@@ -76,21 +76,20 @@
         <h2 class="nosifer text-red-600 mt-6 text-xl">Entering the Ritual...</h2>
     </div>
 
-    <!-- Updated Sidebar with requested Horror Icons -->
+    <!-- Sidebar: The Horror Vaults -->
     <div id="side-menu" class="p-8 no-scrollbar overflow-y-auto">
         <h2 class="nosifer text-red-600 text-2xl mb-8">THE VAULTS</h2>
         <div class="flex flex-col gap-2 horror-font text-xl">
-            <button class="focusable text-left py-2 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('person', 17)">WES CRAVEN</button>
-            <button class="focusable text-left py-2 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('person', 3027)">STEPHEN KING</button>
-            <button class="focusable text-left py-2 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('company', 3172)">BLUMHOUSE</button>
-            <button class="focusable text-left py-2 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('company', 3237)">TWISTED PICTURES</button>
-            <button class="focusable text-left py-2 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('company', 1981)">DARK CASTLE</button>
-            <button class="focusable text-left py-2 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('company', 5257)">IFC MIDNIGHT</button>
-            <div class="my-4 border-t border-zinc-800"></div>
-            <button class="focusable text-left py-2 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('shudder')">SHUDDER ORIGINALS</button>
-            <button class="focusable text-left py-2 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('network', 88)">FX HORROR</button>
-            <button class="focusable text-left py-2 border-b border-zinc-900 hover:text-red-500" onclick="setFilter('hulu')">HULU BLOOD</button>
-            <button class="focusable text-left py-2 mt-10 text-zinc-600" onclick="toggleMenu()">CLOSE [X]</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('shudder')">SHUDDER ORIGINALS</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('network', 88)">FX HORROR</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('network', 453)">AMC+ MACABRE</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('person', 6650)">WES CRAVEN</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('person', 3027)">STEPHEN KING</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('company', 3172)">BLUMHOUSE</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('company', 1331)">DARK CASTLE</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('company', 4082)">IFC MIDNIGHT</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('youth')">YOUTH HORROR</button>
+            <button class="focusable text-left py-3 mt-10 text-zinc-600" onclick="toggleMenu()">CLOSE [X]</button>
         </div>
     </div>
 
@@ -122,7 +121,6 @@
         <div id="sentinel" class="h-20"></div>
     </div>
 
-    <!-- Detail View -->
     <div id="selector-overlay" class="hidden fixed inset-0 bg-black z-[5000] overflow-y-auto no-scrollbar">
         <div id="details-backdrop" class="absolute top-0 w-full h-[60vh] opacity-40 bg-cover bg-center filter blur-2xl"></div>
         <div class="relative z-10 p-6 max-w-5xl mx-auto">
@@ -150,7 +148,6 @@
         </div>
     </div>
 
-    <!-- Player Overlay -->
     <div id="player-overlay">
         <div class="absolute top-6 left-6 right-6 flex justify-between items-center z-[9001]">
             <div class="horror-font text-red-600 bg-black/80 px-4 py-2 rounded border border-red-900 uppercase">Now Consuming</div>
@@ -172,33 +169,23 @@
 
             let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}&sort_by=popularity.desc`;
             
-            if (activeType === 'trending') {
-                url = `https://api.themoviedb.org/3/trending/all/day?api_key=${API_KEY}&page=${currentPage}`;
-            } else if (activeType === 'horror_shows') {
-                url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}`;
-            } else if (activeType === 'unrated') {
-                // Strict NR/Unrated filter
-                url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification=NR&page=${currentPage}`;
-            } else if (activeType === 'shudder') {
-                url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_networks=2506&with_genres=${HORROR_ID}&page=${currentPage}`;
-            } else if (activeType === 'network') {
-                url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_networks=${activeID}&with_genres=${HORROR_ID}&page=${currentPage}`;
-            } else if (activeType === 'person') {
-                // Wes Craven or Stephen King filter
-                url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_people=${activeID}&with_genres=${HORROR_ID}&page=${currentPage}`;
-            } else if (activeType === 'company') {
-                // Production Company filters
-                url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_companies=${activeID}&with_genres=${HORROR_ID}&page=${currentPage}`;
-            } else if (activeType === 'hulu') {
-                url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_networks=453&page=${currentPage}`;
-            } else if (activeType === 'search') {
-                url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${activeID}&page=${currentPage}`;
-            }
+            if (activeType === 'trending') url = `https://api.themoviedb.org/3/trending/all/day?api_key=${API_KEY}&page=${currentPage}`;
+            else if (activeType === 'horror_shows') url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}`;
+            else if (activeType === 'unrated') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification.lte=NR&page=${currentPage}`;
+            else if (activeType === 'shudder') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_networks=2506&page=${currentPage}`;
+            else if (activeType === 'network') url = `https://api.themoviedb.org/3/discover/all?api_key=${API_KEY}&with_networks=${activeID}&with_genres=${HORROR_ID}&page=${currentPage}`;
+            else if (activeType === 'hulu') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_networks=453&page=${currentPage}`;
+            else if (activeType === 'person') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_people=${activeID}&page=${currentPage}`;
+            else if (activeType === 'company') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_companies=${activeID}&page=${currentPage}`;
+            else if (activeType === 'youth') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_keywords=210024|210025|4344|6158&page=${currentPage}`;
+            else if (activeType === 'search') url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${activeID}&page=${currentPage}`;
 
             try {
                 const res = await fetch(url);
                 const data = await res.json();
-                const filtered = data.results.filter(item => item.genre_ids && item.genre_ids.includes(HORROR_ID));
+                const filtered = data.results.filter(item => 
+                    (item.genre_ids && item.genre_ids.includes(HORROR_ID)) || (activeType === 'search' && item.genre_ids && item.genre_ids.includes(HORROR_ID))
+                );
                 renderGrid(filtered);
                 currentPage++;
             } catch (err) { console.error(err); } finally { isLoading = false; }
@@ -222,7 +209,7 @@
             const data = await res.json();
             currentMedia = { id, type, s: 1, e: 1, title: data.name || data.title, poster: data.poster_path };
             document.getElementById('show-title').innerText = currentMedia.title;
-            document.getElementById('show-desc').innerText = data.overview || "The description has been redacted.";
+            document.getElementById('show-desc').innerText = data.overview || "The description has been redacted by the authorities.";
             document.getElementById('show-year').innerText = (data.release_date || data.first_air_date || '').split('-')[0];
             document.getElementById('show-rating').innerText = data.vote_average ? data.vote_average.toFixed(1) : '6.6';
             document.getElementById('details-poster').src = `https://image.tmdb.org/t/p/w500${data.poster_path}`;
@@ -278,8 +265,10 @@
 
         function saveToHistory(item) {
             let history = JSON.parse(localStorage.getItem('fear_history_v2') || '[]');
-            history = history.filter(x => x.id !== item.id); history.unshift(item);
-            localStorage.setItem('fear_history_v2', JSON.stringify(history.slice(0, 10))); renderHistory();
+            history = history.filter(x => x.id !== item.id);
+            history.unshift(item);
+            localStorage.setItem('fear_history_v2', JSON.stringify(history.slice(0, 10)));
+            renderHistory();
         }
 
         function renderHistory() {
@@ -287,10 +276,12 @@
             const section = document.getElementById('continue-section');
             const grid = document.getElementById('continue-grid');
             if (history.length === 0) return;
-            section.classList.remove('hidden'); grid.innerHTML = '';
+            section.classList.remove('hidden');
+            grid.innerHTML = '';
             history.forEach(item => {
                 const card = document.createElement('div');
-                card.className = "min-w-[110px] max-w-[110px] cursor-pointer focusable movie-card"; card.tabIndex = 0;
+                card.className = "min-w-[110px] max-w-[110px] cursor-pointer focusable movie-card";
+                card.tabIndex = 0;
                 card.onclick = () => openDetails(item.id, item.type);
                 card.innerHTML = `<img src="https://image.tmdb.org/t/p/w300${item.poster}" class="w-full h-full object-cover">`;
                 grid.appendChild(card);
@@ -305,7 +296,9 @@
             activeType = type; activeID = id;
             document.querySelectorAll('nav button').forEach(b => b.classList.remove('nav-active'));
             if(event && event.target.tagName === 'BUTTON') event.target.classList.add('nav-active');
-            fetchContent(); toggleMenu(); window.scrollTo(0,0);
+            fetchContent();
+            document.getElementById('side-menu').classList.remove('menu-open');
+            window.scrollTo(0,0);
         }
 
         function handleSearch(e) { if (e.key === 'Enter') { activeType = 'search'; activeID = e.target.value; fetchContent(); e.target.blur(); } }
@@ -313,7 +306,7 @@
         document.addEventListener('keydown', function(e) {
             const current = document.activeElement;
             const focusables = Array.from(document.querySelectorAll('.focusable')).filter(el => el.offsetParent !== null);
-            if (e.key === 'Backspace') {
+            if (e.key === 'Backspace' || e.keyCode === 10009) {
                 e.preventDefault();
                 if (document.getElementById('player-overlay').style.display === 'block') closePlayer();
                 else if (!document.getElementById('selector-overlay').classList.contains('hidden')) closeSelector();
@@ -343,9 +336,11 @@
         }
 
         window.onload = () => {
-            fetchContent(); renderHistory();
+            fetchContent();
+            renderHistory();
             setTimeout(() => { document.getElementById('loader').style.opacity = '0'; setTimeout(()=>document.getElementById('loader').remove(), 800); }, 1200);
-            const mc = new Hammer(document.body); mc.on("swiperight", () => toggleMenu());
+            const mc = new Hammer(document.body);
+            mc.on("swiperight", () => toggleMenu());
             const obs = new IntersectionObserver(e => { if(e[0].isIntersecting) fetchContent(true); });
             obs.observe(document.getElementById('sentinel'));
         };
