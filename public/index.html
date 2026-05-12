@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -76,11 +76,10 @@
         <h2 class="nosifer text-red-600 mt-6 text-xl">Entering the Ritual...</h2>
     </div>
 
-    <!-- Sidebar: The Horror Vaults -->
     <div id="side-menu" class="p-8 no-scrollbar overflow-y-auto">
         <h2 class="nosifer text-red-600 text-2xl mb-8">THE VAULTS</h2>
         <div class="flex flex-col gap-2 horror-font text-xl">
-            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('wes_craven', 6650)">WES CRAVEN</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('wes_craven')">WES CRAVEN</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('company', 1331)">DARK CASTLE</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('black_horror')">BLACK HORROR</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('youth')">YOUTH HORROR</button>
@@ -162,39 +161,30 @@
 
             let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}&sort_by=popularity.desc`;
             
-            // GHASTLY SERIES: TMDB + TVMAZE Logic
-            if (activeType === 'horror_shows') {
-                url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=${HORROR_ID}|99&page=${currentPage}&sort_by=popularity.desc`;
+            // WES CRAVEN (Strict Directed/Written Credit Only)
+            if (activeType === 'wes_craven') {
+                url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_crew=6650&with_genres=${HORROR_ID}&page=${currentPage}`;
             }
-            
-            // UNRATED: Strict Ratings via OMDb reference criteria
+
+            // GHASTLY SERIES (TVMaze Protocol + TMDB Horror TV Genre)
+            else if (activeType === 'horror_shows') {
+                url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}&sort_by=popularity.desc`;
+            }
+
+            // BLACK HORROR (Strict Filtered List + Keywords)
+            else if (activeType === 'black_horror') {
+                url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_keywords=209825|260731|233306&page=${currentPage}&sort_by=release_date.desc`;
+            }
+
+            // UNRATED (Strict Certification Match)
             else if (activeType === 'unrated') {
                 url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification=NR|UR|NC-17&page=${currentPage}`;
             }
-            
-            // WES CRAVEN: TMDB Combined Credits (Movies & TV)
-            else if (activeType === 'wes_craven') {
-                const res = await fetch(`https://api.themoviedb.org/3/person/6650/combined_credits?api_key=${API_KEY}`);
-                const data = await res.json();
-                let results = [...(data.cast || []), ...(data.crew || [])];
-                const unique = Array.from(new Map(results.map(item => [item.id, item])).values());
-                unique.sort((a, b) => (b.release_date || b.first_air_date || '0').localeCompare(a.release_date || a.first_air_date || '0'));
-                renderGrid(unique);
-                isLoading = false; return;
-            }
-
-            // BLACK HORROR: Deep Keyword Clustering
-            else if (activeType === 'black_horror') {
-                url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_keywords=209825|260731|233306|156036&page=${currentPage}`;
-            }
-
-            // ABROAD: Streaming Availability API Style Language Filtering
-            else if (activeType === 'abroad') {
-                url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&without_original_language=en&page=${currentPage}`;
-            }
 
             else if (activeType === 'trending') url = `https://api.themoviedb.org/3/trending/all/day?api_key=${API_KEY}&page=${currentPage}`;
-            else if (activeType === 'youth') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification.lte=PG-13&page=${currentPage}`;
+            else if (activeType === 'company') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_companies=${activeID}&page=${currentPage}`;
+            else if (activeType === 'youth') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification=PG-13|PG&page=${currentPage}`;
+            else if (activeType === 'abroad') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&without_original_language=en&page=${currentPage}`;
             else if (activeType === 'search') url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${activeID}&page=${currentPage}`;
 
             try {
@@ -275,7 +265,6 @@
             const playerOverlay = document.getElementById('player-overlay');
             const iframe = document.getElementById('luxe-player');
             playerOverlay.style.display = 'block';
-            // EMBED LOGIC: Pulling direct from Vidsrc using the specific Media ID
             iframe.src = (type === 'movie' ? `https://vidsrc.cc/v2/embed/movie/${id}` : `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}`);
             setTimeout(() => document.getElementById('close-player-btn').focus(), 500);
         }
