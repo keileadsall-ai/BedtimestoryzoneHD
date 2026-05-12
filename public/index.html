@@ -68,6 +68,9 @@
             </nav>
         </div>
 
+        <!-- Section used specifically for black horror logic -->
+        <div id="black-horror-section" class="hidden p-6 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
+        
         <main id="movie-grid" class="p-6 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"></main>
         <div id="sentinel" class="h-20"></div>
     </div>
@@ -116,34 +119,88 @@
         async function fetchContent(append = false) {
             if (isLoading) return;
             isLoading = true;
-            if (!append) { currentPage = 1; document.getElementById('movie-grid').innerHTML = ''; }
+            
+            const grid = document.getElementById('movie-grid');
+            const blackSection = document.getElementById('black-horror-section');
+
+            if (!append) { 
+                currentPage = 1; 
+                grid.innerHTML = ''; 
+                blackSection.innerHTML = '';
+                blackSection.classList.add('hidden');
+            }
 
             let results = [];
             
-            if (activeType === 'wes_craven') {
+            if (activeType === 'black_horror') {
+                // Predefined list of verified IDs
+                const BLACK_HORROR_IDS = {
+                    movies: [458156, 568489, 508947, 337401, 619264, 603692, 718989, 581392, 458723, 587807, 496450, 736726, 605116, 533535, 438631, 569094, 506574, 97404, 75780, 9372],
+                    tv: [90462, 94605, 110844, 119844, 122568, 95057, 104633, 111371, 107876, 96243]
+                };
+
+                // Show loading indicator
+                blackSection.innerHTML = '<div class="col-span-full text-center horror-font text-red-600 text-2xl animate-pulse">Summoning the Spirits...</div>';
+                blackSection.classList.remove('hidden');
+
+                const fetchVerifiedData = async (id, type) => {
+                    try {
+                        const [detailRes, creditRes] = await Promise.all([
+                            fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}`),
+                            fetch(`https://api.themoviedb.org/3/${type}/${id}/credits?api_key=${API_KEY}`)
+                        ]);
+                        const detail = await detailRes.json();
+                        const credit = await creditRes.json();
+                        
+                        // Validation logic
+                        const isBlackHorror = (data, credits) => {
+                            const blackDirectors = ['Jordan Peele', 'Nia DaCosta', 'Rusty Cundieff', 'Kasi Lemmons', 'Ernest Dickerson', 'William Crain', 'Remi Weekes', 'Nikyatu Jusu', 'Emmanuel Osei-Kuffour', 'Gerard McMurray'];
+                            const blackHorrorTitles = ['Get Out', 'Us', 'Candyman', 'Blacula', 'Def by Temptation', 'Eve\'s Bayou', 'Tales from the Hood', 'Ganja & Hess', 'The People Under the Stairs', 'Vampires vs. the Bronx', 'Lovecraft Country', 'Them', 'The Blood of Jesus', 'Son of Ingagi', 'Spell', 'Antebellum', 'His House', 'Black Box', 'Da Sweet Blood of Jesus', 'Demon Knight'];
+                            const blackThemes = ['voodoo', 'hoodoo', 'blaxploitation', 'social thriller', 'spirituality'];
+                            
+                            const director = credits.crew?.find(c => c.job === 'Director')?.name;
+                            const title = data.title || data.name || "";
+                            const overview = data.overview?.toLowerCase() || "";
+                            const genres = data.genres?.map(g => g.name) || [];
+                            const leads = credits.cast?.slice(0, 3).map(c => c.name) || [];
+
+                            // Theme check
+                            const hasBlackTheme = blackThemes.some(theme => overview.includes(theme));
+                            
+                            return blackDirectors.includes(director) || 
+                                   blackHorrorTitles.some(t => title.includes(t)) ||
+                                   (genres.includes('Horror') && hasBlackTheme);
+                        };
+
+                        if (isBlackHorror(detail, credit)) {
+                            return { ...detail, media_type: type };
+                        }
+                        return null;
+                    } catch (e) { return null; }
+                };
+
+                const moviePromises = BLACK_HORROR_IDS.movies.map(id => fetchVerifiedData(id, 'movie'));
+                const tvPromises = BLACK_HORROR_IDS.tv.map(id => fetchVerifiedData(id, 'tv'));
+                
+                const allResults = await Promise.all([...moviePromises, ...tvPromises]);
+                results = allResults.filter(r => r !== null);
+
+                // Error Handling if no verified content
+                if (results.length === 0) {
+                    blackSection.innerHTML = '<div class="col-span-full text-center nosifer text-red-600 p-10">No verified Black horror content found in the ritual...</div>';
+                } else {
+                    blackSection.innerHTML = ''; // Clear loader
+                    renderToTarget(results, blackSection);
+                }
+                
+                isLoading = false;
+                return; // Stop standard execution
+            } 
+            else if (activeType === 'wes_craven') {
                 const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_crew=5140&sort_by=release_date.desc&page=${currentPage}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 results = data.results;
-            }
-            // MODIFIED BLACK HORROR SECTION
-            else if (activeType === 'black_horror') {
-                const curated = [
-                    { id: 419430, type: 'movie' }, { id: 458723, type: 'movie' }, 
-                    { id: 561, type: 'movie' }, { id: 565028, type: 'movie' },
-                    { id: 41416, type: 'movie' }, { id: 62057, type: 'movie' },
-                    { id: 31057, type: 'movie' }, { id: 21971, type: 'movie' },
-                    { id: 27958, type: 'movie' }, { id: 11442, type: 'movie' },
-                    { id: 641662, type: 'movie' }, { id: 82816, type: 'tv' },
-                    { id: 112053, type: 'tv' }, { id: 104712, type: 'movie' },
-                    { id: 421271, type: 'movie' }, { id: 615666, type: 'movie' },
-                    { id: 627233, type: 'movie' }
-                ];
-                const requests = curated.map(item => fetch(`https://api.themoviedb.org/3/${item.type}/${item.id}?api_key=${API_KEY}`).then(r => r.json()));
-                results = await Promise.all(requests);
-                isLoading = false; 
-                renderGrid(results);
-                return;
             }
             else if (activeType === 'horror_shows') {
                 const url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}`;
@@ -174,9 +231,8 @@
             isLoading = false;
         }
 
-        function renderGrid(results) {
-            const grid = document.getElementById('movie-grid');
-            if (!results) return;
+        // Specific helper to render to target div
+        function renderToTarget(results, targetElement) {
             results.forEach(m => {
                 if (!m.poster_path) return;
                 const card = document.createElement('div');
@@ -185,8 +241,14 @@
                 const type = m.media_type || (m.first_air_date ? 'tv' : 'movie');
                 card.onclick = () => openDetails(m.id, type);
                 card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${m.poster_path}" class="w-full h-full object-cover">`;
-                grid.appendChild(card);
+                targetElement.appendChild(card);
             });
+        }
+
+        function renderGrid(results) {
+            const grid = document.getElementById('movie-grid');
+            if (!results) return;
+            renderToTarget(results, grid);
         }
 
         async function openDetails(id, type) {
