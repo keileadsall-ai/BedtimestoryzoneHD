@@ -76,18 +76,17 @@
         <h2 class="nosifer text-red-600 mt-6 text-xl">Entering the Ritual...</h2>
     </div>
 
-    <!-- Sidebar: Updated Vaults -->
+    <!-- Sidebar: The Horror Vaults -->
     <div id="side-menu" class="p-8 no-scrollbar overflow-y-auto">
         <h2 class="nosifer text-red-600 text-2xl mb-8">THE VAULTS</h2>
         <div class="flex flex-col gap-2 horror-font text-xl">
-            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('network', 453)">AMC+ MACABRE</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('person', 6650)">WES CRAVEN</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('company', 1331)">DARK CASTLE</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('black_horror')">BLACK HORROR</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('youth')">YOUTH HORROR</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('abroad')">HORROR FROM ABROAD</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('person', 3027)">STEPHEN KING</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('company', 3172)">BLUMHOUSE</button>
-            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('company', 1331)">DARK CASTLE</button>
-            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('youth')">YOUTH HORROR</button>
-            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('black_horror')">BLACK HORROR</button>
-            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('abroad')">HORROR FROM ABROAD</button>
             <button class="focusable text-left py-3 mt-10 text-zinc-600" onclick="toggleMenu()">CLOSE [X]</button>
         </div>
     </div>
@@ -108,8 +107,6 @@
                 <button class="focusable whitespace-nowrap" onclick="setFilter('horror_movies')">HORROR FILMS</button>
                 <button class="focusable whitespace-nowrap" onclick="setFilter('horror_shows')">GHASTLY SERIES</button>
                 <button class="focusable whitespace-nowrap" onclick="setFilter('unrated')">UNRATED</button>
-                <button class="focusable whitespace-nowrap" onclick="setFilter('black_horror')">BLACK HORROR</button>
-                <button class="focusable whitespace-nowrap" onclick="setFilter('abroad')">HORROR FROM ABROAD</button>
             </nav>
         </div>
 
@@ -171,40 +168,27 @@
             let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}&sort_by=popularity.desc`;
             
             if (activeType === 'trending') url = `https://api.themoviedb.org/3/trending/all/day?api_key=${API_KEY}&page=${currentPage}`;
-            
-            // Filter: Ghastly Series (TV Series & Documentaries)
-            else if (activeType === 'horror_shows') url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}&with_keywords=210310|235072`;
-            
-            // Filter: Unrated (NR, UR, NC-17)
-            else if (activeType === 'unrated') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification=NR|UR|NC-17&page=${currentPage}`;
-            
-            else if (activeType === 'network') url = `https://api.themoviedb.org/3/discover/all?api_key=${API_KEY}&with_networks=${activeID}&with_genres=${HORROR_ID}&page=${currentPage}`;
-            
-            // Filter: Wes Craven (Director/Writer)
-            else if (activeType === 'person' && activeID == '6650') url = `https://api.themoviedb.org/3/person/6650/combined_credits?api_key=${API_KEY}`;
-            
-            else if (activeType === 'person') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_people=${activeID}&page=${currentPage}`;
-            
-            else if (activeType === 'company') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_companies=${activeID}&page=${currentPage}`;
-            
-            // Filter: Youth Horror (E, TV-14 ratings and related keywords)
-            else if (activeType === 'youth') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification.lte=PG-13&page=${currentPage}&with_keywords=210024|210025|4344|6158`;
-            
-            // Filter: Black Horror
-            else if (activeType === 'black_horror') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_keywords=209813|156095&page=${currentPage}`;
-            
-            // Filter: Horror from Abroad (Excluding US)
-            else if (activeType === 'abroad') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&without_origin_country=US&page=${currentPage}`;
-            
+            else if (activeType === 'horror_shows') url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}&sort_by=popularity.desc&without_genres=10767,10763`;
+            else if (activeType === 'unrated') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification.gte=NC-17&page=${currentPage}`;
+            else if (activeType === 'person') url = `https://api.themoviedb.org/3/discover/multi?api_key=${API_KEY}&with_people=${activeID}&page=${currentPage}`;
+            else if (activeType === 'company') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_companies=${activeID}&page=${currentPage}`;
+            else if (activeType === 'black_horror') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_keywords=209825|260731|233306&page=${currentPage}`;
+            else if (activeType === 'youth') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification.lte=PG-13&page=${currentPage}`;
+            else if (activeType === 'abroad') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&without_original_language=en&page=${currentPage}`;
             else if (activeType === 'search') url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${activeID}&page=${currentPage}`;
 
             try {
                 const res = await fetch(url);
                 const data = await res.json();
-                
-                // Handle credits for Wes Craven/Specific People to ensure no truncation
-                let results = data.results || data.cast || [];
-                
+                let results = data.results;
+
+                // Specialized filtering for Wes Craven (ensure TV shows and Movies)
+                if(activeType === 'person' && activeID === '6650') {
+                    const tvRes = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_people=6650&page=${currentPage}`);
+                    const tvData = await tvRes.json();
+                    results = [...results, ...tvData.results];
+                }
+
                 const filtered = results.filter(item => 
                     (item.genre_ids && item.genre_ids.includes(HORROR_ID)) || (activeType === 'search' && item.genre_ids && item.genre_ids.includes(HORROR_ID)) || activeType === 'person'
                 );
