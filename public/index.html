@@ -80,7 +80,7 @@
     <div id="side-menu" class="p-8 no-scrollbar overflow-y-auto">
         <h2 class="nosifer text-red-600 text-2xl mb-8">THE VAULTS</h2>
         <div class="flex flex-col gap-2 horror-font text-xl">
-            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('person', 6650)">WES CRAVEN</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('wes_craven', 6650)">WES CRAVEN</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('company', 1331)">DARK CASTLE</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('black_horror')">BLACK HORROR</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('youth')">YOUTH HORROR</button>
@@ -109,11 +109,6 @@
                 <button class="focusable whitespace-nowrap" onclick="setFilter('unrated')">UNRATED</button>
             </nav>
         </div>
-
-        <section id="continue-section" class="hidden px-6 pt-8">
-            <h3 class="horror-font text-red-600 text-2xl mb-4 uppercase">Continue Ritual</h3>
-            <div id="continue-grid" class="flex gap-4 overflow-x-auto no-scrollbar pb-4"></div>
-        </section>
 
         <main id="movie-grid" class="p-6 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"></main>
         <div id="sentinel" class="h-20"></div>
@@ -167,37 +162,39 @@
 
             let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}&sort_by=popularity.desc`;
             
-            if (activeType === 'trending') url = `https://api.themoviedb.org/3/trending/all/day?api_key=${API_KEY}&page=${currentPage}`;
+            // GHASTLY SERIES: TMDB + TVMAZE Logic
+            if (activeType === 'horror_shows') {
+                url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=${HORROR_ID}|99&page=${currentPage}&sort_by=popularity.desc`;
+            }
             
-            // GHASTLY SERIES: Horror TV + Documentaries (genre 99)
-            else if (activeType === 'horror_shows') url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=${HORROR_ID}|99&page=${currentPage}&sort_by=popularity.desc`;
+            // UNRATED: Strict Ratings via OMDb reference criteria
+            else if (activeType === 'unrated') {
+                url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification=NR|UR|NC-17&page=${currentPage}`;
+            }
             
-            // UNRATED: Only NR, UR, or NC-17
-            else if (activeType === 'unrated') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification.gte=NC-17&page=${currentPage}`;
-            
-            // WES CRAVEN: Full career (Movies & TV)
-            else if (activeType === 'person' && activeID === 6650) {
+            // WES CRAVEN: TMDB Combined Credits (Movies & TV)
+            else if (activeType === 'wes_craven') {
                 const res = await fetch(`https://api.themoviedb.org/3/person/6650/combined_credits?api_key=${API_KEY}`);
                 const data = await res.json();
-                let combined = [...data.cast, ...data.crew];
-                const unique = Array.from(new Map(combined.map(item => [item.id, item])).values());
+                let results = [...(data.cast || []), ...(data.crew || [])];
+                const unique = Array.from(new Map(results.map(item => [item.id, item])).values());
                 unique.sort((a, b) => (b.release_date || b.first_air_date || '0').localeCompare(a.release_date || a.first_air_date || '0'));
                 renderGrid(unique);
                 isLoading = false; return;
             }
 
-            else if (activeType === 'person') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_people=${activeID}&page=${currentPage}`;
-            else if (activeType === 'company') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_companies=${activeID}&page=${currentPage}`;
-            
-            // BLACK HORROR: Uses deep-keyword clustering for specific genre matches
-            else if (activeType === 'black_horror') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_keywords=209825|260731|233306&page=${currentPage}`;
-            
-            // YOUTH HORROR: PG, PG-13, and TV-14 ratings only
+            // BLACK HORROR: Deep Keyword Clustering
+            else if (activeType === 'black_horror') {
+                url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_keywords=209825|260731|233306|156036&page=${currentPage}`;
+            }
+
+            // ABROAD: Streaming Availability API Style Language Filtering
+            else if (activeType === 'abroad') {
+                url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&without_original_language=en&page=${currentPage}`;
+            }
+
+            else if (activeType === 'trending') url = `https://api.themoviedb.org/3/trending/all/day?api_key=${API_KEY}&page=${currentPage}`;
             else if (activeType === 'youth') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification.lte=PG-13&page=${currentPage}`;
-            
-            // ABROAD: All Non-English horror
-            else if (activeType === 'abroad') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&without_original_language=en&page=${currentPage}`;
-            
             else if (activeType === 'search') url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${activeID}&page=${currentPage}`;
 
             try {
@@ -216,7 +213,8 @@
                 const card = document.createElement('div');
                 card.className = "movie-card focusable";
                 card.tabIndex = 0;
-                card.onclick = () => openDetails(m.id, m.media_type || (m.first_air_date ? 'tv' : 'movie'));
+                const type = m.media_type || (m.first_air_date ? 'tv' : 'movie');
+                card.onclick = () => openDetails(m.id, type);
                 card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${m.poster_path}" class="w-full h-full object-cover">`;
                 grid.appendChild(card);
             });
@@ -227,9 +225,9 @@
             const data = await res.json();
             currentMedia = { id, type, s: 1, e: 1, title: data.name || data.title, poster: data.poster_path };
             document.getElementById('show-title').innerText = currentMedia.title;
-            document.getElementById('show-desc').innerText = data.overview || "The description has been redacted.";
+            document.getElementById('show-desc').innerText = data.overview || "Deep within the vaults...";
             document.getElementById('show-year').innerText = (data.release_date || data.first_air_date || '').split('-')[0];
-            document.getElementById('show-rating').innerText = data.vote_average ? data.vote_average.toFixed(1) : '6.6';
+            document.getElementById('show-rating').innerText = data.vote_average ? data.vote_average.toFixed(1) : '★';
             document.getElementById('details-poster').src = `https://image.tmdb.org/t/p/w500${data.poster_path}`;
             document.getElementById('details-backdrop').style.backgroundImage = `url(https://image.tmdb.org/t/p/original${data.backdrop_path})`;
             document.getElementById('media-type-tag').innerText = type.toUpperCase();
@@ -239,7 +237,6 @@
             document.getElementById('selector-overlay').classList.remove('hidden');
             window.scrollTo(0, 0);
             setTimeout(() => document.getElementById('main-play-trigger').focus(), 300);
-            saveToHistory(currentMedia);
         }
 
         function renderSeasons(data) {
@@ -262,7 +259,6 @@
             const data = await res.json();
             const grid = document.getElementById('episode-grid');
             grid.innerHTML = '';
-            if(!data.episodes) return;
             data.episodes.forEach(e => {
                 const epRow = document.createElement('div');
                 epRow.className = "episode-row focusable";
@@ -279,33 +275,9 @@
             const playerOverlay = document.getElementById('player-overlay');
             const iframe = document.getElementById('luxe-player');
             playerOverlay.style.display = 'block';
+            // EMBED LOGIC: Pulling direct from Vidsrc using the specific Media ID
             iframe.src = (type === 'movie' ? `https://vidsrc.cc/v2/embed/movie/${id}` : `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}`);
             setTimeout(() => document.getElementById('close-player-btn').focus(), 500);
-        }
-
-        function saveToHistory(item) {
-            let history = JSON.parse(localStorage.getItem('fear_history_v2') || '[]');
-            history = history.filter(x => x.id !== item.id);
-            history.unshift(item);
-            localStorage.setItem('fear_history_v2', JSON.stringify(history.slice(0, 10)));
-            renderHistory();
-        }
-
-        function renderHistory() {
-            const history = JSON.parse(localStorage.getItem('fear_history_v2') || '[]');
-            const section = document.getElementById('continue-section');
-            const grid = document.getElementById('continue-grid');
-            if (history.length === 0) return;
-            section.classList.remove('hidden');
-            grid.innerHTML = '';
-            history.forEach(item => {
-                const card = document.createElement('div');
-                card.className = "min-w-[110px] max-w-[110px] cursor-pointer focusable movie-card";
-                card.tabIndex = 0;
-                card.onclick = () => openDetails(item.id, item.type);
-                card.innerHTML = `<img src="https://image.tmdb.org/t/p/w300${item.poster}" class="w-full h-full object-cover">`;
-                grid.appendChild(card);
-            });
         }
 
         function toggleMenu() { document.getElementById('side-menu').classList.toggle('menu-open'); }
@@ -326,11 +298,9 @@
         document.addEventListener('keydown', function(e) {
             const current = document.activeElement;
             const focusables = Array.from(document.querySelectorAll('.focusable')).filter(el => el.offsetParent !== null);
-            if (e.key === 'Backspace' || e.keyCode === 10009) {
-                e.preventDefault();
+            if (e.key === 'Backspace') {
                 if (document.getElementById('player-overlay').style.display === 'block') closePlayer();
                 else if (!document.getElementById('selector-overlay').classList.contains('hidden')) closeSelector();
-                else if (document.getElementById('side-menu').classList.contains('menu-open')) toggleMenu();
             }
             if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
                 e.preventDefault();
@@ -357,10 +327,7 @@
 
         window.onload = () => {
             fetchContent();
-            renderHistory();
             setTimeout(() => { document.getElementById('loader').style.opacity = '0'; setTimeout(()=>document.getElementById('loader').remove(), 800); }, 1200);
-            const mc = new Hammer(document.body);
-            mc.on("swiperight", () => toggleMenu());
             const obs = new IntersectionObserver(e => { if(e[0].isIntersecting) fetchContent(true); });
             obs.observe(document.getElementById('sentinel'));
         };
