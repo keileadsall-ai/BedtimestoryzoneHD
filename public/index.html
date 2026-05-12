@@ -120,9 +120,17 @@
 
             let results = [];
             
-            // Wes Craven - Target Directing/Crew ID 5140 specifically
+            // Wes Craven - Strict Directing Filter
             if (activeType === 'wes_craven') {
                 const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_crew=5140&sort_by=release_date.desc&page=${currentPage}`;
+                const res = await fetch(url);
+                const data = await res.json();
+                results = data.results;
+            }
+            // Black Horror - Curated IDs + Keywords Cluster
+            else if (activeType === 'black_horror') {
+                // Fetch curated list via keyword discovery for African American Cinema (233306) in Horror
+                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_keywords=233306|209825|156036&sort_by=popularity.desc&page=${currentPage}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 results = data.results;
@@ -134,16 +142,9 @@
                 const data = await res.json();
                 results = data.results;
             }
-            // Unrated - Strict Certification NR/UR/NC-17
+            // Unrated - Strict Certification
             else if (activeType === 'unrated') {
                 const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification=NR|UR|NC-17&page=${currentPage}`;
-                const res = await fetch(url);
-                const data = await res.json();
-                results = data.results;
-            }
-            // Black Horror - Keyword Cluster
-            else if (activeType === 'black_horror') {
-                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&with_keywords=209825|260731|233306&page=${currentPage}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 results = data.results;
