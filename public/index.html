@@ -47,7 +47,7 @@
         <div class="flex flex-col gap-2 horror-font text-xl">
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('stephen_king')">STEPHEN KING</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('wes_craven')">WES CRAVEN</button>
-            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('company', 'after_dark')">DARK CASTLE</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('company', 1331)">DARK CASTLE</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('black_horror')">BLACK HORROR</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('youth')">YOUTH HORROR</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('abroad')">HORROR FROM ABROAD</button>
@@ -117,7 +117,8 @@
         let activeType = 'trending', activeID = '', currentMedia = {};
         let currentPage = 1, isLoading = false;
 
-        const AFTER_DARK_FILMS = [
+        // Hardcoded After Dark Horrorfest List
+        const AFTER_DARK_HORRORFEST = [
             { title: "The Abandoned", year: "2006" }, { title: "Dark Ride", year: "2006" }, { title: "The Gravedancers", year: "2006" }, { title: "The Hamiltons", year: "2006" }, { title: "Horror", year: "2006" }, { title: "Penny Dreadful", year: "2006" }, { title: "Reincarnation", year: "2006" }, { title: "Unrest", year: "2006" }, { title: "Snoop Dogg's Hood of Horror", year: "2006" }, { title: "The Tripper", year: "2006" },
             { title: "Borderland", year: "2007" }, { title: "Crazy Eights", year: "2007" }, { title: "The Deaths of Ian Stone", year: "2007" }, { title: "Lake Dead", year: "2007" }, { title: "Mulberry Street", year: "2007" }, { title: "Nightmare Man", year: "2007" }, { title: "Tooth and Nail", year: "2007" }, { title: "Unearthed", year: "2007" }, { title: "Frontier(s)", year: "2007" },
             { title: "The Broken", year: "2008" }, { title: "Dying Breed", year: "2008" }, { title: "From Within", year: "2008" }, { title: "Hell Ride", year: "2008" }, { title: "Autopsy", year: "2008" }, { title: "The Butterfly Effect 3: Revelations", year: "2008" }, { title: "Voices", year: "2008" },
@@ -149,8 +150,8 @@
             } else if (activeType === 'stephen_king') {
                 await fetchStephenKing();
                 isLoading = false; return;
-            } else if (activeType === 'company' && activeID === 'after_dark') {
-                await fetchAfterDarkHardcoded();
+            } else if (activeType === 'company') {
+                displayAfterDarkHorrorfest();
                 isLoading = false; return;
             } else if (activeType === 'wes_craven') {
                 const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_crew=5140&sort_by=release_date.desc&page=${currentPage}`;
@@ -170,7 +171,6 @@
             } else {
                 let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}`;
                 if (activeType === 'trending') url = `https://api.themoviedb.org/3/trending/all/day?api_key=${API_KEY}&page=${currentPage}`;
-                else if (activeType === 'company') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_companies=${activeID}&page=${currentPage}`;
                 else if (activeType === 'youth') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification.lte=PG-13&page=${currentPage}`;
                 else if (activeType === 'abroad') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&without_original_language=en&page=${currentPage}`;
                 else if (activeType === 'search') url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${activeID}&page=${currentPage}`;
@@ -183,30 +183,6 @@
             isLoading = false;
         }
 
-        async function fetchAfterDarkHardcoded() {
-            const grid = document.getElementById('movie-grid');
-            grid.innerHTML = '';
-            
-            for (const film of AFTER_DARK_FILMS) {
-                const res = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(film.title)}&year=${film.year}`);
-                const data = await res.json();
-                if (data.results && data.results.length > 0) {
-                    renderGrid([data.results[0]]);
-                } else {
-                    // Fallback if TMDB lookup fails for a title
-                    const card = document.createElement('div');
-                    card.className = "movie-card focusable";
-                    card.tabIndex = 0;
-                    card.innerHTML = `
-                        <div class="flex items-center justify-center h-full horror-font text-red-600 p-2 text-center border border-red-900">
-                            ${film.title}<br>(${film.year})
-                        </div>
-                    `;
-                    grid.appendChild(card);
-                }
-            }
-        }
-
         async function fetchStephenKing() {
             const KING_ID = 3027;
             const res = await fetch(`https://api.themoviedb.org/3/person/${KING_ID}/combined_credits?api_key=${API_KEY}`);
@@ -217,6 +193,25 @@
             const unique = filtered.filter(item => seen.has(item.id) ? false : seen.add(item.id));
             unique.sort((a, b) => b.popularity - a.popularity);
             renderGrid(unique);
+        }
+
+        function displayAfterDarkHorrorfest() {
+            const grid = document.getElementById('movie-grid');
+            grid.innerHTML = '';
+            AFTER_DARK_HORRORFEST.forEach(movie => {
+                const card = document.createElement('div');
+                card.className = "movie-card focusable";
+                card.tabIndex = 0;
+                card.onclick = () => { activeType = 'search'; activeID = movie.title; fetchContent(); };
+                card.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full p-4 text-center bg-zinc-900/50">
+                        <h3 class="horror-font text-red-600 text-lg leading-tight mb-2">${movie.title}</h3>
+                        <p class="text-zinc-500 font-bold">${movie.year}</p>
+                        <div class="mt-4 text-xs uppercase tracking-widest text-zinc-600 border border-zinc-800 px-2 py-1">Horrorfest</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
         }
 
         async function fetchBlackHorrorComprehensive() {
@@ -237,22 +232,10 @@
             for (let movie of uniquePool) {
                 const detailRes = await fetch(`https://api.themoviedb.org/3/movie/${movie.id}?api_key=${API_KEY}&append_to_response=credits,keywords`);
                 const details = await detailRes.json();
-                const movieObj = {
-                    ...details,
-                    director: details.credits?.crew?.find(c => c.job === 'Director')?.name || "",
-                    cast: details.credits?.cast?.slice(0, 10).map(a => a.name) || [],
-                    genres: details.genres?.map(g => g.name) || [],
-                    keywords: details.keywords?.keywords?.map(k => k.name) || [],
-                    production_companies: details.production_companies?.map(p => p.name) || []
-                };
+                const movieObj = {...details, director: details.credits?.crew?.find(c => c.job === 'Director')?.name || "", cast: details.credits?.cast?.slice(0, 10).map(a => a.name) || [], genres: details.genres?.map(g => g.name) || [], keywords: details.keywords?.keywords?.map(k => k.name) || [], production_companies: details.production_companies?.map(p => p.name) || []};
                 if (isBlackHorror(movieObj)) validatedMovies.push(movieObj);
             }
-            if (validatedMovies.length === 0) {
-                document.getElementById('black-horror-section').innerHTML = '<p class="text-red-600 horror-font text-center w-full">No Black horror films found.</p>';
-                activeType = 'horror_movies'; fetchContent();
-            } else {
-                displayBlackHorror(validatedMovies);
-            }
+            displayBlackHorror(validatedMovies);
         }
 
         function isBlackHorror(movie) {
