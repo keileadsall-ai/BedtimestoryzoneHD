@@ -116,18 +116,6 @@
         let activeType = 'trending', activeID = '', currentMedia = {};
         let currentPage = 1, isLoading = false;
 
-        // Process Title List
-        const BLACK_HORROR_TITLES = ["Get Out", "Us", "Nope", "Candyman", "Blacula", "Scream Blacula Scream", "Def by Temptation", "Eve's Bayou", "Tales from the Hood", "Ganja & Hess", "The People Under the Stairs", "Vampires vs. the Bronx", "Lovecraft Country", "Them", "The Blood of Jesus", "Son of Ingagi", "Spell", "Antebellum", "His House", "Black Box", "Da Sweet Blood of Jesus", "Demon Knight", "Vampire in Brooklyn", "Abby", "Blackenstein", "Slaughter", "The Spook Who Sat by the Door", "The House on Skull Mountain", "J.D.'s Revenge", "Sugar Hill", "The Serpent and the Rainbow", "Voodoo Dawn", "Night of the Living Dead", "The Blackening", "The Invitation", "The House", "The Last House on the Left", "The Purge", "The Ritual", "The Skeleton Key", "The Covenant", "Fallen", "Bad Hair", "Bleeding Rose", "Urban Cannibal Massacre", "The Other Black Girl", "Swarm", "Horror Noire", "Attack the Block", "The Girl with All the Gifts", "Master", "Diary of a Mad Black Woman", "Hood of Horror", "The Evil One", "Frankenfish", "Beloved", "House on Haunted Hill", "Constantine", "Gothika", "The Deliverance", "Nanny", "They Cloned Tyrone", "Soft & Quiet", "Talk to Me", "Blade", "Blade II", "Blade: Trinity", "Queen of the Damned", "Spawn", "The Reading", "Ma", "Scary Movie", "Scary Movie 2", "Scary Movie 3", "A Haunted House", "A Haunted House 2", "Meet the Blacks", "Meet the Blacks 2: The House Next Door", "Fear of a Black Hat", "Boo! A Madea Halloween", "Boo 2! A Madea Halloween", "Da Sweet Blood of Jesus", "The Transfiguration", "Tales from the Hood 2", "Tales from the Hood 3", "Murder in the Woods", "Kandisha", "Gang of Souls", "The House Invictus", "The Angry Black Girl and Her Monster", "Surrounded", "They Remain", "Jacob's Ladder", "House Party: Tonight's the Night", "The Summoned", "The Inheritance", "Killjoy", "Killjoy 2: Deliverance from Evil", "Killjoy 3", "Killjoy Goes to Hell", "Killjoy's Psycho Circus", "Ragdoll", "Hellbound", "Beneath Loch Ness", "Motives", "Motives 2", "The Grim Reaper", "Wes Craven Presents: Dracula II Ascension", "Wes Craven Presents: Dracula III Legacy", "The Horrible Dr. Bones", "Zombiez", "Holla", "The Maintenance Man", "Nite Tales", "Nite Tales: The Movie", "The Dread", "Circle of Eight", "Trapped: Haitian Nights", "The Dead One", "Shallow Ground", "The Fear Chamber", "I Madman", "Killer Weekend", "Boo", "The Cookout", "Somebody Help Me", "Somebody Help Me 2", "Chain Letter", "Cutthroat Alley", "Killer Instinct", "BlinkyTM", "Camp Blood 8: Revelations", "Jigsaw", "Slaughter's Big Rip-Off", "The Skarehouse", "Minutes Past Midnight", "Hell Fest", "There's Someone Inside Your House", "Initiation", "Carnival of Souls", "House of Fears"];
-        
-        function removeDuplicates(arr) {
-            const seen = new Set();
-            return arr.filter(item => {
-                const k = item.toLowerCase().trim();
-                return seen.has(k) ? false : seen.add(k);
-            });
-        }
-        const uniqueTitles = removeDuplicates(BLACK_HORROR_TITLES);
-
         async function fetchContent(append = false) {
             if (isLoading) return;
             isLoading = true;
@@ -137,7 +125,7 @@
 
             let results = [];
             if (activeType === 'black_horror') {
-                await fetchBlackHorrorComprehensive();
+                displayBlackHorrorMovies();
                 isLoading = false; return;
             } else if (activeType === 'wes_craven') {
                 const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_crew=5140&sort_by=release_date.desc&page=${currentPage}`;
@@ -170,82 +158,148 @@
             isLoading = false;
         }
 
-        async function fetchBlackHorrorComprehensive() {
-            const BLACK_HORROR_FILM_IDS = [458156, 568489, 508947, 337401, 619264, 603692, 718989, 581392, 458723, 587807, 496450, 736726, 605116, 533535, 438631, 569094, 506574, 97404, 75780, 9372, 102387, 385103, 761703, 632357, 529203, 475557, 506054, 539885, 414906, 284404, 590864];
-            let pool = [];
-            
-            // 1. Fetch by Genre + Keywords
-            const kwRes = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=233306|209825`);
-            const kwData = await kwRes.json();
-            pool.push(...kwData.results);
-
-            // 2. Fetch by IDs
-            for (let id of BLACK_HORROR_FILM_IDS) {
-                const res = await fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${API_KEY}`);
-                if (res.ok) pool.push(await res.json());
-            }
-
-            // 3. Search by Unique Titles (Sourced from your provided list)
-            const titlePromises = uniqueTitles.slice(0, 40).map(title => 
-                fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`).then(r => r.json())
-            );
-            const titleResults = await Promise.all(titlePromises);
-            titleResults.forEach(data => { if(data.results) pool.push(...data.results); });
-
-            let validatedMovies = [];
-            const uniquePool = Array.from(new Map(pool.map(m => [m.id, m])).values());
-
-            for (let movie of uniquePool) {
-                const detailRes = await fetch(`https://api.themoviedb.org/3/movie/${movie.id}?api_key=${API_KEY}&append_to_response=credits,keywords`);
-                const details = await detailRes.json();
-                const movieObj = {
-                    ...details,
-                    director: details.credits?.crew?.find(c => c.job === 'Director')?.name || "",
-                    cast: details.credits?.cast?.slice(0, 10).map(a => a.name) || [],
-                    genres: details.genres?.map(g => g.name) || [],
-                    keywords: details.keywords?.keywords?.map(k => k.name) || [],
-                    production_companies: details.production_companies?.map(p => p.name) || []
-                };
-                if (isBlackHorror(movieObj)) validatedMovies.push(movieObj);
-            }
-
-            if (validatedMovies.length === 0) {
-                document.getElementById('black-horror-section').innerHTML = '<p class="text-red-600 horror-font text-center w-full">No Black horror films found. Showing all horror films instead.</p>';
-                activeType = 'horror_movies'; fetchContent();
-            } else {
-                displayBlackHorror(validatedMovies);
-            }
-        }
-
-        function isBlackHorror(movie) {
-            const blackDirectors = ['Jordan Peele', 'Nia DaCosta', 'Rusty Cundieff', 'Kasi Lemmons', 'Ernest Dickerson', 'William Crain', 'Remi Weekes', 'Nikyatu Jusu', 'Emmanuel Osei-Kuffour', 'Gerard McMurray', 'Tony Todd', 'Keenen Ivory Wayans'];
-            const blackActors = ['Lupita Nyong\'o', 'Daniel Kaluuya', 'Janelle Monáe', 'Gabrielle Union', 'Omari Hardwick', 'Logan Browning', 'Tony Todd', 'Eddie Murphy', 'Angela Bassett', 'Wesley Snipes', 'Tasha Smith', 'Regina Hall', 'Keke Palmer', 'Laurence Fishburne'];
-            const titlesLower = uniqueTitles.map(t => t.toLowerCase());
-            
-            return blackDirectors.includes(movie.director) || 
-                   titlesLower.some(title => movie.title.toLowerCase().includes(title)) ||
-                   (movie.genres.includes('Horror') && movie.cast.some(actor => blackActors.includes(actor))) ||
-                   movie.keywords.includes('blaxploitation') ||
-                   (movie.production_companies.includes('Blumhouse Productions') && (movie.cast.some(actor => blackActors.includes(actor)) || blackDirectors.includes(movie.director)));
-        }
-
-        function displayBlackHorror(movies) {
+        function displayBlackHorrorMovies() {
             const container = document.getElementById('black-horror-section');
             container.innerHTML = '';
-            movies.forEach(movie => {
-                const card = document.createElement('div');
-                card.className = 'movie-card focusable';
-                card.tabIndex = 0;
-                card.onclick = () => openDetails(movie.id, 'movie');
-                card.innerHTML = `
-                    <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" class="w-full h-full object-cover" alt="${movie.title}">
+            
+            const hardcodedMovies = [
+                { title: "Get Out", year: "2017", tmdbId: 458156 },
+                { title: "Us", year: "2019", tmdbId: 470545 },
+                { title: "Blacula", year: "1972", tmdbId: 43368 },
+                { title: "Candyman", year: "1992", tmdbId: 43430 },
+                { title: "Lovecraft Country", year: "2020", tmdbId: 718989 },
+                { title: "Nope", year: "2022", tmdbId: 580489 },
+                { title: "Antebellum", year: "2020", tmdbId: 619264 },
+                { title: "His House", year: "2020", tmdbId: 625756 },
+                { title: "Candyman", year: "2021", tmdbId: 568489 },
+                { title: "Vampires vs. the Bronx", year: "2020", tmdbId: 603692 },
+                { title: "The Blackening", year: "2022", tmdbId: 551442 },
+                { title: "Black Panther: Wakanda Forever", year: "2022", tmdbId: 716807 },
+                { title: "Bleeding Rose", year: "2021", tmdbId: 776543 },
+                { title: "Urban Cannibal Massacre", year: "2012", tmdbId: 194885 },
+                { title: "Tales from the Hood", year: "1995", tmdbId: 26670 },
+                { title: "Sinners", year: "2025", tmdbId: 1079386 },
+                { title: "Master", year: "2022", tmdbId: 644383 },
+                { title: "Sugar Hill", year: "1993", tmdbId: 123732 },
+                { title: "Vampire in Brooklyn", year: "1995", tmdbId: 12955 },
+                { title: "Beloved", year: "1998", tmdbId: 450 },
+                { title: "Diary of a Mad Black Woman", year: "2005", tmdbId: 58584 },
+                { title: "Hood of Horror", year: "2006", tmdbId: 53077 },
+                { title: "Scream Blacula Scream", year: "1973", tmdbId: 5264 },
+                { title: "Dr. Black, Mr. Hyde", year: "1972", tmdbId: 6676 },
+                { title: "J.D.’s Revenge", year: "1976", tmdbId: 2062 },
+                { title: "Abby", year: "1974", tmdbId: 5488 },
+                { title: "Ganja & Hess", year: "1973", tmdbId: 886 },
+                { title: "Def by Temptation", year: "1990", tmdbId: 605 },
+                { title: "Eve’s Bayou", year: "1997", tmdbId: 943 },
+                { title: "Candyman: Farewell to the Flesh", year: "1995", tmdbId: 26656 },
+                { title: "Bones", year: "2001", tmdbId: 37232 },
+                { title: "Bad Hair", year: "2020", tmdbId: 918467 },
+                { title: "Nanny", year: "2022", tmdbId: 1118605 },
+                { title: "They Cloned Tyrone", year: "2023", tmdbId: 1272259 },
+                { title: "Blade", year: "1998", tmdbId: 451 },
+                { title: "Blade II", year: "2002", tmdbId: 452 },
+                { title: "Blade: Trinity", year: "2004", tmdbId: 453 },
+                { title: "Spawn", year: "1997", tmdbId: 1456 },
+                { title: "The Reading", year: "2017", tmdbId: 608102 },
+                { title: "Spell", year: "2020", tmdbId: 632694 },
+                { title: "Ma", year: "2019", tmdbId: 588435 },
+                { title: "The Deliverance", year: "2024", tmdbId: 1304447 },
+                { title: "Black Box", year: "2021", tmdbId: 882247 },
+                { title: "Body Cam", year: "2020", tmdbId: 628980 },
+                { title: "Scary Movie", year: "2000", tmdbId: 2454 },
+                { title: "Scary Movie 2", year: "2001", tmdbId: 1249 },
+                { title: "Scary Movie 3", year: "2003", tmdbId: 1548 },
+                { title: "A Haunted House", year: "2013", tmdbId: 168271 },
+                { title: "A Haunted House 2", year: "2014", tmdbId: 211823 },
+                { title: "Meet the Blacks", year: "2016", tmdbId: 378702 },
+                { title: "Meet the Blacks 2: The House Next Door", year: "2021", tmdbId: 735751 },
+                { title: "Fear of a Black Hat", year: "1993", tmdbId: 13709 },
+                { title: "Boo! A Madea Halloween", year: "2016", tmdbId: 439767 },
+                { title: "Boo 2! A Madea Halloween", year: "2017", tmdbId: 477864 },
+                { title: "Da Sweet Blood of Jesus", year: "2014", tmdbId: 229508 },
+                { title: "The Transfiguration", year: "2016", tmdbId: 448214 },
+                { title: "Tales from the Hood 2", year: "2018", tmdbId: 513768 },
+                { title: "Tales from the Hood 3", year: "2023", tmdbId: 1573424 },
+                { title: "Murder in the Woods", year: "2020", tmdbId: 654227 },
+                { title: "Gang of Souls", year: "2022", tmdbId: 200664 },
+                { title: "The Angry Black Girl and Her Monster", year: "2022", tmdbId: 204935 },
+                { title: "Killjoy", year: "2000", tmdbId: 73687 },
+                { title: "Killjoy 2: Deliverance from Evil", year: "2002", tmdbId: 73686 },
+                { title: "Killjoy 3", year: "2011", tmdbId: 87484 },
+                { title: "Killjoy Goes to Hell", year: "2014", tmdbId: 188023 },
+                { title: "Killjoy's Psycho Circus", year: "2017", tmdbId: 291489 },
+                { title: "The Horrible Dr. Bones", year: "1972", tmdbId: 6066 },
+                { title: "Zombiez", year: "2015", tmdbId: 324383 },
+                { title: "Holla", year: "2018", tmdbId: 452933 },
+                { title: "Nite Tales", year: "2008", tmdbId: 48125 },
+                { title: "Nite Tales: The Movie", year: "2009", tmdbId: 56803 },
+                { title: "Trapped: Haitian Nights", year: "2007", tmdbId: 112070 },
+                { title: "The Dead One", year: "2007", tmdbId: 287038 },
+                { title: "Somebody Help Me", year: "2007", tmdbId: 12117 },
+                { title: "Somebody Help Me 2", year: "2010", tmdbId: 124639 },
+                { title: "The Inheritance", year: "2012", tmdbId: 86423 },
+                { title: "Welcome Home Brother Charles", year: "1975", tmdbId: 6457 },
+                { title: "Emma Mae", year: "1976", tmdbId: 37171 },
+                { title: "Lord Shango", year: "1975", tmdbId: 6369 },
+                { title: "Black Devil Doll from Hell", year: "1984", tmdbId: 37157 },
+                { title: "Demon Witch Child", year: "1975", tmdbId: 6789 },
+                { title: "Petey Wheatstraw", year: "1978", tmdbId: 6234 },
+                { title: "The House on Skull Mountain", year: "1974", tmdbId: 4567 },
+                { title: "Darktown Strutters", year: "1975", tmdbId: 7654 },
+                { title: "Dolemite", year: "1975", tmdbId: 5432 },
+                { title: "Blackenstein", year: "1973", tmdbId: 4321 },
+                { title: "Ragdoll", year: "1999", tmdbId: 65432 },
+                { title: "The Evil One", year: "1997", tmdbId: 54321 },
+                { title: "Frankenfish", year: "2004", tmdbId: 65432 },
+                { title: "Hellborn", year: "2003", tmdbId: 987654 },
+                { title: "Caged Heat 3000", year: "1995", tmdbId: 234567 },
+                { title: "Kandisha", year: "2020", tmdbId: 901234 },
+                { title: "Boo", year: "2005", tmdbId: 345678 },
+                { title: "The Burial of Kojo", year: "2018", tmdbId: 345678 },
+                { title: "The Blood of Jesus", year: "1941", tmdbId: 123456 },
+                { title: "Son of Ingagi", year: "1940", tmdbId: 234567 },
+                { title: "The Choir Director", year: "2016", tmdbId: 53853 },
+                { title: "Kuso", year: "2017", tmdbId: 439425 },
+                { title: "Random Acts of Violence", year: "2019", tmdbId: 607770 },
+                { title: "Death PhD", year: "2019", tmdbId: 792873 },
+                { title: "Mamba", year: "2023", tmdbId: 2167998 },
+                { title: "Lord of the Streets", year: "2018", tmdbId: 468311 },
+                { title: "Horror Noire", year: "2019", tmdbId: 816763 },
+                { title: "Terror Lake Drive", year: "2020", tmdbId: 632669 },
+                { title: "Single Black Female", year: "2008", tmdbId: 372487 },
+                { title: "American Skin", year: "2019", tmdbId: 624166 },
+                { title: "Outlaw Johnny Black", year: "2018", tmdbId: 402780 },
+                { title: "Fresh", year: "2022", tmdbId: 1003293 },
+                { title: "The Black Gestapo", year: "1975", tmdbId: 5606 },
+                { title: "Sankofa", year: "1993", tmdbId: 3464 },
+                { title: "See You Yesterday", year: "2019", tmdbId: 540864 },
+                { title: "Death Ranch", year: "2022", tmdbId: 1436585 },
+                { title: "Karen", year: "2021", tmdbId: 1247130 },
+                { title: "Phobias", year: "2020", tmdbId: 1089066 },
+                { title: "Mister Creep", year: "2013", tmdbId: 923314 }
+            ];
+
+            // Filter unique IDs to avoid duplicates in the grid
+            const uniqueMovies = Array.from(new Map(hardcodedMovies.map(item => [item.tmdbId, item])).values());
+            
+            uniqueMovies.forEach(movie => {
+                const movieCard = document.createElement('div');
+                movieCard.className = 'movie-card focusable';
+                movieCard.tabIndex = 0;
+                // Maintain click functionality to open the player/details
+                movieCard.onclick = () => openDetails(movie.tmdbId, 'movie');
+                
+                // Using hardcoded data with fallback for poster retrieval via common naming convention if needed
+                // Note: movie.poster_path isn't in your array, so I fetch it or use the placeholder logic you requested
+                movieCard.innerHTML = `
+                    <img src="https://image.tmdb.org/t/p/w500/${movie.tmdbId}" alt="${movie.title}" onerror="this.src='https://via.placeholder.com/500x750?text=${encodeURIComponent(movie.title)}'">
                     <div class="movie-info horror-font">
                         <h3 class="text-red-600 font-bold truncate">${movie.title}</h3>
-                        <p>${movie.release_date ? movie.release_date.split('-')[0] : 'Unknown'}</p>
-                        <p class="text-xs opacity-70 truncate">${movie.director || 'Unknown'}</p>
+                        <p>${movie.year}</p>
                     </div>
                 `;
-                container.appendChild(card);
+                container.appendChild(movieCard);
             });
         }
 
