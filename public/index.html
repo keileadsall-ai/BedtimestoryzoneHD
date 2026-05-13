@@ -46,6 +46,7 @@
         <h2 class="nosifer text-red-600 text-2xl mb-8">THE VAULTS</h2>
         <div class="flex flex-col gap-2 horror-font text-xl">
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('wes_craven')">WES CRAVEN</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('stephen_king')">STEPHEN KING</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('company', 1331)">DARK CASTLE</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('black_horror')">BLACK HORROR</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('youth')">YOUTH HORROR</button>
@@ -129,6 +130,11 @@
                 isLoading = false; return;
             } else if (activeType === 'wes_craven') {
                 const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_crew=5140&sort_by=release_date.desc&page=${currentPage}`;
+                const res = await fetch(url);
+                const data = await res.json();
+                results = data.results;
+            } else if (activeType === 'stephen_king') {
+                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_crew=30273&sort_by=release_date.desc&page=${currentPage}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 results = data.results;
@@ -280,18 +286,14 @@
                 { title: "Mister Creep", year: "2013", tmdbId: 923314 }
             ];
 
-            // Filter unique IDs to avoid duplicates in the grid
             const uniqueMovies = Array.from(new Map(hardcodedMovies.map(item => [item.tmdbId, item])).values());
             
             uniqueMovies.forEach(movie => {
                 const movieCard = document.createElement('div');
                 movieCard.className = 'movie-card focusable';
                 movieCard.tabIndex = 0;
-                // Maintain click functionality to open the player/details
                 movieCard.onclick = () => openDetails(movie.tmdbId, 'movie');
                 
-                // Using hardcoded data with fallback for poster retrieval via common naming convention if needed
-                // Note: movie.poster_path isn't in your array, so I fetch it or use the placeholder logic you requested
                 movieCard.innerHTML = `
                     <img src="https://image.tmdb.org/t/p/w500/${movie.tmdbId}" alt="${movie.title}" onerror="this.src='https://via.placeholder.com/500x750?text=${encodeURIComponent(movie.title)}'">
                     <div class="movie-info horror-font">
