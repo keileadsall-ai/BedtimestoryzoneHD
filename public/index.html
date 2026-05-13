@@ -47,7 +47,7 @@
         <div class="flex flex-col gap-2 horror-font text-xl">
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('stephen_king')">STEPHEN KING</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('wes_craven')">WES CRAVEN</button>
-            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('company', 10342)">AFTER DARK</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('company', 1331)">DARK CASTLE</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('black_horror')">BLACK HORROR</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('youth')">YOUTH HORROR</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('abroad')">HORROR FROM ABROAD</button>
@@ -136,6 +136,29 @@
             if (!append) { currentPage = 1; grid.innerHTML = ''; blackSection.innerHTML = ''; }
 
             let results = [];
+            
+            // Hardcoded Logic for After Dark Horrorfest (In Dark Castle Tab)
+            if (activeType === 'company' && activeID === 1331) {
+                const horrorFestMovies = [
+                    { title: "The Abandoned", year: "2006" }, { title: "Dark Ride", year: "2006" }, { title: "The Gravedancers", year: "2006" }, { title: "The Hamiltons", year: "2006" }, { title: "Horror", year: "2006" }, { title: "Penny Dreadful", year: "2006" }, { title: "Reincarnation", year: "2006" }, { title: "Unrest", year: "2006" }, { title: "Snoop Dogg's Hood of Horror", year: "2006" }, { title: "The Tripper", year: "2006" },
+                    { title: "Borderland", year: "2007" }, { title: "Crazy Eights", year: "2007" }, { title: "The Deaths of Ian Stone", year: "2007" }, { title: "Lake Dead", year: "2007" }, { title: "Mulberry Street", year: "2007" }, { title: "Nightmare Man", year: "2007" }, { title: "Tooth and Nail", year: "2007" }, { title: "Unearthed", year: "2007" }, { title: "Frontier(s)", year: "2007" },
+                    { title: "The Broken", year: "2008" }, { title: "Dying Breed", year: "2008" }, { title: "From Within", year: "2008" }, { title: "Hell Ride", year: "2008" }, { title: "Autopsy", year: "2008" }, { title: "The Butterfly Effect 3: Revelations", year: "2008" }, { title: "Voices", year: "2008" },
+                    { title: "The Final", year: "2010" }, { title: "The Graves", year: "2010" }, { title: "Kill Theory", year: "2010" }, { title: "Dread", year: "2010" }, { title: "Lake Mungo", year: "2010" }, { title: "Hidden", year: "2010" }, { title: "The Task", year: "2010" }, { title: "Zombies of Mass Destruction", year: "2010" }
+                ];
+                
+                // Perform TMDB searches to get poster paths for the hardcoded list
+                const searchPromises = horrorFestMovies.map(movie => 
+                    fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(movie.title)}&year=${movie.year}`)
+                    .then(r => r.json())
+                    .then(data => data.results && data.results[0] ? data.results[0] : null)
+                );
+                
+                results = (await Promise.all(searchPromises)).filter(r => r !== null);
+                renderGrid(results);
+                isLoading = false;
+                return;
+            }
+
             if (activeType === 'black_horror') {
                 await fetchBlackHorrorComprehensive();
                 isLoading = false; return;
@@ -178,11 +201,7 @@
             const res = await fetch(`https://api.themoviedb.org/3/person/${KING_ID}/combined_credits?api_key=${API_KEY}`);
             const data = await res.json();
             let pool = [...data.cast, ...data.crew];
-            let filtered = pool.filter(m => 
-                m.poster_path && 
-                (m.job === 'Writer' || m.job === 'Novel' || m.job === 'Author' || m.job === 'Characters') &&
-                !m.genre_ids.includes(99)
-            );
+            let filtered = pool.filter(m => m.poster_path && (m.job === 'Writer' || m.job === 'Novel' || m.job === 'Author' || m.job === 'Characters') && !m.genre_ids.includes(99));
             const seen = new Set();
             const unique = filtered.filter(item => seen.has(item.id) ? false : seen.add(item.id));
             unique.sort((a, b) => b.popularity - a.popularity);
@@ -199,9 +218,7 @@
                 const res = await fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${API_KEY}`);
                 if (res.ok) pool.push(await res.json());
             }
-            const titlePromises = uniqueTitles.slice(0, 40).map(title => 
-                fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`).then(r => r.json())
-            );
+            const titlePromises = uniqueTitles.slice(0, 40).map(title => fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`).then(r => r.json()));
             const titleResults = await Promise.all(titlePromises);
             titleResults.forEach(data => { if(data.results) pool.push(...data.results); });
             let validatedMovies = [];
@@ -209,14 +226,7 @@
             for (let movie of uniquePool) {
                 const detailRes = await fetch(`https://api.themoviedb.org/3/movie/${movie.id}?api_key=${API_KEY}&append_to_response=credits,keywords`);
                 const details = await detailRes.json();
-                const movieObj = {
-                    ...details,
-                    director: details.credits?.crew?.find(c => c.job === 'Director')?.name || "",
-                    cast: details.credits?.cast?.slice(0, 10).map(a => a.name) || [],
-                    genres: details.genres?.map(g => g.name) || [],
-                    keywords: details.keywords?.keywords?.map(k => k.name) || [],
-                    production_companies: details.production_companies?.map(p => p.name) || []
-                };
+                const movieObj = { ...details, director: details.credits?.crew?.find(c => c.job === 'Director')?.name || "", cast: details.credits?.cast?.slice(0, 10).map(a => a.name) || [], genres: details.genres?.map(g => g.name) || [], keywords: details.keywords?.keywords?.map(k => k.name) || [], production_companies: details.production_companies?.map(p => p.name) || [] };
                 if (isBlackHorror(movieObj)) validatedMovies.push(movieObj);
             }
             if (validatedMovies.length === 0) {
@@ -231,11 +241,7 @@
             const blackDirectors = ['Jordan Peele', 'Nia DaCosta', 'Rusty Cundieff', 'Kasi Lemmons', 'Ernest Dickerson', 'William Crain', 'Remi Weekes', 'Nikyatu Jusu', 'Emmanuel Osei-Kuffour', 'Gerard McMurray', 'Tony Todd', 'Keenen Ivory Wayans'];
             const blackActors = ['Lupita Nyong\'o', 'Daniel Kaluuya', 'Janelle Monáe', 'Gabrielle Union', 'Omari Hardwick', 'Logan Browning', 'Tony Todd', 'Eddie Murphy', 'Angela Bassett', 'Wesley Snipes', 'Tasha Smith', 'Regina Hall', 'Keke Palmer', 'Laurence Fishburne'];
             const titlesLower = uniqueTitles.map(t => t.toLowerCase());
-            return blackDirectors.includes(movie.director) || 
-                   titlesLower.some(title => movie.title.toLowerCase().includes(title)) ||
-                   (movie.genres.includes('Horror') && movie.cast.some(actor => blackActors.includes(actor))) ||
-                   movie.keywords.includes('blaxploitation') ||
-                   (movie.production_companies.includes('Blumhouse Productions') && (movie.cast.some(actor => blackActors.includes(actor)) || blackDirectors.includes(movie.director)));
+            return blackDirectors.includes(movie.director) || titlesLower.some(title => movie.title.toLowerCase().includes(title)) || (movie.genres.includes('Horror') && movie.cast.some(actor => blackActors.includes(actor))) || movie.keywords.includes('blaxploitation') || (movie.production_companies.includes('Blumhouse Productions') && (movie.cast.some(actor => blackActors.includes(actor)) || blackDirectors.includes(movie.director)));
         }
 
         function displayBlackHorror(movies) {
@@ -246,13 +252,7 @@
                 card.className = 'movie-card focusable';
                 card.tabIndex = 0;
                 card.onclick = () => openDetails(movie.id, 'movie');
-                card.innerHTML = `
-                    <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" class="w-full h-full object-cover" alt="${movie.title}">
-                    <div class="movie-info horror-font">
-                        <h3 class="text-red-600 font-bold truncate">${movie.title}</h3>
-                        <p>${movie.release_date ? movie.release_date.split('-')[0] : 'Unknown'}</p>
-                    </div>
-                `;
+                card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" class="w-full h-full object-cover" alt="${movie.title}"><div class="movie-info horror-font"><h3 class="text-red-600 font-bold truncate">${movie.title}</h3><p>${movie.release_date ? movie.release_date.split('-')[0] : 'Unknown'}</p></div>`;
                 container.appendChild(card);
             });
         }
