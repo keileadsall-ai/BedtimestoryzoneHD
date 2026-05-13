@@ -41,7 +41,6 @@
         <h2 class="nosifer text-red-600 mt-6 text-xl">Entering the Ritual...</h2>
     </div>
 
-    <!-- Sidebar -->
     <div id="side-menu" class="p-8 no-scrollbar overflow-y-auto">
         <h2 class="nosifer text-red-600 text-2xl mb-8">THE VAULTS</h2>
         <div class="flex flex-col gap-2 horror-font text-xl">
@@ -117,8 +116,7 @@
         let activeType = 'trending', activeID = '', currentMedia = {};
         let currentPage = 1, isLoading = false;
 
-        // Hardcoded After Dark Horrorfest List
-        const AFTER_DARK_HORRORFEST = [
+        const AFTER_DARK_LIST = [
             { title: "The Abandoned", year: "2006" }, { title: "Dark Ride", year: "2006" }, { title: "The Gravedancers", year: "2006" }, { title: "The Hamiltons", year: "2006" }, { title: "Horror", year: "2006" }, { title: "Penny Dreadful", year: "2006" }, { title: "Reincarnation", year: "2006" }, { title: "Unrest", year: "2006" }, { title: "Snoop Dogg's Hood of Horror", year: "2006" }, { title: "The Tripper", year: "2006" },
             { title: "Borderland", year: "2007" }, { title: "Crazy Eights", year: "2007" }, { title: "The Deaths of Ian Stone", year: "2007" }, { title: "Lake Dead", year: "2007" }, { title: "Mulberry Street", year: "2007" }, { title: "Nightmare Man", year: "2007" }, { title: "Tooth and Nail", year: "2007" }, { title: "Unearthed", year: "2007" }, { title: "Frontier(s)", year: "2007" },
             { title: "The Broken", year: "2008" }, { title: "Dying Breed", year: "2008" }, { title: "From Within", year: "2008" }, { title: "Hell Ride", year: "2008" }, { title: "Autopsy", year: "2008" }, { title: "The Butterfly Effect 3: Revelations", year: "2008" }, { title: "Voices", year: "2008" },
@@ -126,15 +124,7 @@
         ];
 
         const BLACK_HORROR_TITLES = ["Get Out", "Us", "Nope", "Candyman", "Blacula", "Scream Blacula Scream", "Def by Temptation", "Eve's Bayou", "Tales from the Hood", "Ganja & Hess", "The People Under the Stairs", "Vampires vs. the Bronx", "Lovecraft Country", "Them", "The Blood of Jesus", "Son of Ingagi", "Spell", "Antebellum", "His House", "Black Box", "Da Sweet Blood of Jesus", "Demon Knight", "Vampire in Brooklyn", "Abby", "Blackenstein", "Slaughter", "The Spook Who Sat by the Door", "The House on Skull Mountain", "J.D.'s Revenge", "Sugar Hill", "The Serpent and the Rainbow", "Voodoo Dawn", "Night of the Living Dead", "The Blackening", "The Invitation", "The House", "The Last House on the Left", "The Purge", "The Ritual", "The Skeleton Key", "The Covenant", "Fallen", "Bad Hair", "Bleeding Rose", "Urban Cannibal Massacre", "The Other Black Girl", "Swarm", "Horror Noire", "Attack the Block", "The Girl with All the Gifts", "Master", "Diary of a Mad Black Woman", "Hood of Horror", "The Evil One", "Frankenfish", "Beloved", "House on Haunted Hill", "Constantine", "Gothika", "The Deliverance", "Nanny", "They Cloned Tyrone", "Soft & Quiet", "Talk to Me", "Blade", "Blade II", "Blade: Trinity", "Queen of the Damned", "Spawn", "The Reading", "Ma", "Scary Movie", "Scary Movie 2", "Scary Movie 3", "A Haunted House", "A Haunted House 2", "Meet the Blacks", "Meet the Blacks 2: The House Next Door", "Fear of a Black Hat", "Boo! A Madea Halloween", "Boo 2! A Madea Halloween", "Da Sweet Blood of Jesus", "The Transfiguration", "Tales from the Hood 2", "Tales from the Hood 3", "Murder in the Woods", "Kandisha", "Gang of Souls", "The House Invictus", "The Angry Black Girl and Her Monster", "Surrounded", "They Remain", "Jacob's Ladder", "House Party: Tonight's the Night", "The Summoned", "The Inheritance", "Killjoy", "Killjoy 2: Deliverance from Evil", "Killjoy 3", "Killjoy Goes to Hell", "Killjoy's Psycho Circus", "Ragdoll", "Hellbound", "Beneath Loch Ness", "Motives", "Motives 2", "The Grim Reaper", "Wes Craven Presents: Dracula II Ascension", "Wes Craven Presents: Dracula III Legacy", "The Horrible Dr. Bones", "Zombiez", "Holla", "The Maintenance Man", "Nite Tales", "Nite Tales: The Movie", "The Dread", "Circle of Eight", "Trapped: Haitian Nights", "The Dead One", "Shallow Ground", "The Fear Chamber", "I Madman", "Killer Weekend", "Boo", "The Cookout", "Somebody Help Me", "Somebody Help Me 2", "Chain Letter", "Cutthroat Alley", "Killer Instinct", "BlinkyTM", "Camp Blood 8: Revelations", "Jigsaw", "Slaughter's Big Rip-Off", "The Skarehouse", "Minutes Past Midnight", "Hell Fest", "There's Someone Inside Your House", "Initiation", "Carnival of Souls", "House of Fears"];
-
-        function removeDuplicates(arr) {
-            const seen = new Set();
-            return arr.filter(item => {
-                const k = item.toLowerCase().trim();
-                return seen.has(k) ? false : seen.add(k);
-            });
-        }
-        const uniqueTitles = removeDuplicates(BLACK_HORROR_TITLES);
+        const uniqueTitles = Array.from(new Set(BLACK_HORROR_TITLES.map(t => t.toLowerCase().trim()))).map(t => BLACK_HORROR_TITLES.find(orig => orig.toLowerCase().trim() === t));
 
         async function fetchContent(append = false) {
             if (isLoading) return;
@@ -151,7 +141,8 @@
                 await fetchStephenKing();
                 isLoading = false; return;
             } else if (activeType === 'company') {
-                displayAfterDarkHorrorfest();
+                results = AFTER_DARK_LIST.map(item => ({ ...item, isHardcoded: true }));
+                renderGrid(results);
                 isLoading = false; return;
             } else if (activeType === 'wes_craven') {
                 const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_crew=5140&sort_by=release_date.desc&page=${currentPage}`;
@@ -184,34 +175,12 @@
         }
 
         async function fetchStephenKing() {
-            const KING_ID = 3027;
-            const res = await fetch(`https://api.themoviedb.org/3/person/${KING_ID}/combined_credits?api_key=${API_KEY}`);
+            const res = await fetch(`https://api.themoviedb.org/3/person/3027/combined_credits?api_key=${API_KEY}`);
             const data = await res.json();
-            let pool = [...data.cast, ...data.crew];
-            let filtered = pool.filter(m => m.poster_path && (m.job === 'Writer' || m.job === 'Novel' || m.job === 'Author' || m.job === 'Characters') && !m.genre_ids.includes(99));
+            let pool = [...data.cast, ...data.crew].filter(m => m.poster_path && (m.job === 'Writer' || m.job === 'Novel' || m.job === 'Author') && !m.genre_ids.includes(99));
             const seen = new Set();
-            const unique = filtered.filter(item => seen.has(item.id) ? false : seen.add(item.id));
-            unique.sort((a, b) => b.popularity - a.popularity);
+            const unique = pool.filter(item => seen.has(item.id) ? false : seen.add(item.id)).sort((a, b) => b.popularity - a.popularity);
             renderGrid(unique);
-        }
-
-        function displayAfterDarkHorrorfest() {
-            const grid = document.getElementById('movie-grid');
-            grid.innerHTML = '';
-            AFTER_DARK_HORRORFEST.forEach(movie => {
-                const card = document.createElement('div');
-                card.className = "movie-card focusable";
-                card.tabIndex = 0;
-                card.onclick = () => { activeType = 'search'; activeID = movie.title; fetchContent(); };
-                card.innerHTML = `
-                    <div class="flex flex-col items-center justify-center h-full p-4 text-center bg-zinc-900/50">
-                        <h3 class="horror-font text-red-600 text-lg leading-tight mb-2">${movie.title}</h3>
-                        <p class="text-zinc-500 font-bold">${movie.year}</p>
-                        <div class="mt-4 text-xs uppercase tracking-widest text-zinc-600 border border-zinc-800 px-2 py-1">Horrorfest</div>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
         }
 
         async function fetchBlackHorrorComprehensive() {
@@ -227,22 +196,22 @@
             const titlePromises = uniqueTitles.slice(0, 40).map(title => fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`).then(r => r.json()));
             const titleResults = await Promise.all(titlePromises);
             titleResults.forEach(data => { if(data.results) pool.push(...data.results); });
-            let validatedMovies = [];
-            const uniquePool = Array.from(new Map(pool.map(m => [m.id, m])).values());
+            let uniquePool = Array.from(new Map(pool.map(m => [m.id, m])).values());
+            let validated = [];
             for (let movie of uniquePool) {
                 const detailRes = await fetch(`https://api.themoviedb.org/3/movie/${movie.id}?api_key=${API_KEY}&append_to_response=credits,keywords`);
                 const details = await detailRes.json();
-                const movieObj = {...details, director: details.credits?.crew?.find(c => c.job === 'Director')?.name || "", cast: details.credits?.cast?.slice(0, 10).map(a => a.name) || [], genres: details.genres?.map(g => g.name) || [], keywords: details.keywords?.keywords?.map(k => k.name) || [], production_companies: details.production_companies?.map(p => p.name) || []};
-                if (isBlackHorror(movieObj)) validatedMovies.push(movieObj);
+                const movieObj = { ...details, director: details.credits?.crew?.find(c => c.job === 'Director')?.name || "", cast: details.credits?.cast?.slice(0, 10).map(a => a.name) || [], genres: details.genres?.map(g => g.name) || [], keywords: details.keywords?.keywords?.map(k => k.name) || [], production_companies: details.production_companies?.map(p => p.name) || [] };
+                if (isBlackHorror(movieObj)) validated.push(movieObj);
             }
-            displayBlackHorror(validatedMovies);
+            displayBlackHorror(validated);
         }
 
         function isBlackHorror(movie) {
             const blackDirectors = ['Jordan Peele', 'Nia DaCosta', 'Rusty Cundieff', 'Kasi Lemmons', 'Ernest Dickerson', 'William Crain', 'Remi Weekes', 'Nikyatu Jusu', 'Emmanuel Osei-Kuffour', 'Gerard McMurray', 'Tony Todd', 'Keenen Ivory Wayans'];
             const blackActors = ['Lupita Nyong\'o', 'Daniel Kaluuya', 'Janelle Monáe', 'Gabrielle Union', 'Omari Hardwick', 'Logan Browning', 'Tony Todd', 'Eddie Murphy', 'Angela Bassett', 'Wesley Snipes', 'Tasha Smith', 'Regina Hall', 'Keke Palmer', 'Laurence Fishburne'];
             const titlesLower = uniqueTitles.map(t => t.toLowerCase());
-            return blackDirectors.includes(movie.director) || titlesLower.some(title => movie.title.toLowerCase().includes(title)) || (movie.genres.includes('Horror') && movie.cast.some(actor => blackActors.includes(actor))) || movie.keywords.includes('blaxploitation') || (movie.production_companies.includes('Blumhouse Productions') && (movie.cast.some(actor => blackActors.includes(actor)) || blackDirectors.includes(movie.director)));
+            return blackDirectors.includes(movie.director) || titlesLower.some(title => movie.title.toLowerCase().includes(title)) || (movie.genres.includes('Horror') && movie.cast.some(actor => blackActors.includes(actor))) || movie.keywords.includes('blaxploitation');
         }
 
         function displayBlackHorror(movies) {
@@ -250,10 +219,9 @@
             container.innerHTML = '';
             movies.forEach(movie => {
                 const card = document.createElement('div');
-                card.className = 'movie-card focusable';
-                card.tabIndex = 0;
+                card.className = 'movie-card focusable'; card.tabIndex = 0;
                 card.onclick = () => openDetails(movie.id, 'movie');
-                card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" class="w-full h-full object-cover" alt="${movie.title}"><div class="movie-info horror-font"><h3 class="text-red-600 font-bold truncate">${movie.title}</h3><p>${movie.release_date ? movie.release_date.split('-')[0] : 'Unknown'}</p></div>`;
+                card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" class="w-full h-full object-cover"><div class="movie-info horror-font"><h3 class="text-red-600 font-bold truncate">${movie.title}</h3><p>${movie.release_date ? movie.release_date.split('-')[0] : 'Unknown'}</p></div>`;
                 container.appendChild(card);
             });
         }
@@ -262,13 +230,17 @@
             const grid = document.getElementById('movie-grid');
             if (!results) return;
             results.forEach(m => {
-                if (!m.poster_path) return;
                 const card = document.createElement('div');
-                card.className = "movie-card focusable";
-                card.tabIndex = 0;
-                const type = m.media_type || (m.first_air_date ? 'tv' : 'movie');
-                card.onclick = () => openDetails(m.id, type);
-                card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${m.poster_path}" class="w-full h-full object-cover">`;
+                card.className = "movie-card focusable"; card.tabIndex = 0;
+                if (m.isHardcoded) {
+                    card.onclick = () => { activeType = 'search'; activeID = m.title; fetchContent(); };
+                    card.innerHTML = `<div class="w-full h-full flex flex-col justify-center items-center p-4 bg-zinc-900 border border-zinc-800"><h3 class="horror-font text-red-600 text-center text-lg">${m.title}</h3><p class="text-zinc-500 mt-2">${m.year}</p></div>`;
+                } else {
+                    if (!m.poster_path) return;
+                    const type = m.media_type || (m.first_air_date ? 'tv' : 'movie');
+                    card.onclick = () => openDetails(m.id, type);
+                    card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${m.poster_path}" class="w-full h-full object-cover">`;
+                }
                 grid.appendChild(card);
             });
         }
@@ -293,8 +265,7 @@
         }
 
         function renderSeasons(data) {
-            const container = document.getElementById('season-buttons');
-            container.innerHTML = '';
+            const container = document.getElementById('season-buttons'); container.innerHTML = '';
             if(!data.seasons) return;
             data.seasons.forEach(s => {
                 if (s.season_number === 0) return;
@@ -310,12 +281,10 @@
         async function loadEpisodes(showId, seasonNum) {
             const res = await fetch(`https://api.themoviedb.org/3/tv/${showId}/season/${seasonNum}?api_key=${API_KEY}`);
             const data = await res.json();
-            const grid = document.getElementById('episode-grid');
-            grid.innerHTML = '';
+            const grid = document.getElementById('episode-grid'); grid.innerHTML = '';
             data.episodes.forEach(e => {
                 const epRow = document.createElement('div');
-                epRow.className = "episode-row focusable";
-                epRow.tabIndex = 0;
+                epRow.className = "episode-row focusable"; epRow.tabIndex = 0;
                 epRow.onclick = () => { currentMedia.s = seasonNum; currentMedia.e = e.episode_number; startLuxeStream(); };
                 const thumb = e.still_path ? `https://image.tmdb.org/t/p/w300${e.still_path}` : '';
                 epRow.innerHTML = `<div class="ep-thumbnail" style="background-image:url(${thumb})"><div class="ep-play-icon">▶</div></div><div class="flex-1"><div class="text-white font-bold">E${e.episode_number} ${e.name}</div><div class="text-zinc-500 text-xs line-clamp-1">${e.overview}</div></div>`;
@@ -379,12 +348,9 @@
             fetchContent();
             setTimeout(() => { 
                 const loader = document.getElementById('loader');
-                if(loader) {
-                    loader.style.opacity = '0'; 
-                    setTimeout(()=>loader.remove(), 800); 
-                }
+                if(loader) { loader.style.opacity = '0'; setTimeout(()=>loader.remove(), 800); }
             }, 1200);
-            const obs = new IntersectionObserver(e => { if(e[0].isIntersecting) fetchContent(true); });
+            const obs = new IntersectionObserver(e => { if(e[0].isIntersecting && activeType !== 'company') fetchContent(true); });
             obs.observe(document.getElementById('sentinel'));
         };
     </script>
