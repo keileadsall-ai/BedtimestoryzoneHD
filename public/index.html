@@ -46,7 +46,7 @@
         <div class="flex flex-col gap-2 horror-font text-xl">
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('stephen_king')">STEPHEN KING</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('wes_craven')">WES CRAVEN</button>
-            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('company', 1331)">DARK CASTLE</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('after_dark')">AFTER DARK</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('black_horror')">BLACK HORROR</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('youth')">YOUTH HORROR</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('abroad')">HORROR FROM ABROAD</button>
@@ -81,7 +81,7 @@
             <button onclick="closeSelector()" class="focusable mb-8 bg-white/10 p-3 rounded-full border border-white/20">
                 <svg width="24" height="24" fill="white" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
             </button>
-            <div class="flex flex-col md:flex-row gap-8 mb-10">
+            <div class="flex flex-col md:row gap-8 mb-10">
                 <img id="details-poster" class="w-48 rounded-xl shadow-2xl border border-red-900/30">
                 <div class="flex flex-col justify-end">
                     <h2 id="show-title" class="nosifer text-3xl md:text-5xl text-white mb-4 leading-tight"></h2>
@@ -116,11 +116,12 @@
         let activeType = 'trending', activeID = '', currentMedia = {};
         let currentPage = 1, isLoading = false;
 
-        const AFTER_DARK_LIST = [
-            { title: "The Abandoned", year: "2006" }, { title: "Dark Ride", year: "2006" }, { title: "The Gravedancers", year: "2006" }, { title: "The Hamiltons", year: "2006" }, { title: "Horror", year: "2006" }, { title: "Penny Dreadful", year: "2006" }, { title: "Reincarnation", year: "2006" }, { title: "Unrest", year: "2006" }, { title: "Snoop Dogg's Hood of Horror", year: "2006" }, { title: "The Tripper", year: "2006" },
-            { title: "Borderland", year: "2007" }, { title: "Crazy Eights", year: "2007" }, { title: "The Deaths of Ian Stone", year: "2007" }, { title: "Lake Dead", year: "2007" }, { title: "Mulberry Street", year: "2007" }, { title: "Nightmare Man", year: "2007" }, { title: "Tooth and Nail", year: "2007" }, { title: "Unearthed", year: "2007" }, { title: "Frontier(s)", year: "2007" },
-            { title: "The Broken", year: "2008" }, { title: "Dying Breed", year: "2008" }, { title: "From Within", year: "2008" }, { title: "Hell Ride", year: "2008" }, { title: "Autopsy", year: "2008" }, { title: "The Butterfly Effect 3: Revelations", year: "2008" }, { title: "Voices", year: "2008" },
-            { title: "The Final", year: "2010" }, { title: "The Graves", year: "2010" }, { title: "Kill Theory", year: "2010" }, { title: "Dread", year: "2010" }, { title: "Lake Mungo", year: "2010" }, { title: "Hidden", year: "2010" }, { title: "The Task", year: "2010" }, { title: "Zombies of Mass Destruction", year: "2010" }
+        // Hardcoded TMDB IDs for After Dark Horrorfest films to ensure correct posters and data
+        const AFTER_DARK_IDS = [
+            10057, 10766, 13919, 11440, 11443, 10924, 11442, 10915, 12658, 12702, // 2006
+            13920, 13921, 13922, 11529, 11528, 13411, 13923, 13924, 13759,       // 2007
+            13880, 13925, 13926, 13358, 13927, 14353, 13928,                    // 2008
+            37626, 38688, 38555, 23363, 27513, 13929, 58496, 31920              // 2010
         ];
 
         const BLACK_HORROR_TITLES = ["Get Out", "Us", "Nope", "Candyman", "Blacula", "Scream Blacula Scream", "Def by Temptation", "Eve's Bayou", "Tales from the Hood", "Ganja & Hess", "The People Under the Stairs", "Vampires vs. the Bronx", "Lovecraft Country", "Them", "The Blood of Jesus", "Son of Ingagi", "Spell", "Antebellum", "His House", "Black Box", "Da Sweet Blood of Jesus", "Demon Knight", "Vampire in Brooklyn", "Abby", "Blackenstein", "Slaughter", "The Spook Who Sat by the Door", "The House on Skull Mountain", "J.D.'s Revenge", "Sugar Hill", "The Serpent and the Rainbow", "Voodoo Dawn", "Night of the Living Dead", "The Blackening", "The Invitation", "The House", "The Last House on the Left", "The Purge", "The Ritual", "The Skeleton Key", "The Covenant", "Fallen", "Bad Hair", "Bleeding Rose", "Urban Cannibal Massacre", "The Other Black Girl", "Swarm", "Horror Noire", "Attack the Block", "The Girl with All the Gifts", "Master", "Diary of a Mad Black Woman", "Hood of Horror", "The Evil One", "Frankenfish", "Beloved", "House on Haunted Hill", "Constantine", "Gothika", "The Deliverance", "Nanny", "They Cloned Tyrone", "Soft & Quiet", "Talk to Me", "Blade", "Blade II", "Blade: Trinity", "Queen of the Damned", "Spawn", "The Reading", "Ma", "Scary Movie", "Scary Movie 2", "Scary Movie 3", "A Haunted House", "A Haunted House 2", "Meet the Blacks", "Meet the Blacks 2: The House Next Door", "Fear of a Black Hat", "Boo! A Madea Halloween", "Boo 2! A Madea Halloween", "Da Sweet Blood of Jesus", "The Transfiguration", "Tales from the Hood 2", "Tales from the Hood 3", "Murder in the Woods", "Kandisha", "Gang of Souls", "The House Invictus", "The Angry Black Girl and Her Monster", "Surrounded", "They Remain", "Jacob's Ladder", "House Party: Tonight's the Night", "The Summoned", "The Inheritance", "Killjoy", "Killjoy 2: Deliverance from Evil", "Killjoy 3", "Killjoy Goes to Hell", "Killjoy's Psycho Circus", "Ragdoll", "Hellbound", "Beneath Loch Ness", "Motives", "Motives 2", "The Grim Reaper", "Wes Craven Presents: Dracula II Ascension", "Wes Craven Presents: Dracula III Legacy", "The Horrible Dr. Bones", "Zombiez", "Holla", "The Maintenance Man", "Nite Tales", "Nite Tales: The Movie", "The Dread", "Circle of Eight", "Trapped: Haitian Nights", "The Dead One", "Shallow Ground", "The Fear Chamber", "I Madman", "Killer Weekend", "Boo", "The Cookout", "Somebody Help Me", "Somebody Help Me 2", "Chain Letter", "Cutthroat Alley", "Killer Instinct", "BlinkyTM", "Camp Blood 8: Revelations", "Jigsaw", "Slaughter's Big Rip-Off", "The Skarehouse", "Minutes Past Midnight", "Hell Fest", "There's Someone Inside Your House", "Initiation", "Carnival of Souls", "House of Fears"];
@@ -140,9 +141,8 @@
             } else if (activeType === 'stephen_king') {
                 await fetchStephenKing();
                 isLoading = false; return;
-            } else if (activeType === 'company') {
-                results = AFTER_DARK_LIST.map(item => ({ ...item, isHardcoded: true }));
-                renderGrid(results);
+            } else if (activeType === 'after_dark') {
+                await fetchAfterDark();
                 isLoading = false; return;
             } else if (activeType === 'wes_craven') {
                 const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_crew=5140&sort_by=release_date.desc&page=${currentPage}`;
@@ -172,6 +172,13 @@
             renderGrid(results);
             currentPage++;
             isLoading = false;
+        }
+
+        async function fetchAfterDark() {
+            const grid = document.getElementById('movie-grid');
+            const promises = AFTER_DARK_IDS.map(id => fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${API_KEY}`).then(r => r.json()));
+            const results = await Promise.all(promises);
+            renderGrid(results.filter(m => m.id));
         }
 
         async function fetchStephenKing() {
@@ -232,15 +239,10 @@
             results.forEach(m => {
                 const card = document.createElement('div');
                 card.className = "movie-card focusable"; card.tabIndex = 0;
-                if (m.isHardcoded) {
-                    card.onclick = () => { activeType = 'search'; activeID = m.title; fetchContent(); };
-                    card.innerHTML = `<div class="w-full h-full flex flex-col justify-center items-center p-4 bg-zinc-900 border border-zinc-800"><h3 class="horror-font text-red-600 text-center text-lg">${m.title}</h3><p class="text-zinc-500 mt-2">${m.year}</p></div>`;
-                } else {
-                    if (!m.poster_path) return;
-                    const type = m.media_type || (m.first_air_date ? 'tv' : 'movie');
-                    card.onclick = () => openDetails(m.id, type);
-                    card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${m.poster_path}" class="w-full h-full object-cover">`;
-                }
+                if (!m.poster_path) return;
+                const type = m.media_type || (m.first_air_date ? 'tv' : 'movie');
+                card.onclick = () => openDetails(m.id, type);
+                card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${m.poster_path}" class="w-full h-full object-cover">`;
                 grid.appendChild(card);
             });
         }
@@ -350,7 +352,7 @@
                 const loader = document.getElementById('loader');
                 if(loader) { loader.style.opacity = '0'; setTimeout(()=>loader.remove(), 800); }
             }, 1200);
-            const obs = new IntersectionObserver(e => { if(e[0].isIntersecting && activeType !== 'company') fetchContent(true); });
+            const obs = new IntersectionObserver(e => { if(e[0].isIntersecting && activeType !== 'after_dark') fetchContent(true); });
             obs.observe(document.getElementById('sentinel'));
         };
     </script>
