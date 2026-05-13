@@ -30,7 +30,7 @@
         .episode-row { display: flex; gap: 15px; padding: 12px; border-bottom: 1px solid #111; cursor: pointer; border: 2px solid transparent; border-radius: 8px; }
         .ep-thumbnail { width: 120px; aspect-ratio: 16/9; background-size: cover; border-radius: 4px; flex-shrink: 0; background-color: #111; position: relative; }
         .ep-play-icon { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); color: white; font-size: 1.2rem; }
-        .movie-info { position: absolute; bottom: 0; background: rgba(0,0,0,0.8); width: 100%; padding: 8px; font-size: 0.75rem; opacity: 0; transition: 0.3s; }
+        .movie-info { position: absolute; bottom: 0; background: rgba(0,0,0,0.85); width: 100%; padding: 8px; font-size: 0.75rem; opacity: 0; transition: 0.3s; }
         .movie-card:hover .movie-info { opacity: 1; }
     </style>
 </head>
@@ -116,18 +116,17 @@
         let activeType = 'trending', activeID = '', currentMedia = {};
         let currentPage = 1, isLoading = false;
 
-        // Expanded Title List & Duplicate Logic as provided
+        // Process Title List
         const BLACK_HORROR_TITLES = ["Get Out", "Us", "Nope", "Candyman", "Blacula", "Scream Blacula Scream", "Def by Temptation", "Eve's Bayou", "Tales from the Hood", "Ganja & Hess", "The People Under the Stairs", "Vampires vs. the Bronx", "Lovecraft Country", "Them", "The Blood of Jesus", "Son of Ingagi", "Spell", "Antebellum", "His House", "Black Box", "Da Sweet Blood of Jesus", "Demon Knight", "Vampire in Brooklyn", "Abby", "Blackenstein", "Slaughter", "The Spook Who Sat by the Door", "The House on Skull Mountain", "J.D.'s Revenge", "Sugar Hill", "The Serpent and the Rainbow", "Voodoo Dawn", "Night of the Living Dead", "The Blackening", "The Invitation", "The House", "The Last House on the Left", "The Purge", "The Ritual", "The Skeleton Key", "The Covenant", "Fallen", "Bad Hair", "Bleeding Rose", "Urban Cannibal Massacre", "The Other Black Girl", "Swarm", "Horror Noire", "Attack the Block", "The Girl with All the Gifts", "Master", "Diary of a Mad Black Woman", "Hood of Horror", "The Evil One", "Frankenfish", "Beloved", "House on Haunted Hill", "Constantine", "Gothika", "The Deliverance", "Nanny", "They Cloned Tyrone", "Soft & Quiet", "Talk to Me", "Blade", "Blade II", "Blade: Trinity", "Queen of the Damned", "Spawn", "The Reading", "Ma", "Scary Movie", "Scary Movie 2", "Scary Movie 3", "A Haunted House", "A Haunted House 2", "Meet the Blacks", "Meet the Blacks 2: The House Next Door", "Fear of a Black Hat", "Boo! A Madea Halloween", "Boo 2! A Madea Halloween", "Da Sweet Blood of Jesus", "The Transfiguration", "Tales from the Hood 2", "Tales from the Hood 3", "Murder in the Woods", "Kandisha", "Gang of Souls", "The House Invictus", "The Angry Black Girl and Her Monster", "Surrounded", "They Remain", "Jacob's Ladder", "House Party: Tonight's the Night", "The Summoned", "The Inheritance", "Killjoy", "Killjoy 2: Deliverance from Evil", "Killjoy 3", "Killjoy Goes to Hell", "Killjoy's Psycho Circus", "Ragdoll", "Hellbound", "Beneath Loch Ness", "Motives", "Motives 2", "The Grim Reaper", "Wes Craven Presents: Dracula II Ascension", "Wes Craven Presents: Dracula III Legacy", "The Horrible Dr. Bones", "Zombiez", "Holla", "The Maintenance Man", "Nite Tales", "Nite Tales: The Movie", "The Dread", "Circle of Eight", "Trapped: Haitian Nights", "The Dead One", "Shallow Ground", "The Fear Chamber", "I Madman", "Killer Weekend", "Boo", "The Cookout", "Somebody Help Me", "Somebody Help Me 2", "Chain Letter", "Cutthroat Alley", "Killer Instinct", "BlinkyTM", "Camp Blood 8: Revelations", "Jigsaw", "Slaughter's Big Rip-Off", "The Skarehouse", "Minutes Past Midnight", "Hell Fest", "There's Someone Inside Your House", "Initiation", "Carnival of Souls", "House of Fears"];
         
         function removeDuplicates(arr) {
             const seen = new Set();
-            const unique = [];
-            for (const item of arr) {
-                const lowerItem = item.toLowerCase().trim();
-                if (!seen.has(lowerItem)) { seen.add(lowerItem); unique.push(item); }
-            }
-            return unique;
+            return arr.filter(item => {
+                const k = item.toLowerCase().trim();
+                return seen.has(k) ? false : seen.add(k);
+            });
         }
+        const uniqueTitles = removeDuplicates(BLACK_HORROR_TITLES);
 
         async function fetchContent(append = false) {
             if (isLoading) return;
@@ -136,22 +135,25 @@
             const blackSection = document.getElementById('black-horror-section');
             if (!append) { currentPage = 1; grid.innerHTML = ''; blackSection.innerHTML = ''; }
 
+            let results = [];
             if (activeType === 'black_horror') {
                 await fetchBlackHorrorComprehensive();
-                isLoading = false;
-                return;
+                isLoading = false; return;
             } else if (activeType === 'wes_craven') {
-                const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_crew=5140&sort_by=release_date.desc&page=${currentPage}`);
+                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_crew=5140&sort_by=release_date.desc&page=${currentPage}`;
+                const res = await fetch(url);
                 const data = await res.json();
-                renderGrid(data.results);
+                results = data.results;
             } else if (activeType === 'horror_shows') {
-                const res = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}`);
+                const url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}`;
+                const res = await fetch(url);
                 const data = await res.json();
-                renderGrid(data.results);
+                results = data.results;
             } else if (activeType === 'unrated') {
-                const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification=NR|UR|NC-17&page=${currentPage}`);
+                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification=NR|UR|NC-17&page=${currentPage}`;
+                const res = await fetch(url);
                 const data = await res.json();
-                renderGrid(data.results);
+                results = data.results;
             } else {
                 let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}`;
                 if (activeType === 'trending') url = `https://api.themoviedb.org/3/trending/all/day?api_key=${API_KEY}&page=${currentPage}`;
@@ -161,64 +163,70 @@
                 else if (activeType === 'search') url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${activeID}&page=${currentPage}`;
                 const res = await fetch(url);
                 const data = await res.json();
-                renderGrid(data.results);
+                results = data.results;
             }
+            renderGrid(results);
             currentPage++;
             isLoading = false;
         }
 
         async function fetchBlackHorrorComprehensive() {
-            const uniqueTitles = removeDuplicates(BLACK_HORROR_TITLES);
             const BLACK_HORROR_FILM_IDS = [458156, 568489, 508947, 337401, 619264, 603692, 718989, 581392, 458723, 587807, 496450, 736726, 605116, 533535, 438631, 569094, 506574, 97404, 75780, 9372, 102387, 385103, 761703, 632357, 529203, 475557, 506054, 539885, 414906, 284404, 590864];
-            let finalPool = [];
+            let pool = [];
+            
+            // 1. Fetch by Genre + Keywords
+            const kwRes = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=233306|209825`);
+            const kwData = await kwRes.json();
+            pool.push(...kwData.results);
 
-            try {
-                // Fetch by ID
-                for (let id of BLACK_HORROR_FILM_IDS) {
-                    const res = await fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${API_KEY}`);
-                    if (res.ok) finalPool.push(await res.json());
-                }
-                // Fetch by Title (sliced to top results for API stability)
-                for (let title of uniqueTitles.slice(0, 40)) {
-                    const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(title)}`);
-                    const data = await res.json();
-                    if (data.results) finalPool.push(...data.results);
-                }
+            // 2. Fetch by IDs
+            for (let id of BLACK_HORROR_FILM_IDS) {
+                const res = await fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${API_KEY}`);
+                if (res.ok) pool.push(await res.json());
+            }
 
-                let validatedMovies = [];
-                const uniquePool = Array.from(new Map(finalPool.map(m => [m.id, m])).values());
+            // 3. Search by Unique Titles (Sourced from your provided list)
+            const titlePromises = uniqueTitles.slice(0, 40).map(title => 
+                fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`).then(r => r.json())
+            );
+            const titleResults = await Promise.all(titlePromises);
+            titleResults.forEach(data => { if(data.results) pool.push(...data.results); });
 
-                for (let movie of uniquePool) {
-                    const detailRes = await fetch(`https://api.themoviedb.org/3/${movie.media_type || 'movie'}/${movie.id}?api_key=${API_KEY}&append_to_response=credits,keywords`);
-                    if (!detailRes.ok) continue;
-                    const details = await detailRes.json();
-                    
-                    const movieObj = {
-                        ...details,
-                        director: details.credits?.crew?.find(c => c.job === 'Director')?.name || "",
-                        cast: details.credits?.cast?.slice(0, 10).map(a => a.name) || [],
-                        genres: details.genres?.map(g => g.name) || [],
-                        keywords: details.keywords?.keywords?.map(k => k.name) || [],
-                        production_companies: details.production_companies?.map(p => p.name) || []
-                    };
+            let validatedMovies = [];
+            const uniquePool = Array.from(new Map(pool.map(m => [m.id, m])).values());
 
-                    if (isBlackHorror(movieObj)) validatedMovies.push(movieObj);
-                }
+            for (let movie of uniquePool) {
+                const detailRes = await fetch(`https://api.themoviedb.org/3/movie/${movie.id}?api_key=${API_KEY}&append_to_response=credits,keywords`);
+                const details = await detailRes.json();
+                const movieObj = {
+                    ...details,
+                    director: details.credits?.crew?.find(c => c.job === 'Director')?.name || "",
+                    cast: details.credits?.cast?.slice(0, 10).map(a => a.name) || [],
+                    genres: details.genres?.map(g => g.name) || [],
+                    keywords: details.keywords?.keywords?.map(k => k.name) || [],
+                    production_companies: details.production_companies?.map(p => p.name) || []
+                };
+                if (isBlackHorror(movieObj)) validatedMovies.push(movieObj);
+            }
 
-                if (validatedMovies.length === 0) {
-                    document.getElementById('black-horror-section').innerHTML = '<p class="text-red-600 horror-font text-center w-full">No Black horror films found. Showing all horror films instead.</p>';
-                } else {
-                    displayBlackHorror(validatedMovies);
-                }
-            } catch (err) { console.error(err); }
+            if (validatedMovies.length === 0) {
+                document.getElementById('black-horror-section').innerHTML = '<p class="text-red-600 horror-font text-center w-full">No Black horror films found. Showing all horror films instead.</p>';
+                activeType = 'horror_movies'; fetchContent();
+            } else {
+                displayBlackHorror(validatedMovies);
+            }
         }
 
         function isBlackHorror(movie) {
             const blackDirectors = ['Jordan Peele', 'Nia DaCosta', 'Rusty Cundieff', 'Kasi Lemmons', 'Ernest Dickerson', 'William Crain', 'Remi Weekes', 'Nikyatu Jusu', 'Emmanuel Osei-Kuffour', 'Gerard McMurray', 'Tony Todd', 'Keenen Ivory Wayans'];
             const blackActors = ['Lupita Nyong\'o', 'Daniel Kaluuya', 'Janelle Monáe', 'Gabrielle Union', 'Omari Hardwick', 'Logan Browning', 'Tony Todd', 'Eddie Murphy', 'Angela Bassett', 'Wesley Snipes', 'Tasha Smith', 'Regina Hall', 'Keke Palmer', 'Laurence Fishburne'];
-            const titleMatch = BLACK_HORROR_TITLES.some(t => movie.title?.includes(t) || movie.name?.includes(t));
-            const castMatch = movie.cast.some(actor => blackActors.includes(actor));
-            return blackDirectors.includes(movie.director) || titleMatch || castMatch;
+            const titlesLower = uniqueTitles.map(t => t.toLowerCase());
+            
+            return blackDirectors.includes(movie.director) || 
+                   titlesLower.some(title => movie.title.toLowerCase().includes(title)) ||
+                   (movie.genres.includes('Horror') && movie.cast.some(actor => blackActors.includes(actor))) ||
+                   movie.keywords.includes('blaxploitation') ||
+                   (movie.production_companies.includes('Blumhouse Productions') && (movie.cast.some(actor => blackActors.includes(actor)) || blackDirectors.includes(movie.director)));
         }
 
         function displayBlackHorror(movies) {
@@ -228,13 +236,13 @@
                 const card = document.createElement('div');
                 card.className = 'movie-card focusable';
                 card.tabIndex = 0;
-                card.onclick = () => openDetails(movie.id, movie.title ? 'movie' : 'tv');
+                card.onclick = () => openDetails(movie.id, 'movie');
                 card.innerHTML = `
-                    <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" class="w-full h-full object-cover">
+                    <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" class="w-full h-full object-cover" alt="${movie.title}">
                     <div class="movie-info horror-font">
-                        <h3 class="text-red-600 truncate">${movie.title || movie.name}</h3>
-                        <p>${(movie.release_date || movie.first_air_date || 'Unknown').split('-')[0]}</p>
-                        <p class="text-[10px] opacity-70">Dir: ${movie.director || 'Various'}</p>
+                        <h3 class="text-red-600 font-bold truncate">${movie.title}</h3>
+                        <p>${movie.release_date ? movie.release_date.split('-')[0] : 'Unknown'}</p>
+                        <p class="text-xs opacity-70 truncate">${movie.director || 'Unknown'}</p>
                     </div>
                 `;
                 container.appendChild(card);
@@ -272,6 +280,7 @@
             document.getElementById('main-app-wrapper').classList.add('hidden');
             document.getElementById('selector-overlay').classList.remove('hidden');
             window.scrollTo(0, 0);
+            setTimeout(() => document.getElementById('main-play-trigger').focus(), 300);
         }
 
         function renderSeasons(data) {
@@ -311,6 +320,7 @@
             const iframe = document.getElementById('luxe-player');
             playerOverlay.style.display = 'block';
             iframe.src = (type === 'movie' ? `https://vidsrc.cc/v2/embed/movie/${id}` : `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}`);
+            setTimeout(() => document.getElementById('close-player-btn').focus(), 500);
         }
 
         function toggleMenu() { document.getElementById('side-menu').classList.toggle('menu-open'); }
@@ -320,6 +330,7 @@
         function setFilter(type, id = '') {
             activeType = type; activeID = id;
             document.querySelectorAll('nav button').forEach(b => b.classList.remove('nav-active'));
+            if(event && event.target.tagName === 'BUTTON') event.target.classList.add('nav-active');
             fetchContent();
             document.getElementById('side-menu').classList.remove('menu-open');
             window.scrollTo(0,0);
@@ -327,9 +338,43 @@
 
         function handleSearch(e) { if (e.key === 'Enter') { activeType = 'search'; activeID = e.target.value; fetchContent(); e.target.blur(); } }
 
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Backspace') {
+                if (document.getElementById('player-overlay').style.display === 'block') closePlayer();
+                else if (!document.getElementById('selector-overlay').classList.contains('hidden')) closeSelector();
+            }
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                e.preventDefault();
+                const dir = e.key.replace('Arrow', '').toLowerCase();
+                const next = findNext(document.activeElement, Array.from(document.querySelectorAll('.focusable')).filter(el => el.offsetParent !== null), dir);
+                if (next) { next.focus(); next.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+            }
+        });
+
+        function findNext(cur, targets, dir) {
+            if (!cur || cur === document.body) return targets[0];
+            const r1 = cur.getBoundingClientRect(), c1 = { x: r1.left + r1.width/2, y: r1.top + r1.height/2 };
+            let best = null, min = Infinity;
+            targets.forEach(t => {
+                if (t === cur) return;
+                const r2 = t.getBoundingClientRect(), c2 = { x: r2.left + r2.width/2, y: r2.top + r2.height/2 };
+                if (dir === 'up' && c2.y >= c1.y) return; if (dir === 'down' && c2.y <= c1.y) return;
+                if (dir === 'left' && c2.x >= c1.x) return; if (dir === 'right' && c2.x <= c1.x) return;
+                const d = Math.sqrt(Math.pow(c2.x - c1.x, 2) + Math.pow(c2.y - c1.y, 2));
+                if (d < min) { min = d; best = t; }
+            });
+            return best;
+        }
+
         window.onload = () => {
             fetchContent();
-            setTimeout(() => { document.getElementById('loader').style.opacity = '0'; setTimeout(()=>document.getElementById('loader').remove(), 800); }, 1200);
+            setTimeout(() => { 
+                const loader = document.getElementById('loader');
+                if(loader) {
+                    loader.style.opacity = '0'; 
+                    setTimeout(()=>loader.remove(), 800); 
+                }
+            }, 1200);
             const obs = new IntersectionObserver(e => { if(e[0].isIntersecting) fetchContent(true); });
             obs.observe(document.getElementById('sentinel'));
         };
