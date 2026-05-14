@@ -116,22 +116,6 @@
         let activeType = 'trending', activeID = '', currentMedia = {};
         let currentPage = 1, isLoading = false;
 
-        const DARK_CASTLE_LIST = [
-            "House on Haunted Hill", "Thir13en Ghosts", "Ghost Ship", "Gothika", "House of Wax", "The Haunting", 
-            "The Reaping", "The Unborn", "Orphan", "The Hills Have Eyes", "The Hills Have Eyes 2", 
-            "The Last House on the Left", "The Crazies", "The Collector", "The Collection", "The Quiet Ones", 
-            "The Boy", "The Belko Experiment", "The Bye Bye Man", "The Nun", "The Curse of La Llorona", 
-            "The Prodigy", "The Turning", "The Wretched", "The Darkest Hour", "The Dark", "The Dark Half",
-            "The Abandoned", "The Deaths of Ian Stone", "Lake Dead", "Unrest", "Penny Dreadful", 
-            "Darkness Falls", "The Gravedancers", "The Hamiltons", "Reincarnation", "Wicked Little Things", 
-            "Autopsy", "Borderland", "Crazy Eights", "Frontier(s)", "The Final", "The Broken", "Dread", 
-            "From Within", "Kill Theory", "The Graves", "The Reeds", "The Task", "Sick Girl", "Freakshow", 
-            "Butchered", "The Other Side of the Tracks", "Headgame", "Husk", "The Terror", "The Tortured"
-        ];
-
-        const BLACK_HORROR_TITLES = ["Get Out", "Us", "Nope", "Candyman", "Blacula", "Scream Blacula Scream", "Def by Temptation", "Eve's Bayou", "Tales from the Hood", "Ganja & Hess", "The People Under the Stairs", "Vampires vs. the Bronx", "Lovecraft Country", "Them", "The Blood of Jesus", "Son of Ingagi", "Spell", "Antebellum", "His House", "Black Box", "Da Sweet Blood of Jesus", "Demon Knight", "Vampire in Brooklyn", "Abby", "Blackenstein", "Slaughter", "The Spook Who Sat by the Door", "The House on Skull Mountain", "J.D.'s Revenge", "Sugar Hill", "The Serpent and the Rainbow", "Voodoo Dawn", "Night of the Living Dead", "The Blackening", "The Invitation", "The House", "The Last House on the Left", "The Purge", "The Ritual", "The Skeleton Key", "The Covenant", "Fallen", "Bad Hair", "Bleeding Rose", "Urban Cannibal Massacre", "The Other Black Girl", "Swarm", "Horror Noire", "Attack the Block", "The Girl with All the Gifts", "Master", "Diary of a Mad Black Woman", "Hood of Horror", "The Evil One", "Frankenfish", "Beloved", "House on Haunted Hill", "Constantine", "Gothika", "The Deliverance", "Nanny", "They Cloned Tyrone", "Soft & Quiet", "Talk to Me", "Blade", "Blade II", "Blade: Trinity", "Queen of the Damned", "Spawn", "The Reading", "Ma", "Scary Movie", "Scary Movie 2", "Scary Movie 3", "A Haunted House", "A Haunted House 2", "Meet the Blacks", "Meet the Blacks 2: The House Next Door", "Fear of a Black Hat", "Boo! A Madea Halloween", "Boo 2! A Madea Halloween", "Da Sweet Blood of Jesus", "The Transfiguration", "Tales from the Hood 2", "Tales from the Hood 3", "Murder in the Woods", "Kandisha", "Gang of Souls", "The House Invictus", "The Angry Black Girl and Her Monster", "Surrounded", "They Remain", "Jacob's Ladder", "House Party: Tonight's the Night", "The Summoned", "The Inheritance", "Killjoy", "Killjoy 2: Deliverance from Evil", "Killjoy 3", "Killjoy Goes to Hell", "Killjoy's Psycho Circus", "Ragdoll", "Hellbound", "Beneath Loch Ness", "Motives", "Motives 2", "The Grim Reaper", "Wes Craven Presents: Dracula II Ascension", "Wes Craven Presents: Dracula III Legacy", "The Horrible Dr. Bones", "Zombiez", "Holla", "The Maintenance Man", "Nite Tales", "Nite Tales: The Movie", "The Dread", "Circle of Eight", "Trapped: Haitian Nights", "The Dead One", "Shallow Ground", "The Fear Chamber", "I Madman", "Killer Weekend", "Boo", "The Cookout", "Somebody Help Me", "Somebody Help Me 2", "Chain Letter", "Cutthroat Alley", "Killer Instinct", "BlinkyTM", "Camp Blood 8: Revelations", "Jigsaw", "Slaughter's Big Rip-Off", "The Skarehouse", "Minutes Past Midnight", "Hell Fest", "There's Someone Inside Your House", "Initiation", "Carnival of Souls", "House of Fears"];
-        const uniqueTitles = Array.from(new Set(BLACK_HORROR_TITLES.map(t => t.toLowerCase().trim()))).map(t => BLACK_HORROR_TITLES.find(orig => orig.toLowerCase().trim() === t));
-
         async function fetchContent(append = false) {
             if (isLoading) return;
             isLoading = true;
@@ -180,12 +164,22 @@
         }
 
         async function fetchAfterDark() {
-            const promises = DARK_CASTLE_LIST.map(title => 
+            const grid = document.getElementById('movie-grid');
+            grid.innerHTML = '';
+            
+            const darkTitles = [
+                "House on Haunted Hill", "Thir13en Ghosts", "Ghost Ship", "Gothika", "House of Wax", "The Reaping", "The Invasion", "The Haunting", "The Unborn", "Orphan", "Whiteout", "The Hills Have Eyes", "The Hills Have Eyes 2", "The Last House on the Left", "The Crazies", "The Collector", "The Collection", "The Quiet Ones", "The Boy", "The Belko Experiment", "The Bye Bye Man", "The Nun", "The Curse of La Llorona", "The Prodigy", "The Turning", "The Wretched",
+                "The Abandoned", "The Deaths of Ian Stone", "Lake Dead", "Unrest", "Penny Dreadful", "Darkness Falls", "The Gravedancers", "The Hamiltons", "Reincarnation", "Wicked Little Things", "Autopsy", "Borderland", "Crazy Eights", "Frontier(s)", "The Final", "The Broken", "Dread", "From Within", "Kill Theory", "The Graves", "The Reeds", "The Task", "Sick Girl", "Freakshow", "Butchered", "The Other Side of the Tracks", "Headgame", "Husk", "The Terror", "The Tortured",
+                "Captivity", "Offspring", "The Uninvited", "Slaughter", "The Dread", "The Covenant"
+            ];
+
+            const searchPromises = darkTitles.map(title => 
                 fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
                 .then(r => r.json())
                 .then(data => data.results ? data.results[0] : null)
             );
-            const results = await Promise.all(promises);
+
+            const results = await Promise.all(searchPromises);
             renderGrid(results.filter(m => m && m.poster_path));
         }
 
@@ -208,6 +202,8 @@
                 const res = await fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${API_KEY}`);
                 if (res.ok) pool.push(await res.json());
             }
+            const BLACK_HORROR_TITLES = ["Get Out", "Us", "Nope", "Candyman", "Blacula", "Scream Blacula Scream", "Def by Temptation", "Eve's Bayou", "Tales from the Hood", "Ganja & Hess", "The People Under the Stairs", "Vampires vs. the Bronx", "Lovecraft Country", "Them", "The Blood of Jesus", "Son of Ingagi", "Spell", "Antebellum", "His House", "Black Box", "Da Sweet Blood of Jesus", "Demon Knight", "Vampire in Brooklyn", "Abby", "Blackenstein", "Slaughter", "The Spook Who Sat by the Door", "The House on Skull Mountain", "J.D.'s Revenge", "Sugar Hill", "The Serpent and the Rainbow", "Voodoo Dawn", "Night of the Living Dead", "The Blackening", "The Invitation", "The House", "The Last House on the Left", "The Purge", "The Ritual", "The Skeleton Key", "The Covenant", "Fallen", "Bad Hair", "Bleeding Rose", "Urban Cannibal Massacre", "The Other Black Girl", "Swarm", "Horror Noire", "Attack the Block", "The Girl with All the Gifts", "Master", "Diary of a Mad Black Woman", "Hood of Horror", "The Evil One", "Frankenfish", "Beloved", "House on Haunted Hill", "Constantine", "Gothika", "The Deliverance", "Nanny", "They Cloned Tyrone", "Soft & Quiet", "Talk to Me", "Blade", "Blade II", "Blade: Trinity", "Queen of the Damned", "Spawn", "The Reading", "Ma", "Scary Movie", "Scary Movie 2", "Scary Movie 3", "A Haunted House", "A Haunted House 2", "Meet the Blacks", "Meet the Blacks 2: The House Next Door", "Fear of a Black Hat", "Boo! A Madea Halloween", "Boo 2! A Madea Halloween", "Da Sweet Blood of Jesus", "The Transfiguration", "Tales from the Hood 2", "Tales from the Hood 3", "Murder in the Woods", "Kandisha", "Gang of Souls", "The House Invictus", "The Angry Black Girl and Her Monster", "Surrounded", "They Remain", "Jacob's Ladder", "House Party: Tonight's the Night", "The Summoned", "The Inheritance", "Killjoy", "Killjoy 2: Deliverance from Evil", "Killjoy 3", "Killjoy Goes to Hell", "Killjoy's Psycho Circus", "Ragdoll", "Hellbound", "Beneath Loch Ness", "Motives", "Motives 2", "The Grim Reaper", "Wes Craven Presents: Dracula II Ascension", "Wes Craven Presents: Dracula III Legacy", "The Horrible Dr. Bones", "Zombiez", "Holla", "The Maintenance Man", "Nite Tales", "Nite Tales: The Movie", "The Dread", "Circle of Eight", "Trapped: Haitian Nights", "The Dead One", "Shallow Ground", "The Fear Chamber", "I Madman", "Killer Weekend", "Boo", "The Cookout", "Somebody Help Me", "Somebody Help Me 2", "Chain Letter", "Cutthroat Alley", "Killer Instinct", "BlinkyTM", "Camp Blood 8: Revelations", "Jigsaw", "Slaughter's Big Rip-Off", "The Skarehouse", "Minutes Past Midnight", "Hell Fest", "There's Someone Inside Your House", "Initiation", "Carnival of Souls", "House of Fears"];
+            const uniqueTitles = Array.from(new Set(BLACK_HORROR_TITLES.map(t => t.toLowerCase().trim()))).map(t => BLACK_HORROR_TITLES.find(orig => orig.toLowerCase().trim() === t));
             const titlePromises = uniqueTitles.slice(0, 40).map(title => fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`).then(r => r.json()));
             const titleResults = await Promise.all(titlePromises);
             titleResults.forEach(data => { if(data.results) pool.push(...data.results); });
@@ -225,8 +221,7 @@
         function isBlackHorror(movie) {
             const blackDirectors = ['Jordan Peele', 'Nia DaCosta', 'Rusty Cundieff', 'Kasi Lemmons', 'Ernest Dickerson', 'William Crain', 'Remi Weekes', 'Nikyatu Jusu', 'Emmanuel Osei-Kuffour', 'Gerard McMurray', 'Tony Todd', 'Keenen Ivory Wayans'];
             const blackActors = ['Lupita Nyong\'o', 'Daniel Kaluuya', 'Janelle Monáe', 'Gabrielle Union', 'Omari Hardwick', 'Logan Browning', 'Tony Todd', 'Eddie Murphy', 'Angela Bassett', 'Wesley Snipes', 'Tasha Smith', 'Regina Hall', 'Keke Palmer', 'Laurence Fishburne'];
-            const titlesLower = uniqueTitles.map(t => t.toLowerCase());
-            return blackDirectors.includes(movie.director) || titlesLower.some(title => movie.title.toLowerCase().includes(title)) || (movie.genres.includes('Horror') && movie.cast.some(actor => blackActors.includes(actor))) || movie.keywords.includes('blaxploitation');
+            return blackDirectors.includes(movie.director) || (movie.genres.includes('Horror') && movie.cast.some(actor => blackActors.includes(actor))) || movie.keywords.includes('blaxploitation');
         }
 
         function displayBlackHorror(movies) {
