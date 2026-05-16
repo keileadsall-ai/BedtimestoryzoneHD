@@ -188,28 +188,27 @@
                     if (!append) {
                         let promises = [];
                         
-                        // Target both multi-search and explicit discoveries for requested youth-appropriate horror
                         const targetQueries = [
                             { q: 'Twitches', t: 'movie' },
                             { q: 'Twitches Too', t: 'movie' },
                             { q: 'The Haunted Mansion', t: 'movie' },
-                            { q: 'Halloweentown', t: 'movie' },
                             { q: 'Scooby-Doo', t: 'movie' },
                             { q: 'Scooby-Doo', t: 'tv' },
                             { q: 'Courage the Cowardly Dog', t: 'tv' },
-                            { q: 'Hocus Pocus', t: 'movie' },
-                            { q: 'Hocus Pocus 2', t: 'movie' },
+                            { q: 'Beetlejuice', t: 'movie' },
+                            { q: 'Beetlejuice Beetlejuice', t: 'movie' },
                             { q: 'Coraline', t: 'movie' },
+                            { q: 'Halloweentown', t: 'movie' },
+                            { q: 'Haunt', t: 'movie' },
+                            { q: 'Poltergeist', t: 'movie' },
+                            { q: 'Finders Keepers', t: 'movie' },
+                            { q: 'The Witches', t: 'movie' },
+                            { q: 'Hotel Transylvania', t: 'movie' },
+                            { q: 'Hocus Pocus', t: 'movie' },
+                            { q: 'Buffy the Vampire Slayer', t: 'tv' },
+                            { q: 'Buffy the Vampire Slayer', t: 'movie' },
                             { q: 'Goosebumps', t: 'tv' },
-                            { q: 'Goosebumps', t: 'movie' },
-                            { q: 'The Addams Family', t: 'movie' },
-                            { q: 'The Addams Family', t: 'tv' },
-                            { q: 'Wednesday', t: 'tv' },
-                            { q: 'Five Nights at Freddys', t: 'movie' },
-                            { q: 'M3GAN', t: 'movie' },
-                            { q: 'Are You Afraid of the Dark?', t: 'tv' },
-                            { q: 'Monster House', t: 'movie' },
-                            { q: 'ParaNorman', t: 'movie' }
+                            { q: 'Goosebumps', t: 'movie' }
                         ];
 
                         targetQueries.forEach(target => {
@@ -219,9 +218,13 @@
                             );
                         });
 
-                        // General dynamic PG-13/G family-horror discovery pool
                         promises.push(
                             fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27,14,16&certification_country=US&certification.lte=PG-13&page=1`)
+                            .then(res => res.json()).then(data => data.results || [])
+                        );
+                        
+                        promises.push(
+                            fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&certification_country=US&certification.lte=TV-14&page=1`)
                             .then(res => res.json()).then(data => data.results || [])
                         );
 
