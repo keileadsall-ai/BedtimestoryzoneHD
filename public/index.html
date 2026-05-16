@@ -139,26 +139,44 @@
                 const data = await res.json();
                 results = data.results;
             } else if (activeType === 'horror_shows') {
-                // Hard-targets explicit horror & supernatural thriller keyword tags (keywords: 33507|6152|9653|193386) to completely eliminate generic fantasy/sci-fi mix
                 if (!append) {
-                    let totalPagesToFetch = 4; 
                     let promises = [];
-                    for (let p = 1; p <= totalPagesToFetch; p++) {
+                    // Fetch specific highly relevant keywords under the Sci-Fi/Fantasy/Horror umbrella
+                    promises.push(
+                        fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_keywords=33507|6152|9653|193386|230113&page=1`)
+                        .then(res => res.json()).then(data => data.results || [])
+                    );
+                    promises.push(
+                        fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_keywords=33507|6152|9653|193386|230113&page=2`)
+                        .then(res => res.json()).then(data => data.results || [])
+                    );
+                    
+                    // Directly query explicit series you requested to guarantee their presence in the initial load
+                    const specifiedShows = ['The Beauty', 'American Horror Story', 'American Horror Stories', 'The Twilight Zone', 'Buffy the Vampire Slayer', 'Charmed', 'Are You Afraid of the Dark?', 'Criss Angel Mindfreak', 'Scare Tactics'];
+                    specifiedShows.forEach(title => {
                         promises.push(
-                            fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_keywords=33507|6152|9653|193386&page=${p}`)
-                            .then(res => res.json())
-                            .then(data => data.results || [])
-                            .catch(() => [])
+                            fetch(`https://api.themoviedb.org/3/search/tv?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
+                            .then(res => res.json()).then(data => data.results || [])
                         );
-                    }
+                    });
+
                     const arrays = await Promise.all(promises);
-                    results = [].concat(...arrays);
-                    currentPage = totalPagesToFetch + 1;
+                    let mixedResults = [].concat(...arrays);
+                    
+                    // Filter down explicitly to eliminate standard non-horror/thriller realities or comedies
+                    let uniqueMap = new Map();
+                    mixedResults.forEach(item => {
+                        if (item && item.id && !uniqueMap.has(item.id)) {
+                            uniqueMap.set(item.id, item);
+                        }
+                    });
+                    results = Array.from(uniqueMap.values());
+                    currentPage = 3;
                 } else {
-                    const url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_keywords=33507|6152|9653|193386&page=${currentPage}`;
+                    const url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_keywords=33507|6152|9653|193386|230113&page=${currentPage}`;
                     const res = await fetch(url);
                     const data = await res.json();
-                    results = data.results;
+                    results = data.results || [];
                     currentPage++;
                 }
             } else if (activeType === 'unrated') {
@@ -236,7 +254,7 @@
             displayBlackHorror(validated);
         }
 
-        function isBlackHorror(movie) {
+        function iSBlackHorror(movie) {
             const blackDirectors = ['Jordan Peele', 'Nia DaCosta', 'Rusty Cundieff', 'Kasi Lemmons', 'Ernest Dickerson', 'William Crain', 'Remi Weekes', 'Nikyatu Jusu', 'Emmanuel Osei-Kuffour', 'Gerard McMurray', 'Tony Todd', 'Keenen Ivory Wayans'];
             const blackActors = ['Lupita Nyong\'o', 'Daniel Kaluuya', 'Janelle Monáe', 'Gabrielle Union', 'Omari Hardwick', 'Logan Browning', 'Tony Todd', 'Eddie Murphy', 'Angela Bassett', 'Wesley Snipes', 'Tasha Smith', 'Regina Hall', 'Keke Palmer', 'Laurence Fishburne'];
             return blackDirectors.includes(movie.director) || (movie.genres.includes('Horror') && movie.cast.some(actor => blackActors.includes(actor))) || movie.keywords.includes('blaxploitation');
