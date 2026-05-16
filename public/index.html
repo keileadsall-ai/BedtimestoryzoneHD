@@ -139,13 +139,13 @@
                 const data = await res.json();
                 results = data.results;
             } else if (activeType === 'horror_shows') {
-                // TV Shows do not use genre ID 27 on TMDB. We pool 10765 (Sci-Fi/Fantasy/Supernatural) and 9648 (Mystery/Thrillers)
+                // Hard-targets explicit horror & supernatural thriller keyword tags (keywords: 33507|6152|9653|193386) to completely eliminate generic fantasy/sci-fi mix
                 if (!append) {
                     let totalPagesToFetch = 4; 
                     let promises = [];
                     for (let p = 1; p <= totalPagesToFetch; p++) {
                         promises.push(
-                            fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765|9648&page=${p}`)
+                            fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_keywords=33507|6152|9653|193386&page=${p}`)
                             .then(res => res.json())
                             .then(data => data.results || [])
                             .catch(() => [])
@@ -155,7 +155,7 @@
                     results = [].concat(...arrays);
                     currentPage = totalPagesToFetch + 1;
                 } else {
-                    const url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765|9648&page=${currentPage}`;
+                    const url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_keywords=33507|6152|9653|193386&page=${currentPage}`;
                     const res = await fetch(url);
                     const data = await res.json();
                     results = data.results;
