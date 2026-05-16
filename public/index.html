@@ -187,28 +187,53 @@
                 else if (activeType === 'youth') {
                     if (!append) {
                         let promises = [];
-                        
                         const targetQueries = [
-                            { q: 'Twitches', t: 'movie' },
-                            { q: 'Twitches Too', t: 'movie' },
-                            { q: 'The Haunted Mansion', t: 'movie' },
-                            { q: 'Scooby-Doo', t: 'movie' },
-                            { q: 'Scooby-Doo', t: 'tv' },
-                            { q: 'Courage the Cowardly Dog', t: 'tv' },
-                            { q: 'Beetlejuice', t: 'movie' },
-                            { q: 'Beetlejuice Beetlejuice', t: 'movie' },
-                            { q: 'Coraline', t: 'movie' },
-                            { q: 'Halloweentown', t: 'movie' },
-                            { q: 'Haunt', t: 'movie' },
-                            { q: 'Poltergeist', t: 'movie' },
-                            { q: 'Finders Keepers', t: 'movie' },
-                            { q: 'The Witches', t: 'movie' },
-                            { q: 'Hotel Transylvania', t: 'movie' },
-                            { q: 'Hocus Pocus', t: 'movie' },
-                            { q: 'Buffy the Vampire Slayer', t: 'tv' },
-                            { q: 'Buffy the Vampire Slayer', t: 'movie' },
-                            { q: 'Goosebumps', t: 'tv' },
-                            { q: 'Goosebumps', t: 'movie' }
+                            { q: 'Twitches', t: 'movie' }, { q: 'Twitches Too', t: 'movie' },
+                            { q: 'The Haunted Mansion', t: 'movie' }, { q: 'Scooby-Doo', t: 'movie' },
+                            { q: 'Scooby-Doo', t: 'tv' }, { q: 'Courage the Cowardly Dog', t: 'tv' },
+                            { q: 'Beetlejuice', t: 'movie' }, { q: 'Beetlejuice Beetlejuice', t: 'movie' },
+                            { q: 'Coraline', t: 'movie' }, { q: 'Halloweentown', t: 'movie' },
+                            { q: 'Haunt', t: 'movie' }, { q: 'Poltergeist', t: 'movie' },
+                            { q: 'Finders Keepers', t: 'movie' }, { q: 'The Witches', t: 'movie' },
+                            { q: 'Hotel Transylvania', t: 'movie' }, { q: 'Hocus Pocus', t: 'movie' },
+                            { q: 'Are You Afraid of the Dark?', t: 'tv' }, { q: 'Scare Tactics', t: 'tv' },
+                            { q: 'Casper', t: 'movie' }, { q: 'Charmed', t: 'tv' },
+                            { q: 'Hide and Seek', t: 'movie' }, { q: 'The Craft', t: 'movie' },
+                            { q: 'The Faculty', t: 'movie' }, { q: 'Body Snatchers', t: 'movie' },
+                            { q: 'The Wretched', t: 'movie' }, { q: 'Thriller', t: 'movie' },
+                            { q: 'Dead Tone', t: 'movie' }, { q: 'Secrets in the Walls', t: 'movie' },
+                            { q: 'Cabin by the Lake', t: 'movie' }, { q: 'Within', t: 'movie' },
+                            { q: 'The Omen', t: 'movie' }, { q: 'Omen II: Damian', t: 'movie' },
+                            { q: 'Omen IV: The Awakening', t: 'movie' }, { q: 'Pet Sematary', t: 'movie' },
+                            { q: 'Heart-Shaped Box', t: 'movie' }, { q: 'Devil\'s Pond', t: 'movie' },
+                            { q: 'Devil in Disguise', t: 'movie' }, { q: 'Perfect Blue', t: 'movie' },
+                            { q: 'Chainsaw Man', t: 'tv' }, { q: 'See No Evil', t: 'movie' },
+                            { q: 'Angels of Death', t: 'tv' }, { q: 'Vampire Hunter D', t: 'movie' },
+                            { q: 'Demon Slayer', t: 'tv' }, { q: 'Shiki', t: 'tv' },
+                            { q: 'Corpse Party', t: 'movie' }, { q: 'Smile', t: 'movie' },
+                            { q: 'Smile 2', t: 'movie' }, { q: 'Truth or Dare', t: 'movie' },
+                            { q: 'I Know What You Did Last Summer', t: 'movie' }, { q: 'Leprechaun', t: 'movie' },
+                            { q: 'Highschool of the Dead', t: 'tv' }, { q: 'Midori: The Camellia Girl', t: 'movie' },
+                            { q: 'Death Note', t: 'tv' }, { q: 'Fear Street', t: 'movie' },
+                            { q: 'Paranormal Activity', t: 'movie' }, { q: 'The Skeleton Key', t: 'movie' },
+                            { q: 'The Haunting', t: 'movie' }, { q: 'Hatchet', t: 'movie' },
+                            { q: 'Evil Dead', t: 'movie' }, { q: 'Cabin Fear', t: 'movie' },
+                            { q: 'Party Night', t: 'movie' }, { q: 'Fear Inc.', t: 'movie' },
+                            { q: 'Most Likely to Die', t: 'movie' }, { q: 'Don\'t Hang Up', t: 'movie' },
+                            { q: 'Better Watch Out', t: 'movie' }, { q: 'Tragedy Girls', t: 'movie' },
+                            { q: 'Blood Fest', t: 'movie' }, { q: 'All the Boys Love Mandy Lane', t: 'movie' },
+                            { q: 'Donkey Punch', t: 'movie' }, { q: 'Hell Fest', t: 'movie' },
+                            { q: 'Urban Legend', t: 'movie' }, { q: 'Bait', t: 'movie' },
+                            { q: 'Funny Games', t: 'movie' }, { q: 'Devil\'s Diary', t: 'movie' },
+                            { q: 'Friends \'Til the End', t: 'movie' }, { q: 'The Good Son', t: 'movie' },
+                            { q: 'The Bad Seed', t: 'movie' }, { q: 'Devil', t: 'movie' },
+                            { q: 'The Stepfather', t: 'movie' }, { q: 'No One Would Tell', t: 'movie' },
+                            { q: 'The Haunting of Sorority Row', t: 'movie' }, { q: 'Prom Night', t: 'movie' },
+                            { q: 'The Sitter', t: 'movie' }, { q: 'Kristy', t: 'movie' },
+                            { q: 'The Bride He Bought Online', t: 'movie' }, { q: 'Russian Bride', t: 'movie' },
+                            { q: 'You', t: 'tv' }, { q: 'Case 39', t: 'movie' },
+                            { q: 'The Rage: Carrie 2', t: 'movie' }, { q: 'Final Destination', t: 'movie' },
+                            { q: 'Buffy the Vampire Slayer', t: 'tv' }, { q: 'Goosebumps', t: 'tv' }
                         ];
 
                         targetQueries.forEach(target => {
@@ -218,11 +243,11 @@
                             );
                         });
 
+                        // Dynamic baseline pool query with youth horror certificates via discover arrays
                         promises.push(
-                            fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27,14,16&certification_country=US&certification.lte=PG-13&page=1`)
+                            fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&certification_country=US&certification.lte=PG-13&page=1`)
                             .then(res => res.json()).then(data => data.results || [])
                         );
-                        
                         promises.push(
                             fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&certification_country=US&certification.lte=TV-14&page=1`)
                             .then(res => res.json()).then(data => data.results || [])
@@ -240,8 +265,14 @@
                         results = Array.from(uniqueMap.values());
                         currentPage = 2;
                     } else {
-                        const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27,14,16&certification_country=US&certification.lte=PG-13&page=${currentPage}`;
-                        const res = await fetch(url);
+                        // Continuous infinite scroll dynamic pipeline tracking youth appropriate certificates 
+                        const isMoviePage = currentPage % 2 === 0;
+                        const pageTarget = Math.floor(currentPage / 2) + 1;
+                        let targetUrl = isMoviePage ? 
+                            `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&certification_country=US&certification.lte=PG-13&page=${pageTarget}` :
+                            `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&certification_country=US&certification.lte=TV-14&page=${pageTarget}`;
+                        
+                        const res = await fetch(targetUrl);
                         const data = await res.json();
                         results = data.results || [];
                         currentPage++;
