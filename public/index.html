@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -141,7 +141,6 @@
             } else if (activeType === 'horror_shows') {
                 if (!append) {
                     let promises = [];
-                    // Fetch specific highly relevant keywords under the Sci-Fi/Fantasy/Horror umbrella
                     promises.push(
                         fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_keywords=33507|6152|9653|193386|230113&page=1`)
                         .then(res => res.json()).then(data => data.results || [])
@@ -151,7 +150,6 @@
                         .then(res => res.json()).then(data => data.results || [])
                     );
                     
-                    // Directly query explicit series you requested to guarantee their presence in the initial load
                     const specifiedShows = ['The Beauty', 'American Horror Story', 'American Horror Stories', 'The Twilight Zone', 'Buffy the Vampire Slayer', 'Charmed', 'Are You Afraid of the Dark?', 'Criss Angel Mindfreak', 'Scare Tactics'];
                     specifiedShows.forEach(title => {
                         promises.push(
@@ -163,7 +161,6 @@
                     const arrays = await Promise.all(promises);
                     let mixedResults = [].concat(...arrays);
                     
-                    // Filter down explicitly to eliminate standard non-horror/thriller realities or comedies
                     let uniqueMap = new Map();
                     mixedResults.forEach(item => {
                         if (item && item.id && !uniqueMap.has(item.id)) {
@@ -187,15 +184,71 @@
             } else {
                 let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}`;
                 if (activeType === 'trending') url = `https://api.themoviedb.org/3/trending/all/day?api_key=${API_KEY}&page=${currentPage}`;
-                else if (activeType === 'youth') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification.lte=PG-13&page=${currentPage}`;
+                else if (activeType === 'youth') {
+                    if (!append) {
+                        let promises = [];
+                        
+                        // Discover call specifically filtering for youth-accessible ratings (PG-13, PG, G)
+                        promises.push(
+                            fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification.lte=PG-13&page=1`)
+                            .then(res => res.json()).then(data => data.results || [])
+                        );
+                        promises.push(
+                            fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification.lte=PG-13&page=2`)
+                            .then(res => res.json()).then(data => data.results || [])
+                        );
+
+                        // Direct multi-network & cross-media requested properties fallback
+                        const familyHorrorTitles = [
+                            'Twitches', 'Twitches Too', 'The Haunted Mansion', 'Halloweentown', 
+                            'Scooby-Doo', 'Courage the Cowardly Dog', 'Hocus Pocus', 'Coraline', 
+                            'Goosebumps', 'The Addams Family', 'Five Nights at Freddy\'s', 'M3GAN'
+                        ];
+
+                        familyHorrorTitles.forEach(title => {
+                            promises.push(
+                                fetch(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
+                                .then(res => res.json()).then(data => data.results || [])
+                            );
+                        });
+
+                        const arrays = await Promise.all(promises);
+                        let combined = [].concat(...arrays);
+                        
+                        let uniqueMap = new Map();
+                        combined.forEach(item => {
+                            if (item && item.id && !uniqueMap.has(item.id)) {
+                                // Filter to ensure items are related to horror, animation, or supernatural/fantasy elements
+                                const genres = item.genre_ids || [];
+                                const textMatch = ((item.title || item.name || '') + (item.overview || '')).toLowerCase();
+                                const isSpooky = genres.includes(27) || genres.includes(16) || genres.includes(14) || genres.includes(9648) || 
+                                                textMatch.includes('witch') || textMatch.includes('haunt') || textMatch.includes('monster') || textMatch.includes('ghost');
+                                if (isSpooky) {
+                                    uniqueMap.set(item.id, item);
+                                }
+                            }
+                        });
+                        results = Array.from(uniqueMap.values());
+                        currentPage = 3;
+                    } else {
+                        url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification.lte=PG-13&page=${currentPage}`;
+                        const res = await fetch(url);
+                        const data = await res.json();
+                        results = data.results || [];
+                        currentPage++;
+                    }
+                }
                 else if (activeType === 'abroad') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&without_original_language=en&page=${currentPage}`;
                 else if (activeType === 'search') url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${activeID}&page=${currentPage}`;
-                const res = await fetch(url);
-                const data = await res.json();
-                results = data.results;
+                
+                if (activeType !== 'youth' || append) {
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    results = data.results;
+                }
             }
             renderGrid(results);
-            if (activeType !== 'horror_shows') currentPage++;
+            if (activeType !== 'horror_shows' && activeType !== 'youth') currentPage++;
             isLoading = false;
         }
 
@@ -254,7 +307,7 @@
             displayBlackHorror(validated);
         }
 
-        function iSBlackHorror(movie) {
+        function isBlackHorror(movie) {
             const blackDirectors = ['Jordan Peele', 'Nia DaCosta', 'Rusty Cundieff', 'Kasi Lemmons', 'Ernest Dickerson', 'William Crain', 'Remi Weekes', 'Nikyatu Jusu', 'Emmanuel Osei-Kuffour', 'Gerard McMurray', 'Tony Todd', 'Keenen Ivory Wayans'];
             const blackActors = ['Lupita Nyong\'o', 'Daniel Kaluuya', 'Janelle Monáe', 'Gabrielle Union', 'Omari Hardwick', 'Logan Browning', 'Tony Todd', 'Eddie Murphy', 'Angela Bassett', 'Wesley Snipes', 'Tasha Smith', 'Regina Hall', 'Keke Palmer', 'Laurence Fishburne'];
             return blackDirectors.includes(movie.director) || (movie.genres.includes('Horror') && movie.cast.some(actor => blackActors.includes(actor))) || movie.keywords.includes('blaxploitation');
