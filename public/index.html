@@ -139,13 +139,12 @@
                 const data = await res.json();
                 results = data.results;
             } else if (activeType === 'horror_shows') {
-                // If it is initial loading, pool pages to assemble all horror TV shows efficiently
                 if (!append) {
-                    let totalPagesToFetch = 5; // Fetches a comprehensive block of horror series results
+                    let totalPagesToFetch = 5; 
                     let promises = [];
                     for (let p = 1; p <= totalPagesToFetch; p++) {
                         promises.push(
-                            fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${p}`)
+                            fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&page=${p}`)
                             .then(res => res.json())
                             .then(data => data.results || [])
                             .catch(() => [])
@@ -155,7 +154,7 @@
                     results = [].concat(...arrays);
                     currentPage = totalPagesToFetch + 1;
                 } else {
-                    const url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}`;
+                    const url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&page=${currentPage}`;
                     const res = await fetch(url);
                     const data = await res.json();
                     results = data.results;
