@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -188,50 +188,56 @@
                     if (!append) {
                         let promises = [];
                         
-                        // Discover call specifically filtering for youth-accessible ratings (PG-13, PG, G)
-                        promises.push(
-                            fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification.lte=PG-13&page=1`)
-                            .then(res => res.json()).then(data => data.results || [])
-                        );
-                        promises.push(
-                            fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification.lte=PG-13&page=2`)
-                            .then(res => res.json()).then(data => data.results || [])
-                        );
-
-                        // Direct multi-network & cross-media requested properties fallback
-                        const familyHorrorTitles = [
-                            'Twitches', 'Twitches Too', 'The Haunted Mansion', 'Halloweentown', 
-                            'Scooby-Doo', 'Courage the Cowardly Dog', 'Hocus Pocus', 'Coraline', 
-                            'Goosebumps', 'The Addams Family', 'Five Nights at Freddy\'s', 'M3GAN'
+                        // Target both multi-search and explicit discoveries for requested youth-appropriate horror
+                        const targetQueries = [
+                            { q: 'Twitches', t: 'movie' },
+                            { q: 'Twitches Too', t: 'movie' },
+                            { q: 'The Haunted Mansion', t: 'movie' },
+                            { q: 'Halloweentown', t: 'movie' },
+                            { q: 'Scooby-Doo', t: 'movie' },
+                            { q: 'Scooby-Doo', t: 'tv' },
+                            { q: 'Courage the Cowardly Dog', t: 'tv' },
+                            { q: 'Hocus Pocus', t: 'movie' },
+                            { q: 'Hocus Pocus 2', t: 'movie' },
+                            { q: 'Coraline', t: 'movie' },
+                            { q: 'Goosebumps', t: 'tv' },
+                            { q: 'Goosebumps', t: 'movie' },
+                            { q: 'The Addams Family', t: 'movie' },
+                            { q: 'The Addams Family', t: 'tv' },
+                            { q: 'Wednesday', t: 'tv' },
+                            { q: 'Five Nights at Freddys', t: 'movie' },
+                            { q: 'M3GAN', t: 'movie' },
+                            { q: 'Are You Afraid of the Dark?', t: 'tv' },
+                            { q: 'Monster House', t: 'movie' },
+                            { q: 'ParaNorman', t: 'movie' }
                         ];
 
-                        familyHorrorTitles.forEach(title => {
+                        targetQueries.forEach(target => {
                             promises.push(
-                                fetch(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
+                                fetch(`https://api.themoviedb.org/3/search/${target.t}?api_key=${API_KEY}&query=${encodeURIComponent(target.q)}`)
                                 .then(res => res.json()).then(data => data.results || [])
                             );
                         });
 
+                        // General dynamic PG-13/G family-horror discovery pool
+                        promises.push(
+                            fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27,14,16&certification_country=US&certification.lte=PG-13&page=1`)
+                            .then(res => res.json()).then(data => data.results || [])
+                        );
+
                         const arrays = await Promise.all(promises);
-                        let combined = [].concat(...arrays);
+                        let aggregated = [].concat(...arrays);
                         
                         let uniqueMap = new Map();
-                        combined.forEach(item => {
-                            if (item && item.id && !uniqueMap.has(item.id)) {
-                                // Filter to ensure items are related to horror, animation, or supernatural/fantasy elements
-                                const genres = item.genre_ids || [];
-                                const textMatch = ((item.title || item.name || '') + (item.overview || '')).toLowerCase();
-                                const isSpooky = genres.includes(27) || genres.includes(16) || genres.includes(14) || genres.includes(9648) || 
-                                                textMatch.includes('witch') || textMatch.includes('haunt') || textMatch.includes('monster') || textMatch.includes('ghost');
-                                if (isSpooky) {
-                                    uniqueMap.set(item.id, item);
-                                }
+                        aggregated.forEach(item => {
+                            if (item && item.id && item.poster_path && !uniqueMap.has(item.id)) {
+                                uniqueMap.set(item.id, item);
                             }
                         });
                         results = Array.from(uniqueMap.values());
-                        currentPage = 3;
+                        currentPage = 2;
                     } else {
-                        url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification.lte=PG-13&page=${currentPage}`;
+                        const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27,14,16&certification_country=US&certification.lte=PG-13&page=${currentPage}`;
                         const res = await fetch(url);
                         const data = await res.json();
                         results = data.results || [];
@@ -240,12 +246,9 @@
                 }
                 else if (activeType === 'abroad') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&without_original_language=en&page=${currentPage}`;
                 else if (activeType === 'search') url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${activeID}&page=${currentPage}`;
-                
-                if (activeType !== 'youth' || append) {
-                    const res = await fetch(url);
-                    const data = await res.json();
-                    results = data.results;
-                }
+                const res = await fetch(url);
+                const data = await res.json();
+                if (activeType !== 'youth') results = data.results;
             }
             renderGrid(results);
             if (activeType !== 'horror_shows' && activeType !== 'youth') currentPage++;
