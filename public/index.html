@@ -200,10 +200,21 @@
                 }
                 currentPage++;
             } else if (activeType === 'unrated') {
-                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification=NR|UR|NC-17&page=${currentPage}`;
-                const res = await fetch(url);
-                const data = await res.json();
-                results = data.results;
+                const pageTarget = Math.floor((currentPage - 1) / 2) + 1;
+                const isMovieRequest = currentPage % 2 !== 0;
+
+                if (isMovieRequest) {
+                    const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification=NR|UR|NC-17&page=${pageTarget}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    results = (data.results || []).map(m => ({ ...m, media_type: 'movie' }));
+                } else {
+                    const url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&certification_country=US&certification=TV-MA&page=${pageTarget}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    results = (data.results || []).map(t => ({ ...t, media_type: 'tv' }));
+                }
+                currentPage++;
             } else {
                 let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}`;
                 if (activeType === 'trending') url = `https://api.themoviedb.org/3/trending/all/day?api_key=${API_KEY}&page=${currentPage}`;
@@ -303,10 +314,10 @@
                 else if (activeType === 'search') url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${activeID}&page=${currentPage}`;
                 const res = await fetch(url);
                 const data = await res.json();
-                if (activeType !== 'youth' && activeType !== 'horror_shows') results = data.results;
+                if (activeType !== 'youth' && activeType !== 'horror_shows' && activeType !== 'unrated') results = data.results;
             }
             renderGrid(results);
-            if (activeType !== 'horror_shows' && activeType !== 'youth') currentPage++;
+            if (activeType !== 'horror_shows' && activeType !== 'youth' && activeType !== 'unrated') currentPage++;
             isLoading = false;
         }
 
