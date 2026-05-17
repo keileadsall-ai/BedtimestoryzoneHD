@@ -141,20 +141,43 @@
             } else if (activeType === 'horror_shows') {
                 if (!append) {
                     let promises = [];
-                    promises.push(
-                        fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_keywords=33507|6152|9653|193386|230113&page=1`)
-                        .then(res => res.json()).then(data => data.results || [])
-                    );
-                    promises.push(
-                        fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_keywords=33507|6152|9653|193386|230113&page=2`)
-                        .then(res => res.json()).then(data => data.results || [])
-                    );
-                    
-                    const specifiedShows = ['The Beauty', 'American Horror Story', 'American Horror Stories', 'The Twilight Zone', 'Buffy the Vampire Slayer', 'Charmed', 'Are You Afraid of the Dark?', 'Criss Angel Mindfreak', 'Scare Tactics'];
+                    const specifiedShows = [
+                        'The Walking Dead: Dead City', 'Them', 'American Horror Story', 'American Horror Stories', 
+                        'Are You Afraid of the Dark?', 'Channel Zero', 'Teacup', 'Castle Rock', 'Midnight Mass', 
+                        'Scream', 'Scream Queens', 'Scare Tactics', 'Evil', 'Buffy the Vampire Slayer', 'Charmed', 
+                        'The Walking Dead', 'The Strain', 'The Beauty', 'Grotesquerie', 'The Outsider', 
+                        'Criss Angel Mindfreak', 'Resident Evil', "Lisey's Story", 'The Institute', 'Toy Story of Terror!', 
+                        'Dead Ringers', 'Widows Bay', 'Sabrina the Teenage Witch', 'Wednesday', 'Hex', 
+                        'Love, Death & Robots', 'It: Welcome to Derry', 'Primal', 'Penny Dreadful', 
+                        'The Haunting of Hill House', 'The Haunting of Bly Manor', 'The Mist', 'The Twilight Zone', 
+                        'Lovecraft Country', 'Creeped Out', "Storm of the Century", 'Z Nation', 
+                        'Ash vs Evil Dead', 'The Stand', 'Hannibal', 'Shining Vale', 'Goosebumps', 'Bates Motel', 
+                        'Swarm', 'Yellowjackets', 'Ratched', "The Devil's Hour", 'Sweet Home', 'Fear the Walking Dead', 
+                        'Masters of Horror', 'Outcast', 'Preacher', 'Stranger Things', 'Supernatural', 'Lore', 
+                        'The Terror', 'Twin Peaks', 'The Vampire Diaries', 'Fear Itself', 'The Tommyknockers', 'Cult', 
+                        "Neil Gaiman's Likely Stories", 'Into the Dark', 'Tales from the Crypt', 'The Returned', 
+                        'Angel', 'True Blood', 'The X-Files', 'Locke & Key', 'Brand New Cherry Flavor', 
+                        'All of us are dead', 'Parasyte: The Grey', 'Cassandra', 'Marvel Zombies', 'Alien: Earth', 
+                        'Hellbound', '1899', 'The Midnight Club', 'Something Very Bad Is Going To Happen', 
+                        'Devil on Silver', 'Dexter', 'Red Rose', 'The Fall of the House of Usher', 'The Creep Tapes', 
+                        'Van Helsing', 'Chapelwaite', 'Archive 81', 'Haunted Hotel', 'Chilling Adventures of Sabrina', 
+                        "Devil's Diner", 'Scooby-Doo', 'Courage the Cowardly Dog', 'Zombieverse', 
+                        "Rose Red", "Rosemary's Baby", 'The Kingdom Exodus', '50 States of Fright', 'Day of the Dead', 
+                        'Dead Still', 'Dead of Summer', 'In the Flesh', 'The Enfield Haunting', 'Dead House Dark', 
+                        'Hellsing', 'Bag of Bones', "Freddy's Nightmares", 'Light as a Feather'
+                    ];
+
                     specifiedShows.forEach(title => {
                         promises.push(
                             fetch(`https://api.themoviedb.org/3/search/tv?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
-                            .then(res => res.json()).then(data => data.results || [])
+                            .then(res => res.json()).then(data => {
+                                if(data.results && data.results.length > 0) {
+                                    return data.results.filter(show => {
+                                        return true; 
+                                    });
+                                }
+                                return [];
+                            })
                         );
                     });
 
@@ -168,14 +191,14 @@
                         }
                     });
                     results = Array.from(uniqueMap.values());
-                    currentPage = 3;
+                    currentPage = 1;
                 } else {
-                    const url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_keywords=33507|6152|9653|193386|230113&page=${currentPage}`;
+                    const url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_keywords=33507|6152|9653|193386|230113&certification_country=US&certification.lte=TV-MA&page=${currentPage}`;
                     const res = await fetch(url);
                     const data = await res.json();
                     results = data.results || [];
-                    currentPage++;
                 }
+                currentPage++;
             } else if (activeType === 'unrated') {
                 const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification=NR|UR|NC-17&page=${currentPage}`;
                 const res = await fetch(url);
@@ -243,7 +266,6 @@
                             );
                         });
 
-                        // Dynamic baseline pool query with youth horror certificates via discover arrays
                         promises.push(
                             fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&certification_country=US&certification.lte=PG-13&page=1`)
                             .then(res => res.json()).then(data => data.results || [])
@@ -265,7 +287,6 @@
                         results = Array.from(uniqueMap.values());
                         currentPage = 2;
                     } else {
-                        // Continuous infinite scroll dynamic pipeline tracking youth appropriate certificates 
                         const isMoviePage = currentPage % 2 === 0;
                         const pageTarget = Math.floor(currentPage / 2) + 1;
                         let targetUrl = isMoviePage ? 
@@ -282,7 +303,7 @@
                 else if (activeType === 'search') url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${activeID}&page=${currentPage}`;
                 const res = await fetch(url);
                 const data = await res.json();
-                if (activeType !== 'youth') results = data.results;
+                if (activeType !== 'youth' && activeType !== 'horror_shows') results = data.results;
             }
             renderGrid(results);
             if (activeType !== 'horror_shows' && activeType !== 'youth') currentPage++;
