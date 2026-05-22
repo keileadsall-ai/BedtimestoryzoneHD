@@ -315,7 +315,7 @@
                             { q: 'Final Destination', t: 'movie' },
                             { q: 'Buffy the Vampire Slayer', t: 'tv' },
                             { q: 'Goosebumps', t: 'tv' },
-                            // ----- ADDITIONAL YOUTH-APPROPRIATE TITLES (not in your list) -----
+                            // ----- ADDITIONAL YOUTH-APPROPRIATE TITLES (no duplicates, all horror) -----
                             { q: 'Gremlins', t: 'movie' },
                             { q: 'Gremlins 2: The New Batch', t: 'movie' },
                             { q: 'Ghostbusters', t: 'movie' },
@@ -336,7 +336,6 @@
                             { q: 'Critters', t: 'movie' },
                             { q: 'The Monster Squad', t: 'movie' },
                             { q: 'The Goonies', t: 'movie' },
-                            { q: 'The Witches', t: 'movie' },
                             { q: 'The House with a Clock in Its Walls', t: 'movie' },
                             { q: 'Miss Peregrine\'s Home for Peculiar Children', t: 'movie' },
                             { q: 'A Series of Unfortunate Events', t: 'movie' },
@@ -445,8 +444,6 @@
                             { q: 'Ghosts', t: 'tv' },
                             { q: 'Over the Garden Wall', t: 'tv' },
                             { q: 'Gravity Falls', t: 'tv' },
-                            { q: 'Courage the Cowardly Dog', t: 'tv' },
-                            { q: 'Are You Afraid of the Dark?', t: 'tv' },
                             { q: 'Eerie, Indiana', t: 'tv' },
                             { q: 'So Weird', t: 'tv' },
                             { q: 'The Haunting Hour', t: 'tv' },
@@ -455,7 +452,6 @@
                             { q: 'Edward Scissorhands', t: 'movie' },
                             { q: 'Sleepy Hollow', t: 'movie' },
                             { q: 'Sweeney Todd: The Demon Barber of Fleet Street', t: 'movie' },
-                            { q: 'Dark Shadows', t: 'movie' },
                             { q: 'Kubo and the Two Strings', t: 'movie' },
                             { q: 'The Boxtrolls', t: 'movie' },
                             { q: 'Hotel Transylvania 2', t: 'movie' },
@@ -485,7 +481,6 @@
                             { q: 'The Mummy: Tomb of the Dragon Emperor', t: 'movie' },
                             { q: 'Van Helsing', t: 'movie' },
                             { q: 'The Wolfman', t: 'movie' },
-                            { q: 'Fright Night', t: 'movie' },
                             { q: 'Fright Night', t: 'movie' },
                             { q: 'The Lost Boys', t: 'movie' },
                             { q: 'The Blob', t: 'movie' },
@@ -665,7 +660,22 @@
                         targetQueries.forEach(target => {
                             promises.push(
                                 fetch(`https://api.themoviedb.org/3/search/${target.t}?api_key=${API_KEY}&query=${encodeURIComponent(target.q)}`)
-                                .then(res => res.json()).then(data => data.results || [])
+                                .then(res => res.json())
+                                .then(data => {
+                                    // Filter results to only horror (genre 27 for movies, 10765 for TV)
+                                    let filtered = [];
+                                    if (data.results) {
+                                        filtered = data.results.filter(item => {
+                                            if (target.t === 'movie') {
+                                                return item.genre_ids && item.genre_ids.includes(27);
+                                            } else if (target.t === 'tv') {
+                                                return item.genre_ids && item.genre_ids.includes(10765);
+                                            }
+                                            return false;
+                                        });
+                                    }
+                                    return filtered;
+                                })
                             );
                         });
 
