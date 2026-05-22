@@ -116,7 +116,7 @@
         let activeType = 'trending', activeID = '', currentMedia = {};
         let currentPage = 1, isLoading = false;
 
-        // ---- NEW: Ghastly Series infinite scroll trackers ----
+        // ---- Ghastly Series infinite scroll trackers ----
         let loadedHorrorShowIds = new Set();
         let horrorShowPageEn = 1;
         let horrorShowPageNonEn = 1;
@@ -145,7 +145,7 @@
                 results = data.results;
             } else if (activeType === 'horror_shows') {
                 if (!append) {
-                    // Reset trackers
+                    // Reset trackers and load your exactly specified list (filtered to genre 10765)
                     loadedHorrorShowIds.clear();
                     horrorShowPageEn = 1;
                     horrorShowPageNonEn = 1;
@@ -203,10 +203,11 @@
                     results = Array.from(uniqueMap.values());
                     currentPage = 1;
                 } else {
-                    // Infinite scroll: fetch one page of English horror TV and one page of non-English horror TV
+                    // Infinite scroll: fetch genuine horror TV using keywords, both English and non-English
+                    const horrorKeywords = '33507|6152|9653|193386|230113';
                     const urls = [
-                        `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&sort_by=popularity.desc&page=${horrorShowPageEn}`,
-                        `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&without_original_language=en&sort_by=popularity.desc&page=${horrorShowPageNonEn}`
+                        `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_keywords=${horrorKeywords}&sort_by=popularity.desc&page=${horrorShowPageEn}`,
+                        `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_keywords=${horrorKeywords}&without_original_language=en&sort_by=popularity.desc&page=${horrorShowPageNonEn}`
                     ];
                     const fetchPromises = urls.map(url => fetch(url).then(res => res.json()));
                     const datas = await Promise.all(fetchPromises);
