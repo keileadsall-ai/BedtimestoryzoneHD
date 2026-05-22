@@ -119,7 +119,6 @@
         // ---- Ghastly Series infinite scroll trackers ----
         let loadedHorrorShowIds = new Set();
         let horrorShowPageEn = 1;
-        let horrorShowPageNonEn = 1;
 
         async function fetchContent(append = false) {
             if (isLoading) return;
@@ -148,7 +147,6 @@
                     // Reset trackers and load your exactly specified list (filtered to genre 10765)
                     loadedHorrorShowIds.clear();
                     horrorShowPageEn = 1;
-                    horrorShowPageNonEn = 1;
 
                     let promises = [];
                     const specifiedShows = [
@@ -203,25 +201,20 @@
                     results = Array.from(uniqueMap.values());
                     currentPage = 1;
                 } else {
-                    // Infinite scroll: fetch genuine horror TV using keywords, both English and non-English
+                    // Infinite scroll: only English horror TV using keywords, no non-English shows
                     const horrorKeywords = '33507|6152|9653|193386|230113';
-                    const urls = [
-                        `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_keywords=${horrorKeywords}&sort_by=popularity.desc&page=${horrorShowPageEn}`,
-                        `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_keywords=${horrorKeywords}&without_original_language=en&sort_by=popularity.desc&page=${horrorShowPageNonEn}`
-                    ];
-                    const fetchPromises = urls.map(url => fetch(url).then(res => res.json()));
-                    const datas = await Promise.all(fetchPromises);
+                    const url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_keywords=${horrorKeywords}&sort_by=popularity.desc&page=${horrorShowPageEn}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
                     let combined = [];
-                    datas.forEach(data => {
-                        if (data.results) {
-                            combined = combined.concat(data.results.filter(item => 
-                                item.poster_path && 
-                                item.genre_ids && 
-                                item.genre_ids.includes(10765) && 
-                                !loadedHorrorShowIds.has(item.id)
-                            ));
-                        }
-                    });
+                    if (data.results) {
+                        combined = combined.concat(data.results.filter(item => 
+                            item.poster_path && 
+                            item.genre_ids && 
+                            item.genre_ids.includes(10765) && 
+                            !loadedHorrorShowIds.has(item.id)
+                        ));
+                    }
                     let uniqueMap = new Map();
                     combined.forEach(item => {
                         if (!uniqueMap.has(item.id)) {
@@ -231,7 +224,6 @@
                     });
                     results = Array.from(uniqueMap.values());
                     horrorShowPageEn++;
-                    horrorShowPageNonEn++;
                 }
             } else if (activeType === 'unrated') {
                 const pageTarget = Math.floor((currentPage - 1) / 2) + 1;
