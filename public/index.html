@@ -226,20 +226,16 @@
                     horrorShowPageEn++;
                 }
             } else if (activeType === 'unrated') {
-                const pageTarget = Math.floor((currentPage - 1) / 2) + 1;
-                const isMovieRequest = currentPage % 2 !== 0;
-
-                if (isMovieRequest) {
-                    const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification=NR|UR|NC-17&page=${pageTarget}`;
-                    const res = await fetch(url);
-                    const data = await res.json();
-                    results = (data.results || []).map(m => ({ ...m, media_type: 'movie' }));
-                } else {
-                    const url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&certification_country=US&certification=TV-MA&page=${pageTarget}`;
-                    const res = await fetch(url);
-                    const data = await res.json();
-                    results = (data.results || []).map(t => ({ ...t, media_type: 'tv' }));
+                // Only horror movies rated NR, UR, NC-17 + extreme gore keywords
+                const goreKeywords = '1526|2330|2201|33505'; // gore, splatter, brutality, disturbing
+                if (!append) {
+                    currentPage = 1;
+                    grid.innerHTML = '';
                 }
+                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification=NR|UR|NC-17&with_keywords=${goreKeywords}&sort_by=popularity.desc&page=${currentPage}`;
+                const res = await fetch(url);
+                const data = await res.json();
+                results = (data.results || []).map(m => ({ ...m, media_type: 'movie' }));
                 currentPage++;
             } else {
                 let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}`;
