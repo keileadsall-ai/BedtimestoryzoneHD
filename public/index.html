@@ -138,6 +138,7 @@
                 blackHorrorPage = 1;
                 loadedUnratedIds.clear();
                 loadedHorrorShowIds.clear();
+                horrorShowPageEn = 1;
             }
 
             let results = [];
@@ -247,10 +248,11 @@
                 if (!append) {
                     loadedUnratedIds.clear();
                     results = await fetchExtremeMoviesInitial();
+                    currentPage = 2;
                 } else {
                     results = await fetchExtremeMoviesMore(currentPage);
+                    currentPage++;
                 }
-                currentPage++;
             } else {
                 let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}`;
                 if (activeType === 'trending') url = `https://api.themoviedb.org/3/trending/all/day?api_key=${API_KEY}&page=${currentPage}`;
@@ -758,139 +760,235 @@
             isLoading = false;
         }
 
-        // ---- HARD-WIRED BLACK HORROR LIST (merged + deduplicated) ----
+        // ---- Hard-wired Black Horror list (movies + TV series) ----
         async function fetchBlackHorrorInitial() {
-            const seen = new Set();
-            const items = [];
-
-            const originalTitles = [
-                "Get Out", "Us", "Nope", "Candyman", "Blacula", "Scream Blacula Scream", "Def by Temptation", "Eve's Bayou", "Tales from the Hood", "Ganja & Hess", "The People Under the Stairs", "Vampires vs. the Bronx", "Lovecraft Country", "Them", "The Blood of Jesus", "Son of Ingagi", "Spell", "Antebellum", "His House", "Black Box", "Da Sweet Blood of Jesus", "Demon Knight", "Vampire in Brooklyn", "Abby", "Blackenstein", "Slaughter", "The Spook Who Sat by the Door", "The House on Skull Mountain", "J.D.'s Revenge", "Sugar Hill", "The Serpent and the Rainbow", "Voodoo Dawn", "Night of the Living Dead", "The Blackening", "The Invitation", "The House", "The Last House on the Left", "The Purge", "The Ritual", "The Skeleton Key", "The Covenant", "Fallen", "Bad Hair", "Bleeding Rose", "Urban Cannibal Massacre", "The Other Black Girl", "Swarm", "Horror Noire", "Attack the Block", "The Girl with All the Gifts", "Master", "Diary of a Mad Black Woman", "Hood of Horror", "The Evil One", "Frankenfish", "Beloved", "House on Haunted Hill", "Constantine", "Gothika", "The Deliverance", "Nanny", "They Cloned Tyrone", "Soft & Quiet", "Talk to Me", "Blade", "Blade II", "Blade: Trinity", "Queen of the Damned", "Spawn", "The Reading", "Ma", "Scary Movie", "Scary Movie 2", "Scary Movie 3", "A Haunted House", "A Haunted House 2", "Meet the Blacks", "Meet the Blacks 2: The House Next Door", "Fear of a Black Hat", "Boo! A Madea Halloween", "Boo 2! A Madea Halloween", "Da Sweet Blood of Jesus", "The Transfiguration", "Tales from the Hood 2", "Tales from the Hood 3", "Murder in the Woods", "Kandisha", "Gang of Souls", "The House Invictus", "The Angry Black Girl and Her Monster", "Surrounded", "They Remain", "Jacob's Ladder", "House Party: Tonight's the Night", "The Summoned", "The Inheritance", "Killjoy", "Killjoy 2: Deliverance from Evil", "Killjoy 3", "Killjoy Goes to Hell", "Killjoy's Psycho Circus", "Ragdoll", "Hellbound", "Beneath Loch Ness", "Motives", "Motives 2", "The Grim Reaper", "Wes Craven Presents: Dracula II Ascension", "Wes Craven Presents: Dracula III Legacy", "The Horrible Dr. Bones", "Zombiez", "Holla", "The Maintenance Man", "Nite Tales", "Nite Tales: The Movie", "The Dread", "Circle of Eight", "Trapped: Haitian Nights", "The Dead One", "Shallow Ground", "The Fear Chamber", "I Madman", "Killer Weekend", "Boo", "The Cookout", "Somebody Help Me", "Somebody Help Me 2", "Chain Letter", "Cutthroat Alley", "Killer Instinct", "BlinkyTM", "Camp Blood 8: Revelations", "Jigsaw", "Slaughter's Big Rip-Off", "The Skarehouse", "Minutes Past Midnight", "Hell Fest", "There's Someone Inside Your House", "Initiation", "Carnival of Souls", "House of Fears"
+            const HARD_WIRED_ITEMS = [
+                // Movies
+                { q: 'Get Out', t: 'movie' },
+                { q: 'Us', t: 'movie' },
+                { q: 'Nope', t: 'movie' },
+                { q: 'Candyman', t: 'movie' },
+                { q: 'Blacula', t: 'movie' },
+                { q: 'Scream Blacula Scream', t: 'movie' },
+                { q: 'Def by Temptation', t: 'movie' },
+                { q: 'Eve\'s Bayou', t: 'movie' },
+                { q: 'Tales from the Hood', t: 'movie' },
+                { q: 'Ganja & Hess', t: 'movie' },
+                { q: 'The People Under the Stairs', t: 'movie' },
+                { q: 'Vampires vs. the Bronx', t: 'movie' },
+                { q: 'The Blood of Jesus', t: 'movie' },
+                { q: 'Son of Ingagi', t: 'movie' },
+                { q: 'Spell', t: 'movie' },
+                { q: 'Antebellum', t: 'movie' },
+                { q: 'His House', t: 'movie' },
+                { q: 'Black Box', t: 'movie' },
+                { q: 'Da Sweet Blood of Jesus', t: 'movie' },
+                { q: 'Demon Knight', t: 'movie' },
+                { q: 'Vampire in Brooklyn', t: 'movie' },
+                { q: 'Abby', t: 'movie' },
+                { q: 'Blackenstein', t: 'movie' },
+                { q: 'Slaughter', t: 'movie' },
+                { q: 'The Spook Who Sat by the Door', t: 'movie' },
+                { q: 'The House on Skull Mountain', t: 'movie' },
+                { q: 'J.D.\'s Revenge', t: 'movie' },
+                { q: 'Sugar Hill', t: 'movie' },
+                { q: 'The Serpent and the Rainbow', t: 'movie' },
+                { q: 'Voodoo Dawn', t: 'movie' },
+                { q: 'Night of the Living Dead', t: 'movie' },
+                { q: 'The Blackening', t: 'movie' },
+                { q: 'The Invitation', t: 'movie' },
+                { q: 'The House', t: 'movie' },
+                { q: 'The Last House on the Left', t: 'movie' },
+                { q: 'The Purge', t: 'movie' },
+                { q: 'The First Purge', t: 'movie' },
+                { q: 'The Ritual', t: 'movie' },
+                { q: 'The Skeleton Key', t: 'movie' },
+                { q: 'The Covenant', t: 'movie' },
+                { q: 'Fallen', t: 'movie' },
+                { q: 'Bad Hair', t: 'movie' },
+                { q: 'Bleeding Rose', t: 'movie' },
+                { q: 'Urban Cannibal Massacre', t: 'movie' },
+                { q: 'Attack the Block', t: 'movie' },
+                { q: 'The Girl with All the Gifts', t: 'movie' },
+                { q: 'Master', t: 'movie' },
+                { q: 'Diary of a Mad Black Woman', t: 'movie' },
+                { q: 'Hood of Horror', t: 'movie' },
+                { q: 'The Evil One', t: 'movie' },
+                { q: 'Frankenfish', t: 'movie' },
+                { q: 'Beloved', t: 'movie' },
+                { q: 'House on Haunted Hill', t: 'movie' },
+                { q: 'Constantine', t: 'movie' },
+                { q: 'Gothika', t: 'movie' },
+                { q: 'The Deliverance', t: 'movie' },
+                { q: 'Nanny', t: 'movie' },
+                { q: 'They Cloned Tyrone', t: 'movie' },
+                { q: 'Soft & Quiet', t: 'movie' },
+                { q: 'Talk to Me', t: 'movie' },
+                { q: 'Blade', t: 'movie' },
+                { q: 'Blade II', t: 'movie' },
+                { q: 'Blade: Trinity', t: 'movie' },
+                { q: 'Queen of the Damned', t: 'movie' },
+                { q: 'Spawn', t: 'movie' },
+                { q: 'The Reading', t: 'movie' },
+                { q: 'Ma', t: 'movie' },
+                { q: 'Scary Movie', t: 'movie' },
+                { q: 'Scary Movie 2', t: 'movie' },
+                { q: 'Scary Movie 3', t: 'movie' },
+                { q: 'A Haunted House', t: 'movie' },
+                { q: 'A Haunted House 2', t: 'movie' },
+                { q: 'Meet the Blacks', t: 'movie' },
+                { q: 'Meet the Blacks 2: The House Next Door', t: 'movie' },
+                { q: 'Fear of a Black Hat', t: 'movie' },
+                { q: 'Boo! A Madea Halloween', t: 'movie' },
+                { q: 'Boo 2! A Madea Halloween', t: 'movie' },
+                { q: 'The Transfiguration', t: 'movie' },
+                { q: 'Tales from the Hood 2', t: 'movie' },
+                { q: 'Tales from the Hood 3', t: 'movie' },
+                { q: 'Murder in the Woods', t: 'movie' },
+                { q: 'Kandisha', t: 'movie' },
+                { q: 'Gang of Souls', t: 'movie' },
+                { q: 'The House Invictus', t: 'movie' },
+                { q: 'The Angry Black Girl and Her Monster', t: 'movie' },
+                { q: 'Surrounded', t: 'movie' },
+                { q: 'They Remain', t: 'movie' },
+                { q: 'Jacob\'s Ladder', t: 'movie' },
+                { q: 'House Party: Tonight\'s the Night', t: 'movie' },
+                { q: 'The Summoned', t: 'movie' },
+                { q: 'The Inheritance', t: 'movie' },
+                { q: 'Killjoy', t: 'movie' },
+                { q: 'Killjoy 2: Deliverance from Evil', t: 'movie' },
+                { q: 'Killjoy 3', t: 'movie' },
+                { q: 'Killjoy Goes to Hell', t: 'movie' },
+                { q: 'Killjoy\'s Psycho Circus', t: 'movie' },
+                { q: 'Ragdoll', t: 'movie' },
+                { q: 'Beneath Loch Ness', t: 'movie' },
+                { q: 'Motives', t: 'movie' },
+                { q: 'Motives 2', t: 'movie' },
+                { q: 'The Grim Reaper', t: 'movie' },
+                { q: 'Wes Craven Presents: Dracula II Ascension', t: 'movie' },
+                { q: 'Wes Craven Presents: Dracula III Legacy', t: 'movie' },
+                { q: 'The Horrible Dr. Bones', t: 'movie' },
+                { q: 'Zombiez', t: 'movie' },
+                { q: 'Holla', t: 'movie' },
+                { q: 'The Maintenance Man', t: 'movie' },
+                { q: 'Nite Tales', t: 'movie' },
+                { q: 'Nite Tales: The Movie', t: 'movie' },
+                { q: 'The Dread', t: 'movie' },
+                { q: 'Circle of Eight', t: 'movie' },
+                { q: 'Trapped: Haitian Nights', t: 'movie' },
+                { q: 'The Dead One', t: 'movie' },
+                { q: 'Shallow Ground', t: 'movie' },
+                { q: 'The Fear Chamber', t: 'movie' },
+                { q: 'I Madman', t: 'movie' },
+                { q: 'Killer Weekend', t: 'movie' },
+                { q: 'Boo', t: 'movie' },
+                { q: 'The Cookout', t: 'movie' },
+                { q: 'Somebody Help Me', t: 'movie' },
+                { q: 'Somebody Help Me 2', t: 'movie' },
+                { q: 'Chain Letter', t: 'movie' },
+                { q: 'Cutthroat Alley', t: 'movie' },
+                { q: 'Killer Instinct', t: 'movie' },
+                { q: 'BlinkyTM', t: 'movie' },
+                { q: 'Camp Blood 8: Revelations', t: 'movie' },
+                { q: 'Jigsaw', t: 'movie' },
+                { q: 'Slaughter\'s Big Rip-Off', t: 'movie' },
+                { q: 'The Skarehouse', t: 'movie' },
+                { q: 'Minutes Past Midnight', t: 'movie' },
+                { q: 'Hell Fest', t: 'movie' },
+                { q: 'There\'s Someone Inside Your House', t: 'movie' },
+                { q: 'Initiation', t: 'movie' },
+                { q: 'Carnival of Souls', t: 'movie' },
+                { q: 'House of Fears', t: 'movie' },
+                // ---- NEW ADDITIONS ----
+                { q: 'Thriller', t: 'movie' },
+                { q: 'The Boy Behind the Door', t: 'movie' },
+                { q: 'Leprechaun in the Hood', t: 'movie' },
+                { q: 'Sinners', t: 'movie' },
+                { q: 'Tragedy Girls', t: 'movie' },
+                { q: 'Slice', t: 'movie' },
+                { q: 'Bodies Bodies Bodies', t: 'movie' },
+                { q: 'I Still Know What You Did Last Summer', t: 'movie' },
+                { q: 'Him', t: 'movie' },
+                { q: 'The Strays', t: 'movie' },
+                { q: 'Crazy as Hell', t: 'movie' },
+                { q: 'Now Eat', t: 'movie' },
+                { q: 'Dr. Black Mr. Hyde', t: 'movie' },
+                { q: 'Bloodsucka Jones', t: 'movie' },
+                { q: 'Ooga Booga', t: 'movie' },
+                { q: 'Black Devil Doll from Hell', t: 'movie' },
+                { q: 'Vampiyaz', t: 'movie' },
+                { q: 'Horror Noire', t: 'movie' },
+                { q: 'Asunder', t: 'movie' },
+                { q: 'Urban Evil', t: 'movie' },
+                { q: 'Venom', t: 'movie' },
+                { q: 'Project Purgatory', t: 'movie' },
+                { q: 'Trick', t: 'movie' },
+                { q: 'Don\'t Let Go', t: 'movie' },
+                { q: 'Always and Forever', t: 'movie' },
+                { q: 'Kindred', t: 'movie' },
+                { q: 'Run Sweetheart Run', t: 'movie' },
+                { q: 'Nicole', t: 'movie' },
+                { q: 'West of Hell', t: 'movie' },
+                { q: 'Titanic 666', t: 'movie' },
+                { q: 'Wayward', t: 'movie' },
+                { q: 'The Exorcist: Believer', t: 'movie' },
+                { q: 'The Haunted Mansion', t: 'movie' },
+                { q: '7 Churches', t: 'movie' },
+                { q: 'Haunted Trail', t: 'movie' },
+                { q: 'The Front Room', t: 'movie' },
+                { q: 'Mr. Crocket', t: 'movie' },
+                { q: 'Alone Together', t: 'movie' },
+                { q: 'Newborn', t: 'movie' },
+                { q: 'The Reunion', t: 'movie' },
+                { q: 'Run', t: 'movie' },
+                { q: 'Uninvited Guest', t: 'movie' },
+                { q: 'Caught Up', t: 'movie' },
+                { q: 'Blackstock Boneyard', t: 'movie' },
+                // ---- TV Series ----
+                { q: 'Them', t: 'tv' },
+                { q: 'Lovecraft Country', t: 'tv' },
+                { q: 'Swarm', t: 'tv' },
+                { q: 'The Other Black Girl', t: 'tv' },
+                { q: 'Archive 81', t: 'tv' },
+                { q: 'From', t: 'tv' },
+                { q: 'Horror Noire', t: 'tv' }
             ];
 
-            // Add all original titles as movies
-            originalTitles.forEach(title => {
-                const key = title.toLowerCase() + '_movie';
-                if (!seen.has(key)) {
-                    seen.add(key);
-                    items.push({ title, type: 'movie' });
-                }
-            });
-
-            // New requested black horror titles (some are TV)
-            const newTitles = [
-                { title: 'Beloved', type: 'movie' },
-                { title: 'Thriller', type: 'movie' },
-                { title: 'The Boy Behind the Door', type: 'movie' },
-                { title: 'Abby', type: 'movie' },
-                { title: 'Candyman', type: 'movie' }, // series already captured by original, but safe
-                { title: 'Leprechaun in the Hood', type: 'movie' },
-                { title: 'His House', type: 'movie' },
-                { title: 'Nope', type: 'movie' },
-                { title: 'Sinners', type: 'movie' },
-                { title: 'Black Box', type: 'movie' },
-                { title: 'Tragedy Girls', type: 'movie' },
-                { title: 'The Blackening', type: 'movie' },
-                { title: 'Slice', type: 'movie' },
-                { title: 'Bodies Bodies Bodies', type: 'movie' },
-                { title: 'I Still Know What You Did Last Summer', type: 'movie' },
-                { title: 'Him', type: 'movie' },
-                { title: 'The Strays', type: 'movie' },
-                { title: 'Them', type: 'tv' }, // explicit TV series
-                { title: 'They Cloned Tyrone', type: 'movie' },
-                { title: 'Queen of the Damned', type: 'movie' },
-                { title: 'Crazy as Hell', type: 'movie' },
-                { title: 'Somebody Help Me', type: 'movie' },
-                { title: 'Now Eat', type: 'movie' },
-                { title: 'Dr. Black, Mr. Hyde', type: 'movie' },
-                { title: 'Ganja & Hess', type: 'movie' },
-                { title: 'Bloodsucka Jones', type: 'movie' },
-                { title: 'Ooga Booga', type: 'movie' },
-                { title: 'Black Devil Doll from Hell', type: 'movie' },
-                { title: 'The Reading', type: 'movie' },
-                { title: 'Vampiyaz', type: 'movie' },
-                { title: 'Horror Noire', type: 'movie' },
-                { title: 'Asunder', type: 'movie' },
-                { title: 'Urban Evil', type: 'movie' },
-                { title: 'The Evil One', type: 'movie' },
-                { title: 'Venom', type: 'movie' },
-                { title: 'Project Purgatory', type: 'movie' },
-                { title: 'Trick', type: 'movie' },
-                { title: 'Don\'t Let Go', type: 'movie' },
-                { title: 'Always and Forever', type: 'movie' },
-                { title: 'Kindred', type: 'movie' },
-                { title: 'Run Sweetheart Run', type: 'movie' },
-                { title: 'Nicole', type: 'movie' },
-                { title: 'Jacob\'s Ladder', type: 'movie' },
-                { title: 'West of Hell', type: 'movie' },
-                { title: 'They Remain', type: 'movie' },
-                { title: 'Titanic 666', type: 'movie' },
-                { title: 'Wayward', type: 'movie' },
-                { title: 'The Exorcist: Believer', type: 'movie' },
-                { title: 'The Angry Black Girl and Her Monster', type: 'movie' },
-                { title: 'The Haunted Mansion', type: 'movie' },
-                { title: '7 Churches', type: 'movie' },
-                { title: 'Haunted Trail', type: 'movie' },
-                { title: 'The Front Room', type: 'movie' },
-                { title: 'Mr. Crocket', type: 'movie' },
-                { title: 'Alone Together', type: 'movie' },
-                { title: 'Newborn', type: 'movie' },
-                { title: 'The Reunion', type: 'movie' },
-                { title: 'Run', type: 'movie' },
-                { title: 'The First Purge', type: 'movie' }
-            ];
-
-            // Merge new titles without duplicates (title+type)
-            newTitles.forEach(item => {
-                const key = item.title.toLowerCase() + '_' + item.type;
-                if (!seen.has(key)) {
-                    seen.add(key);
-                    items.push(item);
-                }
-            });
-
-            // Fetch all unique items
-            const promises = items.map(item => {
-                if (item.type === 'movie') {
-                    return fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(item.title)}`)
-                        .then(r => r.json())
-                        .then(data => {
-                            const movie = data.results?.find(m => m.genre_ids?.includes(27) && m.poster_path);
-                            return movie ? { ...movie, media_type: 'movie' } : null;
-                        });
-                } else {
-                    return fetch(`https://api.themoviedb.org/3/search/tv?api_key=${API_KEY}&query=${encodeURIComponent(item.title)}`)
-                        .then(r => r.json())
-                        .then(data => {
-                            const show = data.results?.find(s => s.genre_ids?.includes(10765) && s.poster_path);
-                            return show ? { ...show, media_type: 'tv' } : null;
-                        });
-                }
-            });
-
-            const results = (await Promise.all(promises)).filter(Boolean);
-            const uniqueMap = new Map();
-            results.forEach(item => {
-                if (!uniqueMap.has(item.id)) {
-                    uniqueMap.set(item.id, item);
-                    loadedBlackHorrorIds.add(item.id);
-                }
-            });
-            return Array.from(uniqueMap.values());
+            let promises = HARD_WIRED_ITEMS.map(target =>
+                fetch(`https://api.themoviedb.org/3/search/${target.t}?api_key=${API_KEY}&query=${encodeURIComponent(target.q)}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.results && data.results.length > 0) {
+                        let item = data.results[0];
+                        if (target.t === 'movie' && item.genre_ids && item.genre_ids.includes(27)) {
+                            return { ...item, _type: 'movie' };
+                        } else if (target.t === 'tv' && item.genre_ids && item.genre_ids.includes(10765)) {
+                            return { ...item, _type: 'tv' };
+                        }
+                    }
+                    return null;
+                })
+            );
+            const results = await Promise.all(promises);
+            let items = results.filter(m => m && m.poster_path);
+            let unique = new Map();
+            items.forEach(m => { if (!unique.has(m.id)) { unique.set(m.id, m); loadedBlackHorrorIds.add(m.id); } });
+            return Array.from(unique.values());
         }
 
         async function fetchBlackHorrorMore(page) {
             const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=233306|209825&sort_by=popularity.desc&page=${page}`;
             const res = await fetch(url);
             const data = await res.json();
-            const movies = (data.results || []).filter(m => m.poster_path && m.genre_ids?.includes(27) && !loadedBlackHorrorIds.has(m.id));
-            const uniqueMap = new Map();
+            let movies = (data.results || []).filter(m => m.poster_path && m.genre_ids && m.genre_ids.includes(27) && !loadedBlackHorrorIds.has(m.id));
+            let unique = new Map();
             movies.forEach(m => {
-                if (!uniqueMap.has(m.id)) {
-                    uniqueMap.set(m.id, { ...m, media_type: 'movie' });
+                if (!unique.has(m.id)) {
+                    unique.set(m.id, { ...m, _type: 'movie' });
                     loadedBlackHorrorIds.add(m.id);
                 }
             });
-            return Array.from(uniqueMap.values());
+            return Array.from(unique.values());
         }
 
         function renderBlackHorror(items, append = false) {
@@ -899,7 +997,8 @@
             items.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'movie-card focusable'; card.tabIndex = 0;
-                card.onclick = () => openDetails(item.id, item.media_type || 'movie');
+                const type = item._type || (item.first_air_date ? 'tv' : 'movie');
+                card.onclick = () => openDetails(item.id, type);
                 card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${item.poster_path}" class="w-full h-full object-cover"><div class="movie-info horror-font"><h3 class="text-red-600 font-bold truncate">${item.title || item.name}</h3><p>${item.release_date ? item.release_date.split('-')[0] : (item.first_air_date ? item.first_air_date.split('-')[0] : 'Unknown')}</p></div>`;
                 container.appendChild(card);
             });
@@ -935,35 +1034,26 @@
                 { q: 'Devoured', t: 'movie' },
                 { q: 'The Hoarder', t: 'movie' }
             ];
-            const promises = extremeTitles.map(target =>
+            let promises = extremeTitles.map(target =>
                 fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(target.q)}`)
                 .then(res => res.json())
-                .then(data => data.results?.find(m => m.genre_ids?.includes(27) && m.poster_path) || null)
+                .then(data => data.results ? data.results.filter(item => item.genre_ids && item.genre_ids.includes(27))[0] : null)
             );
-            const results = (await Promise.all(promises)).filter(Boolean);
-            const uniqueMap = new Map();
-            results.forEach(m => {
-                if (!uniqueMap.has(m.id)) {
-                    uniqueMap.set(m.id, { ...m, media_type: 'movie' });
-                    loadedUnratedIds.add(m.id);
-                }
-            });
-            return Array.from(uniqueMap.values());
+            const results = await Promise.all(promises);
+            let movies = results.filter(m => m && m.poster_path);
+            let unique = new Map();
+            movies.forEach(m => { if (!unique.has(m.id)) { unique.set(m.id, m); loadedUnratedIds.add(m.id); } });
+            return Array.from(unique.values()).map(m => ({ ...m, media_type: 'movie' }));
         }
 
         async function fetchExtremeMoviesMore(page) {
             const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&certification_country=US&certification=NR|UR|NC-17&with_keywords=33507|6152|9653|193386|230113&sort_by=popularity.desc&page=${page}`;
             const res = await fetch(url);
             const data = await res.json();
-            const movies = (data.results || []).filter(m => m.poster_path && m.genre_ids?.includes(27) && !loadedUnratedIds.has(m.id));
-            const uniqueMap = new Map();
-            movies.forEach(m => {
-                if (!uniqueMap.has(m.id)) {
-                    uniqueMap.set(m.id, { ...m, media_type: 'movie' });
-                    loadedUnratedIds.add(m.id);
-                }
-            });
-            return Array.from(uniqueMap.values());
+            let movies = (data.results || []).filter(m => m.poster_path && m.genre_ids && m.genre_ids.includes(27) && !loadedUnratedIds.has(m.id));
+            let unique = new Map();
+            movies.forEach(m => { if (!unique.has(m.id)) { unique.set(m.id, m); loadedUnratedIds.add(m.id); } });
+            return Array.from(unique.values()).map(m => ({ ...m, media_type: 'movie' }));
         }
 
         async function fetchAfterDark() {
