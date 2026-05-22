@@ -226,11 +226,21 @@
                     horrorShowPageEn++;
                 }
             } else if (activeType === 'unrated') {
-                // Only horror films with Not Rated, UR, NC-17 — no TV shows
-                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification=NR|UR|NC-17&page=${currentPage}`;
-                const res = await fetch(url);
-                const data = await res.json();
-                results = (data.results || []).map(m => ({ ...m, media_type: 'movie' }));
+                // Only horror: movies with NR/UR/NC-17 and TV with TV-MA, alternating pages
+                const pageTarget = Math.floor((currentPage - 1) / 2) + 1;
+                const isMovieRequest = currentPage % 2 !== 0;
+
+                if (isMovieRequest) {
+                    const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification=NR|UR|NC-17&page=${pageTarget}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    results = (data.results || []).map(m => ({ ...m, media_type: 'movie' }));
+                } else {
+                    const url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&certification_country=US&certification=TV-MA&page=${pageTarget}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    results = (data.results || []).map(t => ({ ...t, media_type: 'tv' }));
+                }
                 currentPage++;
             } else {
                 let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}`;
