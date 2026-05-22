@@ -119,6 +119,8 @@
         // ---- Ghastly Series infinite scroll trackers ----
         let loadedHorrorShowIds = new Set();
         let horrorShowPageEn = 1;
+        // ---- Unrated extreme movies tracker ----
+        let loadedUnratedIds = new Set();
 
         async function fetchContent(append = false) {
             if (isLoading) return;
@@ -144,6 +146,7 @@
                 results = data.results;
             } else if (activeType === 'horror_shows') {
                 if (!append) {
+                    // Reset trackers and load your exactly specified list (filtered to genre 10765)
                     loadedHorrorShowIds.clear();
                     horrorShowPageEn = 1;
 
@@ -200,6 +203,7 @@
                     results = Array.from(uniqueMap.values());
                     currentPage = 1;
                 } else {
+                    // Infinite scroll: only English horror TV using keywords, no non-English shows
                     const horrorKeywords = '33507|6152|9653|193386|230113';
                     const url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_keywords=${horrorKeywords}&sort_by=popularity.desc&page=${horrorShowPageEn}`;
                     const res = await fetch(url);
@@ -224,44 +228,87 @@
                     horrorShowPageEn++;
                 }
             } else if (activeType === 'unrated') {
-                // EXTREME HORROR MOVIES ONLY — No TV shows
+                // EXTREME HORROR MOVIES ONLY (NR, UR, NC-17) - NO TV SHOWS
                 if (!append) {
-                    // Seed extreme titles
-                    const extremeQueries = [
-                        "Terrifier", "Terrifier 2", "I Spit on Your Grave 3", "Seed", "Guinea Pig", "Cannibal Holocaust",
-                        "Grotesque", "Ed Gein", "100 Years", "Wrinkles the Clown", "We Are the Flesh", "The Burning Moon",
-                        "We're All Going to the World's Fair", "The Ice Demon", "Cold Fish", "Housebound", "The Bunny Game",
-                        "Borgman", "Dark Waters", "Toolbox Murders 2: Coffin Baby", "The Kindred", "My House", "Macabre",
-                        "Taxidermia", "Strange Circus", "Devoured", "The Hoarder", "A Serbian Film", "Martyrs", "Inside",
-                        "High Tension", "Frontier(s)", "The Human Centipede", "The Human Centipede 2", "Salo", "Nekromantik",
-                        "Nekromantik 2", "Begotten", "August Underground", "Slaughtered Vomit Dolls", "The House That Jack Built",
-                        "The Girl Next Door", "I Spit on Your Grave", "I Spit on Your Grave 2", "The Last House on the Left",
-                        "The Texas Chain Saw Massacre", "The Hills Have Eyes", "Ebola Syndrome", "Untold Story",
-                        "Guinea Pig: Flower of Flesh and Blood", "Guinea Pig: Mermaid in a Manhole", "Tumbling Doll of Flesh",
-                        "Subconscious Cruelty", "Melancholie der Engel", "The Angels' Melancholia", "Cannibal", "Aftermath",
-                        "Genius Party", "Men Behind the Sun", "Black Sun: The Nanking Massacre", "Philosophy of a Knife",
-                        "Snuff 102", "Atroz", "Trauma", "The Green Elephant", "Vomit Gore Trilogy"
+                    loadedUnratedIds.clear();
+                    const grid = document.getElementById('movie-grid');
+                    grid.innerHTML = '';
+                    blackSection.innerHTML = '';
+
+                    const extremeTitles = [
+                        { q: 'Terrified', t: 'movie' },
+                        { q: 'I Spit on Your Grave 3', t: 'movie' },
+                        { q: 'Seed', t: 'movie' },
+                        { q: 'Guinea Pig', t: 'movie' },
+                        { q: 'Cannibal Holocaust', t: 'movie' },
+                        { q: 'Grotesque', t: 'movie' },
+                        { q: 'Ed Gein', t: 'movie' },
+                        { q: '100 Years', t: 'movie' },
+                        { q: 'Wrinkles the Clown', t: 'movie' },
+                        { q: 'We Are the Flesh', t: 'movie' },
+                        { q: 'The Burning Moon', t: 'movie' },
+                        { q: 'We\'re All Going to the World\'s Fair', t: 'movie' },
+                        { q: 'The Ice Demon', t: 'movie' },
+                        { q: 'Cold Fish', t: 'movie' },
+                        { q: 'Housebound', t: 'movie' },
+                        { q: 'The Bunny Game', t: 'movie' },
+                        { q: 'Borgman', t: 'movie' },
+                        { q: 'Dark Waters', t: 'movie' },
+                        { q: 'Toolbox Murders 2: Coffin Baby', t: 'movie' },
+                        { q: 'The Kindred', t: 'movie' },
+                        { q: 'My House', t: 'movie' },
+                        { q: 'Macabre', t: 'movie' },
+                        { q: 'Taxidermia', t: 'movie' },
+                        { q: 'Strange Circus', t: 'movie' },
+                        { q: 'Devoured', t: 'movie' },
+                        { q: 'The Hoarder', t: 'movie' }
                     ];
-                    let promises = extremeQueries.map(title =>
-                        fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
-                        .then(r => r.json())
-                        .then(data => data.results ? data.results.filter(m => m.genre_ids.includes(27)) : [])
-                    );
+
+                    let promises = [];
+                    extremeTitles.forEach(target => {
+                        promises.push(
+                            fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(target.q)}`)
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.results && data.results.length > 0) {
+                                    return data.results.filter(item => item.genre_ids && item.genre_ids.includes(27));
+                                }
+                                return [];
+                            })
+                        );
+                    });
+
                     const arrays = await Promise.all(promises);
-                    let mixed = [].concat(...arrays);
+                    let aggregated = [].concat(...arrays);
                     let uniqueMap = new Map();
-                    mixed.forEach(m => {
-                        if (m && m.poster_path && !uniqueMap.has(m.id)) uniqueMap.set(m.id, m);
+                    aggregated.forEach(item => {
+                        if (item && item.id && item.poster_path && !uniqueMap.has(item.id)) {
+                            uniqueMap.set(item.id, item);
+                            loadedUnratedIds.add(item.id);
+                        }
                     });
                     results = Array.from(uniqueMap.values());
-                    currentPage = 1;
+                    currentPage = 2; // next fetch will start from page 2
                 } else {
-                    // Infinite extreme horror via discover with extreme keywords and NR/UR/NC-17
-                    const extremeKeywords = 'gore|splatter|torture|body_horror|extreme|snuff|disturbing|sadistic|mutilation|blood|visceral';
-                    const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&certification_country=US&certification=NR|UR|NC-17&with_keywords=${extremeKeywords}&sort_by=popularity.desc&page=${currentPage}`;
+                    // Infinite scroll: extreme NR/UR/NC-17 horror with heavy gore/disturbing keywords
+                    const extremeKeywords = '33507|6152|9653|193386|230113';
+                    const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&certification_country=US&certification=NR|UR|NC-17&with_keywords=${extremeKeywords}&sort_by=popularity.desc&page=${currentPage}`;
                     const res = await fetch(url);
                     const data = await res.json();
-                    results = (data.results || []).map(m => ({ ...m, media_type: 'movie' }));
+                    let fetched = (data.results || []).filter(item => 
+                        item.poster_path && 
+                        item.genre_ids && 
+                        item.genre_ids.includes(27) && 
+                        !loadedUnratedIds.has(item.id)
+                    ).map(m => ({ ...m, media_type: 'movie' }));
+                    let uniqueMap = new Map();
+                    fetched.forEach(item => {
+                        if (!uniqueMap.has(item.id)) {
+                            uniqueMap.set(item.id, item);
+                            loadedUnratedIds.add(item.id);
+                        }
+                    });
+                    results = Array.from(uniqueMap.values());
                     currentPage++;
                 }
             } else {
