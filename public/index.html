@@ -790,7 +790,6 @@
                 "hoodoo", "son of ingagi", "hair wolf", "blood runs down", "black cake",
                 "jagged mind", "talk to me", "the mill", "love potion #9", "the inheritance",
                 "skeleton key", "wake", "mausoleum (1983)", "the house of dies drear (1984)"
-                // Note: TV series omitted to keep tab movie-only.
             ];
 
             // Merge with original huge list to keep all previously hardwired titles (deduplicated later)
@@ -807,7 +806,8 @@
                 .then(data => data.results ? data.results[0] : null)
             );
             const results = await Promise.all(promises);
-            let movies = results.filter(m => m && m.poster_path && m.genre_ids && m.genre_ids.includes(27));
+            // Accept any movie that has a poster_path (no genre filtering for hardwired titles)
+            let movies = results.filter(m => m && m.poster_path);
             let unique = new Map();
             movies.forEach(m => { if (!unique.has(m.id)) { unique.set(m.id, m); loadedBlackHorrorIds.add(m.id); } });
             return Array.from(unique.values());
