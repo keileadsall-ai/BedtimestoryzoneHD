@@ -125,7 +125,7 @@
         let blackHorrorPage = 1;
         let loadedBlackHorrorIds = new Set();
 
-        // ---- Hard‑coded black horror IDs (movie/TV) for instant load ----
+        // ---- Comprehensive Black Horror TMDB ID map (movies & TV) ----
         const BLACK_HORROR_IDS = {
             // Movies
             "Get Out": { id: 419430, type: 'movie' },
@@ -133,11 +133,14 @@
             "Nope": { id: 533535, type: 'movie' },
             "Candyman (1992)": { id: 11599, type: 'movie' },
             "Candyman (2021)": { id: 565770, type: 'movie' },
+            "Candyman: Day of the Dead (1999)": { id: 12093, type: 'movie' },
             "Blacula": { id: 11687, type: 'movie' },
             "Scream Blacula Scream": { id: 31180, type: 'movie' },
             "Def by Temptation": { id: 126003, type: 'movie' },
             "Eve's Bayou": { id: 10234, type: 'movie' },
             "Tales from the Hood": { id: 14534, type: 'movie' },
+            "Tales from the Hood 2": { id: 479737, type: 'movie' },
+            "Tales from the Hood 3": { id: 695670, type: 'movie' },
             "Ganja & Hess": { id: 11108, type: 'movie' },
             "The People Under the Stairs": { id: 11336, type: 'movie' },
             "Vampires vs. the Bronx": { id: 462329, type: 'movie' },
@@ -148,7 +151,7 @@
             "Da Sweet Blood of Jesus": { id: 275764, type: 'movie' },
             "Demon Knight": { id: 9593, type: 'movie' },
             "Vampire in Brooklyn": { id: 10066, type: 'movie' },
-            "Abby": { id: 17561, type: 'movie' },
+            "Abby": { id: 90830, type: 'movie' },
             "Blackenstein": { id: 28269, type: 'movie' },
             "Slaughter": { id: 28775, type: 'movie' },
             "The Spook Who Sat by the Door": { id: 36669, type: 'movie' },
@@ -162,15 +165,19 @@
             "The Invitation": { id: 615904, type: 'movie' },
             "The House": { id: 736546, type: 'movie' },
             "The Last House on the Left": { id: 18405, type: 'movie' },
+            "The First Purge": { id: 442249, type: 'movie' },
             "The Purge": { id: 158015, type: 'movie' },
+            "The Purge: Anarchy": { id: 238636, type: 'movie' },
+            "The Purge: Election Year": { id: 316152, type: 'movie' },
             "The Ritual": { id: 421547, type: 'movie' },
             "The Skeleton Key": { id: 7553, type: 'movie' },
+            "Skeleton Key": { id: 7553, type: 'movie' },
             "The Covenant": { id: 1891, type: 'movie' },
             "Fallen": { id: 9909, type: 'movie' },
             "Bad Hair": { id: 526050, type: 'movie' },
+            "Bad Hair (2020)": { id: 526050, type: 'movie' },
             "Bleeding Rose": { id: 647946, type: 'movie' },
             "Urban Cannibal Massacre": { id: 80278, type: 'movie' },
-            "The Other Black Girl": { id: 119730, type: 'tv' },
             "Horror Noire": { id: 532675, type: 'movie' },
             "Attack the Block": { id: 49026, type: 'movie' },
             "The Girl with All the Gifts": { id: 322456, type: 'movie' },
@@ -185,6 +192,7 @@
             "Gothika": { id: 9664, type: 'movie' },
             "The Deliverance": { id: 615430, type: 'movie' },
             "Nanny": { id: 812244, type: 'movie' },
+            "Nanny (2022)": { id: 812244, type: 'movie' },
             "They Cloned Tyrone": { id: 739548, type: 'movie' },
             "Soft & Quiet": { id: 896534, type: 'movie' },
             "Talk to Me": { id: 671, type: 'movie' },
@@ -194,6 +202,7 @@
             "Queen of the Damned": { id: 8605, type: 'movie' },
             "Spawn": { id: 9315, type: 'movie' },
             "The Reading": { id: 870789, type: 'movie' },
+            "The Reading (2023)": { id: 870789, type: 'movie' },
             "Ma": { id: 452832, type: 'movie' },
             "Scary Movie": { id: 9605, type: 'movie' },
             "Scary Movie 2": { id: 9768, type: 'movie' },
@@ -206,8 +215,6 @@
             "Boo! A Madea Halloween": { id: 346364, type: 'movie' },
             "Boo 2! A Madea Halloween": { id: 430117, type: 'movie' },
             "The Transfiguration": { id: 396810, type: 'movie' },
-            "Tales from the Hood 2": { id: 479737, type: 'movie' },
-            "Tales from the Hood 3": { id: 695670, type: 'movie' },
             "Murder in the Woods": { id: 785494, type: 'movie' },
             "Kandisha": { id: 796360, type: 'movie' },
             "Gang of Souls": { id: 42374, type: 'movie' },
@@ -235,6 +242,7 @@
             "The Horrible Dr. Bones": { id: 118448, type: 'movie' },
             "Zombiez": { id: 43743, type: 'movie' },
             "Holla": { id: 30158, type: 'movie' },
+            "Holla (2006)": { id: 30158, type: 'movie' },
             "The Maintenance Man": { id: 69717, type: 'movie' },
             "Nite Tales": { id: 41498, type: 'movie' },
             "Nite Tales: The Movie": { id: 20645, type: 'movie' },
@@ -264,21 +272,137 @@
             "Initiation": { id: 606234, type: 'movie' },
             "Carnival of Souls": { id: 19418, type: 'movie' },
             "House of Fears": { id: 14873, type: 'movie' },
+            "Thriller": { id: 541100, type: 'movie' },
+            "The Boy Behind the Door": { id: 741613, type: 'movie' },
+            "Leprechaun in the Hood": { id: 18011, type: 'movie' },
+            "Sinners": { id: 1233413, type: 'movie' },
+            "Bodies Bodies Bodies": { id: 520023, type: 'movie' },
+            "Tragedy Girls": { id: 423409, type: 'movie' },
+            "I Still Know What You Did Last Summer": { id: 3600, type: 'movie' },
+            "Kindred": { id: 566525, type: 'movie' },
+            "Run Sweetheart Run": { id: 675327, type: 'movie' },
+            "The Exorcist: Believer": { id: 675353, type: 'movie' },
+            "The Haunted Mansion": { id: 377897, type: 'movie' },
+            "Haunted Mansion": { id: 377897, type: 'movie' },
+            "Black Devil Doll from Hell": { id: 35120, type: 'movie' },
+            "Black Devil Doll from Hell (1984)": { id: 35120, type: 'movie' },
+            "Vampiyaz": { id: 167245, type: 'movie' },
+            "Kuso": { id: 437940, type: 'movie' },
+            "Titanic 666": { id: 897087, type: 'movie' },
+            "Bloodsucka Jones": { id: 306300, type: 'movie' },
+            "Ooga Booga": { id: 176639, type: 'movie' },
+            "The Intruder": { id: 519176, type: 'movie' },
+            "Fatal Affair": { id: 720598, type: 'movie' },
+            "Run": { id: 542403, type: 'movie' },
+            "No Good Deed": { id: 256591, type: 'movie' },
+            "The Perfect Guy": { id: 339408, type: 'movie' },
+            "When the Bough Breaks": { id: 337341, type: 'movie' },
+            "Til Death Do Us Part": { id: 455957, type: 'movie' },
+            "Shadow: Dead Riot": { id: 28195, type: 'movie' },
+            "Caught Up": { id: 17035, type: 'movie' },
+            "The Reunion": { id: 89502, type: 'movie' },
+            "Single Black Female": { id: 984200, type: 'movie' },
+            "Black Girl Missing": { id: 1034547, type: 'movie' },
+            "Woman in the Yard": { id: 1106731, type: 'movie' },
+            "The Piano Lesson": { id: 700777, type: 'movie' },
+            "The Changeling": { id: 53182, type: 'movie' },
+            "Eye for an Eye": { id: 57718, type: 'movie' },
+            "Crossroads": { id: 12094, type: 'movie' },
+            "To Sleep with Anger": { id: 51745, type: 'movie' },
+            "Hoodoo": { id: 84134, type: 'movie' },
+            "The Mill": { id: 864750, type: 'movie' },
+            "Jagged Mind": { id: 1058627, type: 'movie' },
+            "Black Cake": { id: 1068355, type: 'movie' },
+            "Blood Runs Down": { id: 498249, type: 'movie' },
+            "Wake": { id: 314385, type: 'movie' },
+            "Mausoleum (1983)": { id: 42532, type: 'movie' },
+            "The House of Dies Drear (1984)": { id: 278005, type: 'movie' },
+            "Dear Frank": { id: 1094510, type: 'movie' },
+            "Strung (2026)": { id: 1300746, type: 'movie' },
+            "Maluma": { id: 554993, type: 'movie' },
+            "Dark Match": { id: 1039405, type: 'movie' },
+            "Rituals (1998)": { id: 44801, type: 'movie' },
+            "Love Potion #9": { id: 15551, type: 'movie' },
+            "The Soul Collector": { id: 547332, type: 'movie' },
+            "Devil to Pay": { id: 669758, type: 'movie' },
+            "We Belong Together": { id: 494272, type: 'movie' },
+            "The Confidant": { id: 315168, type: 'movie' },
+            "Uninvited Guest": { id: 23069, type: 'movie' },
+            "Fanatic": { id: 40075, type: 'movie' },
+            "The Deadly Getaway": { id: 1065742, type: 'movie' },
+            "Trigger": { id: 299245, type: 'movie' },
+            "Trophy Wife": { id: 213121, type: 'movie' },
+            "Twice Bitten": { id: 692438, type: 'movie' },
+            "Nailed (2006)": { id: 52888, type: 'movie' },
+            "The Stepdaughter": { id: 434750, type: 'movie' },
+            "Hood of the Living Dead (2005)": { id: 101537, type: 'movie' },
+            "The Last Letter": { id: 237534, type: 'movie' },
+            "Tara (2001)": { id: 50434, type: 'movie' },
+            "Incognito": { id: 15566, type: 'movie' },
+            "N-Secure": { id: 99405, type: 'movie' },
+            "Intimate Betrayal": { id: 146049, type: 'movie' },
+            "Only for One Night": { id: 448521, type: 'movie' },
+            "Playing with Fire (2000)": { id: 61410, type: 'movie' },
+            "Assistant": { id: 1066934, type: 'movie' },
+            "Tyler Perry's Duplicity": { id: 1034544, type: 'movie' },
+            "Hunther": { id: 1051356, type: 'movie' },
+            "Single Black Tenant": { id: 1229232, type: 'movie' },
+            "Running Out of Time": { id: 31932, type: 'movie' },
+            "Alone Together": { id: 1065316, type: 'movie' },
+            "Newborn": { id: 1203395, type: 'movie' },
+            "Mr. Crocket": { id: 1038370, type: 'movie' },
+            "The Front Room": { id: 1114899, type: 'movie' },
+            "Haunted Trail": { id: 802116, type: 'movie' },
+            "7 Churches": { id: 1231168, type: 'movie' },
+            "Don't Let Go": { id: 508442, type: 'movie' },
+            "Always and Forever": { id: 603655, type: 'movie' },
+            "Trick": { id: 506763, type: 'movie' },
+            "Venom": { id: 14609, type: 'movie' },
+            "Project Purgatory": { id: 1147039, type: 'movie' },
+            "Asunder": { id: 592863, type: 'movie' },
+            "Urban Evil": { id: 18807, type: 'movie' },
+            "Nicole": { id: 793285, type: 'movie' },
+            "West of Hell": { id: 480042, type: 'movie' },
+            "Wayward": { id: 1077134, type: 'movie' },
+            "We Can't All Die First": { id: 1310748, type: 'movie' },
+            "Ten: Murder Island": { id: 412528, type: 'movie' },
+            "Hair Wolf": { id: 551805, type: 'movie' },
+            "Blackstock Boneyard": { id: 803355, type: 'movie' },
+            "Hoodoo": { id: 84134, type: 'movie' },
+            "Son of Ingagi": { id: 50699, type: 'movie' },
+            "Slice": { id: 455644, type: 'movie' },
+            "Him": { id: 1026918, type: 'movie' },
+            "HIM (2025)": { id: 1026918, type: 'movie' },
+            "Welcome (2025)": { id: 1304894, type: 'movie' },
+            "The Strays": { id: 955041, type: 'movie' },
+            "Now Eat": { id: 1071896, type: 'movie' },
+            "Dr. Black Mr. Hyde": { id: 22043, type: 'movie' },
+            "Crazy as Hell": { id: 70074, type: 'movie' },
+            "Bones": { id: 9086, type: 'movie' },
+            "The Beast Must Die": { id: 38714, type: 'movie' },
+            "The Blood of Jesus": { id: 42798, type: 'movie' },
+            "Ouanga": { id: 266285, type: 'movie' },
+            "Devil's Express": { id: 22907, type: 'movie' },
+            "Voodoo Heartbeat": { id: 71744, type: 'movie' },
+            "Midnight Shadow": { id: 29255, type: 'movie' },
+            "The Devil's Daughter": { id: 173673, type: 'movie' },
             // TV series
             "Lovecraft Country": { id: 97957, type: 'tv' },
+            "Lovecraft Country (2020)": { id: 97957, type: 'tv' },
             "Them": { id: 105846, type: 'tv' },
+            "Them (2020)": { id: 105846, type: 'tv' },
             "Swarm": { id: 161083, type: 'tv' },
+            "Swarm (2023)": { id: 161083, type: 'tv' },
             "The Other Black Girl": { id: 119730, type: 'tv' },
+            "The Other Black Girl (2023)": { id: 119730, type: 'tv' },
             "Archive 81": { id: 120168, type: 'tv' },
+            "Archive 81 (2022)": { id: 120168, type: 'tv' },
             "Jordan Peele's Twilight Zone": { id: 85552, type: 'tv' },
             "Forest Whittaker's Twilight Zone": { id: 85552, type: 'tv' },
             "American Horror Story Coven": { id: 1413, type: 'tv' },
-            "Them (2020)": { id: 105846, type: 'tv' },
             "From (2022)": { id: 129187, type: 'tv' },
-            "Lovecraft Country (2020)": { id: 97957, type: 'tv' },
-            "Swarm (2023)": { id: 161083, type: 'tv' },
-            "The Other Black Girl (2023)": { id: 119730, type: 'tv' },
-            "Archive 81 (2022)": { id: 120168, type: 'tv' },
+            "Kindred (2022)": { id: 135651, type: 'tv' },
+            "The Changeling (2023)": { id: 126088, type: 'tv' },
         };
 
         async function resolveTitleToItems(title) {
@@ -311,6 +435,7 @@
             return items;
         }
 
+        // Extended black actor IDs + additional IDs for discover
         const UNIQUE_BLACK_IDS = [...new Set([
             147, 20810, 2963, 16582, 134, 17259, 538, 78029, 521, 17697,
             76748, 97169, 25619, 2372, 64235, 34503, 15313, 856, 16214,
@@ -318,7 +443,12 @@
             8691, 1813, 714, 1264, 5049, 15860, 335, 5463, 36196, 65731,
             15001, 10205, 9281, 56159, 1103, 77801, 16484, 4247, 12138,
             12000, 9775, 1566, 438, 10750, 5921, 11109, 3547, 15090, 14344,
-            5443, 16307, 822, 6949, 10860, 291, 17838, 141251
+            5443, 16307, 822, 6949, 10860, 291, 17838, 141251,
+            933, 4517, 5064, 6193, 7420, 8210, 8266, 8318, 8687, 8783, 8832,
+            8932, 9318, 9440, 9599, 9665, 9716, 9780, 9879, 9913, 10025,
+            10093, 10182, 10356, 10402, 10556, 10797, 10828, 10882, 11087,
+            11207, 11288, 11518, 11857, 11916, 12190, 12440, 12520, 12642,
+            12778, 12830, 12897, 12984, 13151, 13217, 13378, 13413, 13641
         ])];
 
         async function fetchContent(append = false) {
@@ -340,8 +470,9 @@
             if (activeType === 'black_horror') {
                 if (!append) {
                     const allTitles = [
-                        "Get Out","Us","Nope","Candyman","Blacula","Scream Blacula Scream","Def by Temptation","Eve's Bayou","Tales from the Hood","Ganja & Hess","The People Under the Stairs","Vampires vs. the Bronx","Spell","Antebellum","His House","Black Box","Da Sweet Blood of Jesus","Demon Knight","Vampire in Brooklyn","Abby","Blackenstein","Slaughter","The Spook Who Sat by the Door","The House on Skull Mountain","J.D.'s Revenge","Sugar Hill","The Serpent and the Rainbow","Voodoo Dawn","Night of the Living Dead","The Blackening","The Invitation","The House","The Last House on the Left","The Purge","The Ritual","The Skeleton Key","The Covenant","Fallen","Bad Hair","Bleeding Rose","Urban Cannibal Massacre","Horror Noire","Attack the Block","The Girl with All the Gifts","Master","Diary of a Mad Black Woman","Hood of Horror","The Evil One","Frankenfish","Beloved","House on Haunted Hill","Constantine","Gothika","The Deliverance","Nanny","They Cloned Tyrone","Soft & Quiet","Talk to Me","Blade","Blade II","Blade: Trinity","Queen of the Damned","Spawn","The Reading","Ma","Scary Movie","Scary Movie 2","Scary Movie 3","A Haunted House","A Haunted House 2","Meet the Blacks","Meet the Blacks 2: The House Next Door","Fear of a Black Hat","Boo! A Madea Halloween","Boo 2! A Madea Halloween","The Transfiguration","Tales from the Hood 2","Tales from the Hood 3","Murder in the Woods","Kandisha","Gang of Souls","The House Invictus","The Angry Black Girl and Her Monster","Surrounded","They Remain","Jacob's Ladder","House Party: Tonight's the Night","The Summoned","The Inheritance","Killjoy","Killjoy 2: Deliverance from Evil","Killjoy 3","Killjoy Goes to Hell","Killjoy's Psycho Circus","Ragdoll","Hellbound","Beneath Loch Ness","Motives","Motives 2","The Grim Reaper","Wes Craven Presents: Dracula II Ascension","Wes Craven Presents: Dracula III Legacy","The Horrible Dr. Bones","Zombiez","Holla","The Maintenance Man","Nite Tales","Nite Tales: The Movie","The Dread","Circle of Eight","Trapped: Haitian Nights","The Dead One","Shallow Ground","The Fear Chamber","I Madman","Killer Weekend","Boo","The Cookout","Somebody Help Me","Somebody Help Me 2","Chain Letter","Cutthroat Alley","Killer Instinct","BlinkyTM","Camp Blood 8: Revelations","Jigsaw","Slaughter's Big Rip-Off","The Skarehouse","Minutes Past Midnight","Hell Fest","There's Someone Inside Your House","Initiation","Carnival of Souls","House of Fears",
-                        "Thriller","The Boy Behind the Door","Abby (1974)","The Candy Man","Leprechaun in the Hood","Sinners","Tragedy Girls","Slice","Bodies Bodies Bodies","I Still Know What You Did Last Summer","Him","The Strays","Them (2020)","They Cloned Tyrone","Queen of the Damned","Crazy as Hell","Somebody Help Me","Now Eat","Dr. Black Mr. Hyde","Bloodsucka Jones","Ooga Booga","Black Devil Doll from Hell","The Reading (2023)","Vampiyaz","Asunder","Urban Evil","Venom","Project Purgatory","Trick","Don't Let Go","Always and Forever","Kindred","Run Sweetheart Run","Nicole","Jacob's Ladder","West of Hell","They Remain","Titanic 666","Wayward","The Exorcist: Believer","The Angry Black Girl and Her Monster","The Haunted Mansion","7 Churches","Haunted Trail","The Front Room","Mr. Crocket","Alone Together","Newborn","Single Black Female","Running Out of Time","Single Black Tenant","When the Bough Breaks","N-Secure","Intimate Betrayal","Trois: Pandora's Box (2002)","Only for One Night","Playing with Fire (2000)","The House Invictus","Assistant","Tyler Perry's Duplicity","Hunther","American Horror Story Coven (2013)","Holla (2006)","The Deadly Getaway","Trigger","Trophy Wife","Twice Bitten","Nailed (2006)","The Stepdaughter","Hood of the Living Dead (2005)","The Last Letter","No Good Deed","Tara (2001)","The Perfect Guy","Incognito","Candyman: Day of the Dead (1999)","Bad Hair (2020)","Black Devil Doll from Hell (1984)","Candyman (2021)","HIM (2025)","Welcome (2025)","Black Girl Missing","Shadow: Dead Riot","The Intruder","Fanatic","We Belong Together","The Confidant","The Haunting in Connecticut 2: Ghosts of Georgia","Til Death Do Us Part","Fatal Affair","The Reunion","Run","From (2022)","Lovecraft Country (2020)","Swarm (2023)","The Other Black Girl (2023)","Archive 81 (2022)","The First Purge","Uninvited Guest","Caught Up","Blackstock Boneyard","Jordan Peele's Twilight Zone","Eve's Bayou","Forest Whittaker's Twilight Zone","Rituals (1998)","Dark Match","Kuso","A Haunted House","Eye for an Eye","Woman in the Yard","Ten: Murder Island","Dear Frank","Strung (2026)","The Spook Who Sat by the Door","We Can't All Die First","Maluma","The Soul Collector","Devil to Pay","The Changeling","The Piano Lesson","Haunted Mansion","Nanny (2022)","To Sleep with Anger","Crossroads","Hoodoo","Son of Ingagi","Hair Wolf","Blood Runs Down","Black Cake","Jagged Mind","The Mill","Love Potion #9","The Inheritance","Skeleton Key","Wake","Mausoleum (1983)","The House of Dies Drear (1984)"
+                        "Get Out","Us","Nope","Candyman","Blacula","Scream Blacula Scream","Def by Temptation","Eve's Bayou","Tales from the Hood","Ganja & Hess","The People Under the Stairs","Vampires vs. the Bronx","Spell","Antebellum","His House","Black Box","Da Sweet Blood of Jesus","Demon Knight","Vampire in Brooklyn","Abby","Blackenstein","Slaughter","The Spook Who Sat by the Door","The House on Skull Mountain","J.D.'s Revenge","Sugar Hill","The Serpent and the Rainbow","Voodoo Dawn","Night of the Living Dead","The Blackening","The Invitation","The House","The Last House on the Left","The First Purge","The Purge","The Purge: Anarchy","The Purge: Election Year","The Ritual","The Skeleton Key","The Covenant","Fallen","Bad Hair","Bleeding Rose","Urban Cannibal Massacre","Horror Noire","Attack the Block","The Girl with All the Gifts","Master","Diary of a Mad Black Woman","Hood of Horror","The Evil One","Frankenfish","Beloved","House on Haunted Hill","Constantine","Gothika","The Deliverance","Nanny","They Cloned Tyrone","Soft & Quiet","Talk to Me","Blade","Blade II","Blade: Trinity","Queen of the Damned","Spawn","The Reading","Ma","Scary Movie","Scary Movie 2","Scary Movie 3","A Haunted House","A Haunted House 2","Meet the Blacks","Meet the Blacks 2: The House Next Door","Fear of a Black Hat","Boo! A Madea Halloween","Boo 2! A Madea Halloween","The Transfiguration","Tales from the Hood 2","Tales from the Hood 3","Murder in the Woods","Kandisha","Gang of Souls","The House Invictus","The Angry Black Girl and Her Monster","Surrounded","They Remain","Jacob's Ladder","House Party: Tonight's the Night","The Summoned","The Inheritance","Killjoy","Killjoy 2: Deliverance from Evil","Killjoy 3","Killjoy Goes to Hell","Killjoy's Psycho Circus","Ragdoll","Hellbound","Beneath Loch Ness","Motives","Motives 2","The Grim Reaper","Wes Craven Presents: Dracula II Ascension","Wes Craven Presents: Dracula III Legacy","The Horrible Dr. Bones","Zombiez","Holla","The Maintenance Man","Nite Tales","Nite Tales: The Movie","The Dread","Circle of Eight","Trapped: Haitian Nights","The Dead One","Shallow Ground","The Fear Chamber","I Madman","Killer Weekend","Boo","The Cookout","Somebody Help Me","Somebody Help Me 2","Chain Letter","Cutthroat Alley","Killer Instinct","BlinkyTM","Camp Blood 8: Revelations","Jigsaw","Slaughter's Big Rip-Off","The Skarehouse","Minutes Past Midnight","Hell Fest","There's Someone Inside Your House","Initiation","Carnival of Souls","House of Fears",
+                        "Thriller","The Boy Behind the Door","Abby (1974)","The Candy Man","Leprechaun in the Hood","Sinners","Tragedy Girls","Slice","Bodies Bodies Bodies","I Still Know What You Did Last Summer","Him","The Strays","Them (2020)","They Cloned Tyrone","Queen of the Damned","Crazy as Hell","Somebody Help Me","Now Eat","Dr. Black Mr. Hyde","Bloodsucka Jones","Ooga Booga","Black Devil Doll from Hell","The Reading (2023)","Vampiyaz","Asunder","Urban Evil","Venom","Project Purgatory","Trick","Don't Let Go","Always and Forever","Kindred","Run Sweetheart Run","Nicole","Jacob's Ladder","West of Hell","They Remain","Titanic 666","Wayward","The Exorcist: Believer","The Angry Black Girl and Her Monster","The Haunted Mansion","7 Churches","Haunted Trail","The Front Room","Mr. Crocket","Alone Together","Newborn","Single Black Female","Running Out of Time","Single Black Tenant","When the Bough Breaks","N-Secure","Intimate Betrayal","Trois: Pandora's Box (2002)","Only for One Night","Playing with Fire (2000)","The House Invictus","Assistant","Tyler Perry's Duplicity","Hunther","American Horror Story Coven (2013)","Holla (2006)","The Deadly Getaway","Trigger","Trophy Wife","Twice Bitten","Nailed (2006)","The Stepdaughter","Hood of the Living Dead (2005)","The Last Letter","No Good Deed","Tara (2001)","The Perfect Guy","Incognito","Candyman: Day of the Dead (1999)","Bad Hair (2020)","Black Devil Doll from Hell (1984)","Candyman (2021)","HIM (2025)","Welcome (2025)","Black Girl Missing","Shadow: Dead Riot","The Intruder","Fanatic","We Belong Together","The Confidant","The Haunting in Connecticut 2: Ghosts of Georgia","Til Death Do Us Part","Fatal Affair","The Reunion","Run","From (2022)","Lovecraft Country (2020)","Swarm (2023)","The Other Black Girl (2023)","Archive 81 (2022)","Uninvited Guest","Caught Up","Blackstock Boneyard","Jordan Peele's Twilight Zone","Eve's Bayou","Forest Whittaker's Twilight Zone","Rituals (1998)","Dark Match","Kuso","A Haunted House","Eye for an Eye","Woman in the Yard","Ten: Murder Island","Dear Frank","Strung (2026)","The Spook Who Sat by the Door","We Can't All Die First","Maluma","The Soul Collector","Devil to Pay","The Changeling","The Piano Lesson","Haunted Mansion","Nanny (2022)","To Sleep with Anger","Crossroads","Hoodoo","Son of Ingagi","Hair Wolf","Blood Runs Down","Black Cake","Jagged Mind","The Mill","Love Potion #9","The Inheritance","Skeleton Key","Wake","Mausoleum (1983)","The House of Dies Drear (1984)",
+                        "Bones","The Beast Must Die","The Blood of Jesus","Ouanga","Devil's Express","Voodoo Heartbeat","Midnight Shadow","The Devil's Daughter"
                     ];
                     const uniqueTitles = [...new Set(allTitles)];
                     let allItems = [];
@@ -359,19 +490,20 @@
                     isLoading = false;
                     return;
                 } else {
+                    // Infinite scroll: combine multiple discover sources
                     const actorIdsParam = UNIQUE_BLACK_IDS.join('|');
-                    const movieUrl = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_people=${actorIdsParam}&with_keywords=233306|209825&sort_by=popularity.desc&page=${blackHorrorPage}`;
-                    const tvUrl = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_people=${actorIdsParam}&with_keywords=233306|209825&sort_by=popularity.desc&page=${blackHorrorPage}`;
-                    const [movieRes, tvRes] = await Promise.all([fetch(movieUrl), fetch(tvUrl)]);
-                    const movieData = await movieRes.json();
-                    const tvData = await tvRes.json();
+                    const urls = [
+                        `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_people=${actorIdsParam}&with_keywords=233306|209825&sort_by=popularity.desc&page=${blackHorrorPage}`,
+                        `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_people=${actorIdsParam}&with_keywords=233306|209825&sort_by=popularity.desc&page=${blackHorrorPage}`,
+                        `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=233306&sort_by=popularity.desc&page=${blackHorrorPage}`, // blaxploitation keyword
+                        `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=209825&sort_by=popularity.desc&page=${blackHorrorPage}`, // african american keyword
+                    ];
+                    const responses = await Promise.all(urls.map(url => fetch(url).then(r => r.json())));
                     let items = [];
-                    (movieData.results || []).forEach(m => {
-                        if (m.poster_path && !loadedBlackHorrorIds.has(m.id)) items.push({...m, media_type:'movie'});
-                    });
-                    (tvData.results || []).forEach(t => {
-                        if (t.poster_path && !loadedBlackHorrorIds.has(t.id)) items.push({...t, media_type:'tv'});
-                    });
+                    responses[0].results && responses[0].results.forEach(m => { if (m.poster_path && !loadedBlackHorrorIds.has(m.id)) items.push({...m, media_type:'movie'}); });
+                    responses[1].results && responses[1].results.forEach(t => { if (t.poster_path && !loadedBlackHorrorIds.has(t.id)) items.push({...t, media_type:'tv'}); });
+                    responses[2].results && responses[2].results.forEach(m => { if (m.poster_path && !loadedBlackHorrorIds.has(m.id)) items.push({...m, media_type:'movie'}); });
+                    responses[3].results && responses[3].results.forEach(m => { if (m.poster_path && !loadedBlackHorrorIds.has(m.id)) items.push({...m, media_type:'movie'}); });
                     let unique = new Map();
                     items.forEach(item => {
                         if (!unique.has(item.id)) {
@@ -399,7 +531,6 @@
                 if (!append) {
                     loadedHorrorShowIds.clear();
                     horrorShowPageEn = 1;
-
                     let promises = [];
                     const specifiedShows = [
                         'The Walking Dead: Dead City', 'Them', 'American Horror Story', 'American Horror Stories', 
@@ -426,7 +557,6 @@
                         'Dead Still', 'Dead of Summer', 'In the Flesh', 'The Enfield Haunting', 'Dead House Dark', 
                         'Hellsing', 'Bag of Bones', "Freddy's Nightmares", 'Light as a Feather'
                     ];
-
                     specifiedShows.forEach(title => {
                         promises.push(
                             fetch(`https://api.themoviedb.org/3/search/tv?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
@@ -439,10 +569,8 @@
                             })
                         );
                     });
-
                     const arrays = await Promise.all(promises);
                     let mixedResults = [].concat(...arrays);
-                    
                     let uniqueMap = new Map();
                     mixedResults.forEach(item => {
                         if (item && item.id && item.poster_path && !uniqueMap.has(item.id)) {
@@ -491,441 +619,9 @@
                     if (!append) {
                         let promises = [];
                         const targetQueries = [
-                            // ----- YOUR EXACT SPECIFIED TITLES -----
-                            { q: 'Twitches', t: 'movie' },
-                            { q: 'Twitches Too', t: 'movie' },
-                            { q: 'The Haunted Mansion', t: 'movie' },
-                            { q: 'Scooby-Doo', t: 'movie' },
-                            { q: 'Scooby-Doo', t: 'tv' },
-                            { q: 'Courage the Cowardly Dog', t: 'tv' },
-                            { q: 'Beetlejuice', t: 'movie' },
-                            { q: 'Beetlejuice Beetlejuice', t: 'movie' },
-                            { q: 'Coraline', t: 'movie' },
-                            { q: 'Halloweentown', t: 'movie' },
-                            { q: 'Haunt', t: 'movie' },
-                            { q: 'Poltergeist', t: 'movie' },
-                            { q: 'Finders Keepers', t: 'movie' },
-                            { q: 'The Witches', t: 'movie' },
-                            { q: 'Hotel Transylvania', t: 'movie' },
-                            { q: 'Hocus Pocus', t: 'movie' },
-                            { q: 'Are You Afraid of the Dark?', t: 'tv' },
-                            { q: 'Scare Tactics', t: 'tv' },
-                            { q: 'Casper', t: 'movie' },
-                            { q: 'Charmed', t: 'tv' },
-                            { q: 'Hide and Seek', t: 'movie' },
-                            { q: 'The Craft', t: 'movie' },
-                            { q: 'The Faculty', t: 'movie' },
-                            { q: 'Body Snatchers', t: 'movie' },
-                            { q: 'The Wretched', t: 'movie' },
-                            { q: 'Thriller', t: 'movie' },
-                            { q: 'Dead Tone', t: 'movie' },
-                            { q: 'Secrets in the Walls', t: 'movie' },
-                            { q: 'Cabin by the Lake', t: 'movie' },
-                            { q: 'Within', t: 'movie' },
-                            { q: 'The Omen', t: 'movie' },
-                            { q: 'Omen II: Damian', t: 'movie' },
-                            { q: 'Omen IV: The Awakening', t: 'movie' },
-                            { q: 'Pet Sematary', t: 'movie' },
-                            { q: 'Heart-Shaped Box', t: 'movie' },
-                            { q: 'Devil\'s Pond', t: 'movie' },
-                            { q: 'Devil in Disguise', t: 'movie' },
-                            { q: 'Perfect Blue', t: 'movie' },
-                            { q: 'Chainsaw Man', t: 'tv' },
-                            { q: 'See No Evil', t: 'movie' },
-                            { q: 'Angels of Death', t: 'tv' },
-                            { q: 'Vampire Hunter D', t: 'movie' },
-                            { q: 'Demon Slayer', t: 'tv' },
-                            { q: 'Shiki', t: 'tv' },
-                            { q: 'Corpse Party', t: 'movie' },
-                            { q: 'Smile', t: 'movie' },
-                            { q: 'Smile 2', t: 'movie' },
-                            { q: 'Truth or Dare', t: 'movie' },
-                            { q: 'I Know What You Did Last Summer', t: 'movie' },
-                            { q: 'Leprechaun', t: 'movie' },
-                            { q: 'Highschool of the Dead', t: 'tv' },
-                            { q: 'Midori: The Camellia Girl', t: 'movie' },
-                            { q: 'Death Note', t: 'tv' },
-                            { q: 'Fear Street', t: 'movie' },
-                            { q: 'Paranormal Activity', t: 'movie' },
-                            { q: 'The Skeleton Key', t: 'movie' },
-                            { q: 'The Haunting', t: 'movie' },
-                            { q: 'Hatchet', t: 'movie' },
-                            { q: 'Evil Dead', t: 'movie' },
-                            { q: 'Cabin Fear', t: 'movie' },
-                            { q: 'Party Night', t: 'movie' },
-                            { q: 'Fear Inc.', t: 'movie' },
-                            { q: 'Most Likely to Die', t: 'movie' },
-                            { q: 'Don\'t Hang Up', t: 'movie' },
-                            { q: 'Better Watch Out', t: 'movie' },
-                            { q: 'Tragedy Girls', t: 'movie' },
-                            { q: 'Blood Fest', t: 'movie' },
-                            { q: 'All the Boys Love Mandy Lane', t: 'movie' },
-                            { q: 'Donkey Punch', t: 'movie' },
-                            { q: 'Hell Fest', t: 'movie' },
-                            { q: 'Urban Legend', t: 'movie' },
-                            { q: 'Bait', t: 'movie' },
-                            { q: 'Funny Games', t: 'movie' },
-                            { q: 'Devil\'s Diary', t: 'movie' },
-                            { q: 'Friends \'Til the End', t: 'movie' },
-                            { q: 'The Good Son', t: 'movie' },
-                            { q: 'The Bad Seed', t: 'movie' },
-                            { q: 'Devil', t: 'movie' },
-                            { q: 'The Stepfather', t: 'movie' },
-                            { q: 'No One Would Tell', t: 'movie' },
-                            { q: 'The Haunting of Sorority Row', t: 'movie' },
-                            { q: 'Prom Night', t: 'movie' },
-                            { q: 'The Sitter', t: 'movie' },
-                            { q: 'Kristy', t: 'movie' },
-                            { q: 'The Bride He Bought Online', t: 'movie' },
-                            { q: 'Russian Bride', t: 'movie' },
-                            { q: 'You', t: 'tv' },
-                            { q: 'Case 39', t: 'movie' },
-                            { q: 'The Rage: Carrie 2', t: 'movie' },
-                            { q: 'Final Destination', t: 'movie' },
-                            { q: 'Buffy the Vampire Slayer', t: 'tv' },
-                            { q: 'Goosebumps', t: 'tv' },
-                            // ----- ADDITIONAL YOUTH-APPROPRIATE TITLES (no duplicates, all horror) -----
-                            { q: 'Gremlins', t: 'movie' },
-                            { q: 'Gremlins 2: The New Batch', t: 'movie' },
-                            { q: 'Ghostbusters', t: 'movie' },
-                            { q: 'Ghostbusters II', t: 'movie' },
-                            { q: 'The Nightmare Before Christmas', t: 'movie' },
-                            { q: 'Corpse Bride', t: 'movie' },
-                            { q: 'Frankenweenie', t: 'movie' },
-                            { q: 'ParaNorman', t: 'movie' },
-                            { q: 'Monster House', t: 'movie' },
-                            { q: 'The Spiderwick Chronicles', t: 'movie' },
-                            { q: 'The Addams Family', t: 'movie' },
-                            { q: 'Addams Family Values', t: 'movie' },
-                            { q: 'The Little Vampire', t: 'movie' },
-                            { q: 'Scooby-Doo 2: Monsters Unleashed', t: 'movie' },
-                            { q: 'Tremors', t: 'movie' },
-                            { q: 'Eight Legged Freaks', t: 'movie' },
-                            { q: 'Arachnophobia', t: 'movie' },
-                            { q: 'Critters', t: 'movie' },
-                            { q: 'The Monster Squad', t: 'movie' },
-                            { q: 'The Goonies', t: 'movie' },
-                            { q: 'The House with a Clock in Its Walls', t: 'movie' },
-                            { q: 'Miss Peregrine\'s Home for Peculiar Children', t: 'movie' },
-                            { q: 'A Series of Unfortunate Events', t: 'movie' },
-                            { q: 'Scary Stories to Tell in the Dark', t: 'movie' },
-                            { q: 'The Ring', t: 'movie' },
-                            { q: 'The Ring Two', t: 'movie' },
-                            { q: 'The Grudge', t: 'movie' },
-                            { q: 'Dark Shadows', t: 'movie' },
-                            { q: 'The Woman in Black', t: 'movie' },
-                            { q: 'Insidious', t: 'movie' },
-                            { q: 'Insidious: Chapter 2', t: 'movie' },
-                            { q: 'The Conjuring', t: 'movie' },
-                            { q: 'The Conjuring 2', t: 'movie' },
-                            { q: 'Annabelle', t: 'movie' },
-                            { q: 'The Nun', t: 'movie' },
-                            { q: 'A Quiet Place', t: 'movie' },
-                            { q: 'A Quiet Place Part II', t: 'movie' },
-                            { q: 'The Others', t: 'movie' },
-                            { q: 'The Sixth Sense', t: 'movie' },
-                            { q: 'Signs', t: 'movie' },
-                            { q: 'The Village', t: 'movie' },
-                            { q: 'Split', t: 'movie' },
-                            { q: 'Glass', t: 'movie' },
-                            { q: 'The Visit', t: 'movie' },
-                            { q: 'Old', t: 'movie' },
-                            { q: 'Knock at the Cabin', t: 'movie' },
-                            { q: 'Tremors 2: Aftershocks', t: 'movie' },
-                            { q: 'Leprechaun 2', t: 'movie' },
-                            { q: 'Paranormal Activity 2', t: 'movie' },
-                            { q: 'Paranormal Activity 3', t: 'movie' },
-                            { q: 'Paranormal Activity 4', t: 'movie' },
-                            { q: 'Paranormal Activity: The Marked Ones', t: 'movie' },
-                            { q: 'The Purge', t: 'movie' },
-                            { q: 'The Purge: Anarchy', t: 'movie' },
-                            { q: 'The Purge: Election Year', t: 'movie' },
-                            { q: 'Happy Death Day', t: 'movie' },
-                            { q: 'Happy Death Day 2U', t: 'movie' },
-                            { q: 'Freaky', t: 'movie' },
-                            { q: 'The Babysitter', t: 'movie' },
-                            { q: 'The Babysitter: Killer Queen', t: 'movie' },
-                            { q: 'Fear Street Part One: 1994', t: 'movie' },
-                            { q: 'Fear Street Part Two: 1978', t: 'movie' },
-                            { q: 'Fear Street Part Three: 1666', t: 'movie' },
-                            { q: 'Stranger Things', t: 'tv' },
-                            { q: 'Chilling Adventures of Sabrina', t: 'tv' },
-                            { q: 'Scream: The TV Series', t: 'tv' },
-                            { q: 'The Vampire Diaries', t: 'tv' },
-                            { q: 'Teen Wolf', t: 'tv' },
-                            { q: 'Supernatural', t: 'tv' },
-                            { q: 'Locke & Key', t: 'tv' },
-                            { q: 'The Order', t: 'tv' },
-                            { q: 'October Faction', t: 'tv' },
-                            { q: 'Daybreak', t: 'tv' },
-                            { q: 'Santa Clarita Diet', t: 'tv' },
-                            { q: 'iZombie', t: 'tv' },
-                            { q: 'Ash vs Evil Dead', t: 'tv' },
-                            { q: 'Z Nation', t: 'tv' },
-                            { q: 'Van Helsing', t: 'tv' },
-                            { q: 'Wynonna Earp', t: 'tv' },
-                            { q: 'Shadowhunters', t: 'tv' },
-                            { q: 'The Secret Circle', t: 'tv' },
-                            { q: 'The Haunting of Hill House', t: 'tv' },
-                            { q: 'The Haunting of Bly Manor', t: 'tv' },
-                            { q: 'Midnight Mass', t: 'tv' },
-                            { q: 'The Midnight Club', t: 'tv' },
-                            { q: 'Archive 81', t: 'tv' },
-                            { q: 'Brand New Cherry Flavor', t: 'tv' },
-                            { q: 'Channel Zero', t: 'tv' },
-                            { q: 'Castle Rock', t: 'tv' },
-                            { q: 'Creepshow', t: 'tv' },
-                            { q: 'Two Sentence Horror Stories', t: 'tv' },
-                            { q: 'Monsterland', t: 'tv' },
-                            { q: 'Black Summer', t: 'tv' },
-                            { q: 'All of Us Are Dead', t: 'tv' },
-                            { q: 'Sweet Home', t: 'tv' },
-                            { q: 'Hellbound', t: 'tv' },
-                            { q: 'The Walking Dead', t: 'tv' },
-                            { q: 'Fear the Walking Dead', t: 'tv' },
-                            { q: 'The Strain', t: 'tv' },
-                            { q: 'The Mist', t: 'tv' },
-                            { q: 'The Stand', t: 'tv' },
-                            { q: 'Love, Death & Robots', t: 'tv' },
-                            { q: 'Primal', t: 'tv' },
-                            { q: 'Preacher', t: 'tv' },
-                            { q: 'True Blood', t: 'tv' },
-                            { q: 'The Returned', t: 'tv' },
-                            { q: 'Dark', t: 'tv' },
-                            { q: 'Squid Game', t: 'tv' },
-                            { q: 'Alice in Borderland', t: 'tv' },
-                            { q: 'Yellowjackets', t: 'tv' },
-                            { q: 'Servant', t: 'tv' },
-                            { q: 'Them', t: 'tv' },
-                            { q: 'Swarm', t: 'tv' },
-                            { q: 'The Horror of Dolores Roach', t: 'tv' },
-                            { q: 'The Fall of the House of Usher', t: 'tv' },
-                            { q: 'Cabinet of Curiosities', t: 'tv' },
-                            { q: 'Penny Dreadful', t: 'tv' },
-                            { q: 'The Terror', t: 'tv' },
-                            { q: 'Chapelwaite', t: 'tv' },
-                            { q: 'NOS4A2', t: 'tv' },
-                            { q: 'The Passage', t: 'tv' },
-                            { q: 'Helix', t: 'tv' },
-                            { q: 'Scream Queens', t: 'tv' },
-                            { q: 'American Horror Stories', t: 'tv' },
-                            { q: 'What We Do in the Shadows', t: 'tv' },
-                            { q: 'Ghosts', t: 'tv' },
-                            { q: 'Over the Garden Wall', t: 'tv' },
-                            { q: 'Gravity Falls', t: 'tv' },
-                            { q: 'Eerie, Indiana', t: 'tv' },
-                            { q: 'So Weird', t: 'tv' },
-                            { q: 'The Haunting Hour', t: 'tv' },
-                            { q: 'Creeped Out', t: 'tv' },
-                            { q: 'The Frighteners', t: 'movie' },
-                            { q: 'Edward Scissorhands', t: 'movie' },
-                            { q: 'Sleepy Hollow', t: 'movie' },
-                            { q: 'Sweeney Todd: The Demon Barber of Fleet Street', t: 'movie' },
-                            { q: 'Kubo and the Two Strings', t: 'movie' },
-                            { q: 'The Boxtrolls', t: 'movie' },
-                            { q: 'Hotel Transylvania 2', t: 'movie' },
-                            { q: 'Hotel Transylvania 3: Summer Vacation', t: 'movie' },
-                            { q: 'Hotel Transylvania: Transformania', t: 'movie' },
-                            { q: 'The Maze Runner', t: 'movie' },
-                            { q: 'Maze Runner: The Scorch Trials', t: 'movie' },
-                            { q: 'Maze Runner: The Death Cure', t: 'movie' },
-                            { q: 'The Hunger Games', t: 'movie' },
-                            { q: 'The Hunger Games: Catching Fire', t: 'movie' },
-                            { q: 'The Hunger Games: Mockingjay - Part 1', t: 'movie' },
-                            { q: 'The Hunger Games: Mockingjay - Part 2', t: 'movie' },
-                            { q: 'Divergent', t: 'movie' },
-                            { q: 'Insurgent', t: 'movie' },
-                            { q: 'Allegiant', t: 'movie' },
-                            { q: 'Twilight', t: 'movie' },
-                            { q: 'The Twilight Saga: New Moon', t: 'movie' },
-                            { q: 'The Twilight Saga: Eclipse', t: 'movie' },
-                            { q: 'The Twilight Saga: Breaking Dawn - Part 1', t: 'movie' },
-                            { q: 'The Twilight Saga: Breaking Dawn - Part 2', t: 'movie' },
-                            { q: 'Vampire Academy', t: 'movie' },
-                            { q: 'The Mortal Instruments: City of Bones', t: 'movie' },
-                            { q: 'Beautiful Creatures', t: 'movie' },
-                            { q: 'Cirque du Freak: The Vampire\'s Assistant', t: 'movie' },
-                            { q: 'The Mummy', t: 'movie' },
-                            { q: 'The Mummy Returns', t: 'movie' },
-                            { q: 'The Mummy: Tomb of the Dragon Emperor', t: 'movie' },
-                            { q: 'Van Helsing', t: 'movie' },
-                            { q: 'The Wolfman', t: 'movie' },
-                            { q: 'Fright Night', t: 'movie' },
-                            { q: 'The Lost Boys', t: 'movie' },
-                            { q: 'The Blob', t: 'movie' },
-                            { q: 'Killer Klowns from Outer Space', t: 'movie' },
-                            { q: 'Tucker & Dale vs. Evil', t: 'movie' },
-                            { q: 'The Cabin in the Woods', t: 'movie' },
-                            { q: 'Zombieland', t: 'movie' },
-                            { q: 'Zombieland: Double Tap', t: 'movie' },
-                            { q: 'Warm Bodies', t: 'movie' },
-                            { q: 'Shaun of the Dead', t: 'movie' },
-                            { q: 'Pride and Prejudice and Zombies', t: 'movie' },
-                            { q: 'Abraham Lincoln: Vampire Hunter', t: 'movie' },
-                            { q: 'I Am Legend', t: 'movie' },
-                            { q: 'World War Z', t: 'movie' },
-                            { q: 'Resident Evil', t: 'movie' },
-                            { q: 'Resident Evil: Apocalypse', t: 'movie' },
-                            { q: 'Resident Evil: Extinction', t: 'movie' },
-                            { q: 'Resident Evil: Afterlife', t: 'movie' },
-                            { q: 'Resident Evil: Retribution', t: 'movie' },
-                            { q: 'Resident Evil: The Final Chapter', t: 'movie' },
-                            { q: 'Underworld', t: 'movie' },
-                            { q: 'Underworld: Evolution', t: 'movie' },
-                            { q: 'Underworld: Rise of the Lycans', t: 'movie' },
-                            { q: 'Underworld: Awakening', t: 'movie' },
-                            { q: 'Underworld: Blood Wars', t: 'movie' },
-                            { q: 'Blade', t: 'movie' },
-                            { q: 'Blade II', t: 'movie' },
-                            { q: 'Blade: Trinity', t: 'movie' },
-                            { q: 'The Crow', t: 'movie' },
-                            { q: 'The Craft: Legacy', t: 'movie' },
-                            { q: 'The Covenant', t: 'movie' },
-                            { q: 'Constantine', t: 'movie' },
-                            { q: 'Ghost Rider', t: 'movie' },
-                            { q: 'Ghost Rider: Spirit of Vengeance', t: 'movie' },
-                            { q: 'The Rite', t: 'movie' },
-                            { q: 'The Exorcism of Emily Rose', t: 'movie' },
-                            { q: 'The Exorcist', t: 'movie' },
-                            { q: 'The Exorcist: Believer', t: 'movie' },
-                            { q: 'The Pope\'s Exorcist', t: 'movie' },
-                            { q: 'The Possession', t: 'movie' },
-                            { q: 'The Last Exorcism', t: 'movie' },
-                            { q: 'The Last Exorcism Part II', t: 'movie' },
-                            { q: 'Carrie', t: 'movie' },
-                            { q: 'Firestarter', t: 'movie' },
-                            { q: 'Pet Sematary', t: 'movie' },
-                            { q: 'Pet Sematary: Bloodlines', t: 'movie' },
-                            { q: 'Cujo', t: 'movie' },
-                            { q: 'Christine', t: 'movie' },
-                            { q: 'Silver Bullet', t: 'movie' },
-                            { q: 'The Dead Zone', t: 'movie' },
-                            { q: 'Needful Things', t: 'movie' },
-                            { q: 'The Shining', t: 'movie' },
-                            { q: 'Doctor Sleep', t: 'movie' },
-                            { q: 'It', t: 'movie' },
-                            { q: 'It Chapter Two', t: 'movie' },
-                            { q: 'Salem\'s Lot', t: 'movie' },
-                            { q: '1408', t: 'movie' },
-                            { q: 'In the Tall Grass', t: 'movie' },
-                            { q: 'Gerald\'s Game', t: 'movie' },
-                            { q: '1922', t: 'movie' },
-                            { q: 'The Boogeyman', t: 'movie' },
-                            { q: 'The Black Phone', t: 'movie' },
-                            { q: 'Sinister', t: 'movie' },
-                            { q: 'Sinister 2', t: 'movie' },
-                            { q: 'Insidious: Chapter 3', t: 'movie' },
-                            { q: 'Insidious: The Last Key', t: 'movie' },
-                            { q: 'The Conjuring: The Devil Made Me Do It', t: 'movie' },
-                            { q: 'Annabelle: Creation', t: 'movie' },
-                            { q: 'Annabelle Comes Home', t: 'movie' },
-                            { q: 'The Nun II', t: 'movie' },
-                            { q: 'Scream', t: 'movie' },
-                            { q: 'Scream 2', t: 'movie' },
-                            { q: 'Scream 3', t: 'movie' },
-                            { q: 'Scream 4', t: 'movie' },
-                            { q: 'Scream', t: 'movie' },
-                            { q: 'Scream VI', t: 'movie' },
-                            { q: 'I Still Know What You Did Last Summer', t: 'movie' },
-                            { q: 'I\'ll Always Know What You Did Last Summer', t: 'movie' },
-                            { q: 'Urban Legends: Final Cut', t: 'movie' },
-                            { q: 'Urban Legends: Bloody Mary', t: 'movie' },
-                            { q: 'Final Destination 2', t: 'movie' },
-                            { q: 'Final Destination 3', t: 'movie' },
-                            { q: 'The Final Destination', t: 'movie' },
-                            { q: 'Final Destination 5', t: 'movie' },
-                            { q: 'Krampus', t: 'movie' },
-                            { q: 'Rare Exports', t: 'movie' },
-                            { q: 'A Christmas Horror Story', t: 'movie' },
-                            { q: 'Black Christmas', t: 'movie' },
-                            { q: 'My Bloody Valentine', t: 'movie' },
-                            { q: 'Escape Room', t: 'movie' },
-                            { q: 'Escape Room: Tournament of Champions', t: 'movie' },
-                            { q: 'Ready or Not', t: 'movie' },
-                            { q: 'You\'re Next', t: 'movie' },
-                            { q: 'The Guest', t: 'movie' },
-                            { q: 'Totally Killer', t: 'movie' },
-                            { q: 'The Final Girls', t: 'movie' },
-                            { q: 'Behind the Mask: The Rise of Leslie Vernon', t: 'movie' },
-                            { q: 'Little Evil', t: 'movie' },
-                            { q: 'Cooties', t: 'movie' },
-                            { q: 'Scouts Guide to the Zombie Apocalypse', t: 'movie' },
-                            { q: 'The Descent', t: 'movie' },
-                            { q: 'As Above, So Below', t: 'movie' },
-                            { q: 'Grave Encounters', t: 'movie' },
-                            { q: 'Grave Encounters 2', t: 'movie' },
-                            { q: 'The Pyramid', t: 'movie' },
-                            { q: 'Catacombs', t: 'movie' },
-                            { q: 'The Tunnel', t: 'movie' },
-                            { q: 'The Bay', t: 'movie' },
-                            { q: 'Dark Skies', t: 'movie' },
-                            { q: 'The Fourth Kind', t: 'movie' },
-                            { q: 'The Mothman Prophecies', t: 'movie' },
-                            { q: 'Willow Creek', t: 'movie' },
-                            { q: 'The Houses October Built', t: 'movie' },
-                            { q: 'Hell House LLC', t: 'movie' },
-                            { q: 'The Taking of Deborah Logan', t: 'movie' },
-                            { q: 'Afflicted', t: 'movie' },
-                            { q: 'Trollhunter', t: 'movie' },
-                            { q: 'The Ritual', t: 'movie' },
-                            { q: 'The Ruins', t: 'movie' },
-                            { q: 'The Green Inferno', t: 'movie' },
-                            { q: 'Hostel', t: 'movie' },
-                            { q: 'Saw', t: 'movie' },
-                            { q: 'Saw II', t: 'movie' },
-                            { q: 'Saw III', t: 'movie' },
-                            { q: 'Saw IV', t: 'movie' },
-                            { q: 'Saw V', t: 'movie' },
-                            { q: 'Saw VI', t: 'movie' },
-                            { q: 'Saw 3D', t: 'movie' },
-                            { q: 'Jigsaw', t: 'movie' },
-                            { q: 'Spiral: From the Book of Saw', t: 'movie' },
-                            { q: 'The Texas Chain Saw Massacre', t: 'movie' },
-                            { q: 'Halloween', t: 'movie' },
-                            { q: 'Halloween II', t: 'movie' },
-                            { q: 'Halloween H20: 20 Years Later', t: 'movie' },
-                            { q: 'Halloween', t: 'movie' },
-                            { q: 'Halloween Kills', t: 'movie' },
-                            { q: 'Halloween Ends', t: 'movie' },
-                            { q: 'Friday the 13th', t: 'movie' },
-                            { q: 'Friday the 13th Part 2', t: 'movie' },
-                            { q: 'Friday the 13th Part III', t: 'movie' },
-                            { q: 'Friday the 13th: The Final Chapter', t: 'movie' },
-                            { q: 'Friday the 13th: A New Beginning', t: 'movie' },
-                            { q: 'Friday the 13th Part VI: Jason Lives', t: 'movie' },
-                            { q: 'Friday the 13th Part VII: The New Blood', t: 'movie' },
-                            { q: 'Friday the 13th Part VIII: Jason Takes Manhattan', t: 'movie' },
-                            { q: 'Jason Goes to Hell: The Final Friday', t: 'movie' },
-                            { q: 'Jason X', t: 'movie' },
-                            { q: 'Freddy vs. Jason', t: 'movie' },
-                            { q: 'A Nightmare on Elm Street', t: 'movie' },
-                            { q: 'A Nightmare on Elm Street 2: Freddy\'s Revenge', t: 'movie' },
-                            { q: 'A Nightmare on Elm Street 3: Dream Warriors', t: 'movie' },
-                            { q: 'A Nightmare on Elm Street 4: The Dream Master', t: 'movie' },
-                            { q: 'A Nightmare on Elm Street 5: The Dream Child', t: 'movie' },
-                            { q: 'Freddy\'s Dead: The Final Nightmare', t: 'movie' },
-                            { q: 'Wes Craven\'s New Nightmare', t: 'movie' },
-                            { q: 'Child\'s Play', t: 'movie' },
-                            { q: 'Child\'s Play 2', t: 'movie' },
-                            { q: 'Child\'s Play 3', t: 'movie' },
-                            { q: 'Bride of Chucky', t: 'movie' },
-                            { q: 'Seed of Chucky', t: 'movie' },
-                            { q: 'Curse of Chucky', t: 'movie' },
-                            { q: 'Cult of Chucky', t: 'movie' },
-                            { q: 'Candyman', t: 'movie' },
-                            { q: 'Candyman', t: 'movie' },
-                            { q: 'Hellraiser', t: 'movie' },
-                            { q: 'Hellbound: Hellraiser II', t: 'movie' },
-                            { q: 'Hellraiser III: Hell on Earth', t: 'movie' },
-                            { q: 'Hellraiser: Bloodline', t: 'movie' },
-                            { q: 'Hellraiser: Inferno', t: 'movie' },
-                            { q: 'Hellraiser: Hellseeker', t: 'movie' },
-                            { q: 'Hellraiser: Deader', t: 'movie' },
-                            { q: 'Hellraiser: Hellworld', t: 'movie' },
-                            { q: 'Hellraiser: Revelations', t: 'movie' },
-                            { q: 'Hellraiser: Judgment', t: 'movie' }
+                            { q: 'Twitches', t: 'movie' },{ q: 'Twitches Too', t: 'movie' },{ q: 'The Haunted Mansion', t: 'movie' },{ q: 'Scooby-Doo', t: 'movie' },{ q: 'Scooby-Doo', t: 'tv' },{ q: 'Courage the Cowardly Dog', t: 'tv' },{ q: 'Beetlejuice', t: 'movie' },{ q: 'Beetlejuice Beetlejuice', t: 'movie' },{ q: 'Coraline', t: 'movie' },{ q: 'Halloweentown', t: 'movie' },{ q: 'Haunt', t: 'movie' },{ q: 'Poltergeist', t: 'movie' },{ q: 'Finders Keepers', t: 'movie' },{ q: 'The Witches', t: 'movie' },{ q: 'Hotel Transylvania', t: 'movie' },{ q: 'Hocus Pocus', t: 'movie' },{ q: 'Are You Afraid of the Dark?', t: 'tv' },{ q: 'Scare Tactics', t: 'tv' },{ q: 'Casper', t: 'movie' },{ q: 'Charmed', t: 'tv' },{ q: 'Hide and Seek', t: 'movie' },{ q: 'The Craft', t: 'movie' },{ q: 'The Faculty', t: 'movie' },{ q: 'Body Snatchers', t: 'movie' },{ q: 'The Wretched', t: 'movie' },{ q: 'Thriller', t: 'movie' },{ q: 'Dead Tone', t: 'movie' },{ q: 'Secrets in the Walls', t: 'movie' },{ q: 'Cabin by the Lake', t: 'movie' },{ q: 'Within', t: 'movie' },{ q: 'The Omen', t: 'movie' },{ q: 'Omen II: Damian', t: 'movie' },{ q: 'Omen IV: The Awakening', t: 'movie' },{ q: 'Pet Sematary', t: 'movie' },{ q: 'Heart-Shaped Box', t: 'movie' },{ q: "Devil's Pond", t: 'movie' },{ q: 'Devil in Disguise', t: 'movie' },{ q: 'Perfect Blue', t: 'movie' },{ q: 'Chainsaw Man', t: 'tv' },{ q: 'See No Evil', t: 'movie' },{ q: 'Angels of Death', t: 'tv' },{ q: 'Vampire Hunter D', t: 'movie' },{ q: 'Demon Slayer', t: 'tv' },{ q: 'Shiki', t: 'tv' },{ q: 'Corpse Party', t: 'movie' },{ q: 'Smile', t: 'movie' },{ q: 'Smile 2', t: 'movie' },{ q: 'Truth or Dare', t: 'movie' },{ q: 'I Know What You Did Last Summer', t: 'movie' },{ q: 'Leprechaun', t: 'movie' },{ q: 'Highschool of the Dead', t: 'tv' },{ q: 'Midori: The Camellia Girl', t: 'movie' },{ q: 'Death Note', t: 'tv' },{ q: 'Fear Street', t: 'movie' },{ q: 'Paranormal Activity', t: 'movie' },{ q: 'The Skeleton Key', t: 'movie' },{ q: 'The Haunting', t: 'movie' },{ q: 'Hatchet', t: 'movie' },{ q: 'Evil Dead', t: 'movie' },{ q: 'Cabin Fear', t: 'movie' },{ q: 'Party Night', t: 'movie' },{ q: 'Fear Inc.', t: 'movie' },{ q: 'Most Likely to Die', t: 'movie' },{ q: "Don't Hang Up", t: 'movie' },{ q: 'Better Watch Out', t: 'movie' },{ q: 'Tragedy Girls', t: 'movie' },{ q: 'Blood Fest', t: 'movie' },{ q: 'All the Boys Love Mandy Lane', t: 'movie' },{ q: 'Donkey Punch', t: 'movie' },{ q: 'Hell Fest', t: 'movie' },{ q: 'Urban Legend', t: 'movie' },{ q: 'Bait', t: 'movie' },{ q: 'Funny Games', t: 'movie' },{ q: "Devil's Diary", t: 'movie' },{ q: "Friends 'Til the End", t: 'movie' },{ q: 'The Good Son', t: 'movie' },{ q: 'The Bad Seed', t: 'movie' },{ q: 'Devil', t: 'movie' },{ q: 'The Stepfather', t: 'movie' },{ q: 'No One Would Tell', t: 'movie' },{ q: 'The Haunting of Sorority Row', t: 'movie' },{ q: 'Prom Night', t: 'movie' },{ q: 'The Sitter', t: 'movie' },{ q: 'Kristy', t: 'movie' },{ q: 'The Bride He Bought Online', t: 'movie' },{ q: 'Russian Bride', t: 'movie' },{ q: 'You', t: 'tv' },{ q: 'Case 39', t: 'movie' },{ q: 'The Rage: Carrie 2', t: 'movie' },{ q: 'Final Destination', t: 'movie' },{ q: 'Buffy the Vampire Slayer', t: 'tv' },{ q: 'Goosebumps', t: 'tv' },
+                            { q: 'Gremlins', t: 'movie' },{ q: 'Gremlins 2: The New Batch', t: 'movie' },{ q: 'Ghostbusters', t: 'movie' },{ q: 'Ghostbusters II', t: 'movie' },{ q: 'The Nightmare Before Christmas', t: 'movie' },{ q: 'Corpse Bride', t: 'movie' },{ q: 'Frankenweenie', t: 'movie' },{ q: 'ParaNorman', t: 'movie' },{ q: 'Monster House', t: 'movie' },{ q: 'The Spiderwick Chronicles', t: 'movie' },{ q: 'The Addams Family', t: 'movie' },{ q: 'Addams Family Values', t: 'movie' },{ q: 'The Little Vampire', t: 'movie' },{ q: 'Scooby-Doo 2: Monsters Unleashed', t: 'movie' },{ q: 'Tremors', t: 'movie' },{ q: 'Eight Legged Freaks', t: 'movie' },{ q: 'Arachnophobia', t: 'movie' },{ q: 'Critters', t: 'movie' },{ q: 'The Monster Squad', t: 'movie' },{ q: 'The Goonies', t: 'movie' },{ q: 'The House with a Clock in Its Walls', t: 'movie' },{ q: "Miss Peregrine's Home for Peculiar Children", t: 'movie' },{ q: 'A Series of Unfortunate Events', t: 'movie' },{ q: 'Scary Stories to Tell in the Dark', t: 'movie' },{ q: 'The Ring', t: 'movie' },{ q: 'The Ring Two', t: 'movie' },{ q: 'The Grudge', t: 'movie' },{ q: 'Dark Shadows', t: 'movie' },{ q: 'The Woman in Black', t: 'movie' },{ q: 'Insidious', t: 'movie' },{ q: 'Insidious: Chapter 2', t: 'movie' },{ q: 'The Conjuring', t: 'movie' },{ q: 'The Conjuring 2', t: 'movie' },{ q: 'Annabelle', t: 'movie' },{ q: 'The Nun', t: 'movie' },{ q: 'A Quiet Place', t: 'movie' },{ q: 'A Quiet Place Part II', t: 'movie' },{ q: 'The Others', t: 'movie' },{ q: 'The Sixth Sense', t: 'movie' },{ q: 'Signs', t: 'movie' },{ q: 'The Village', t: 'movie' },{ q: 'Split', t: 'movie' },{ q: 'Glass', t: 'movie' },{ q: 'The Visit', t: 'movie' },{ q: 'Old', t: 'movie' },{ q: 'Knock at the Cabin', t: 'movie' },{ q: 'Tremors 2: Aftershocks', t: 'movie' },{ q: 'Leprechaun 2', t: 'movie' },{ q: 'Paranormal Activity 2', t: 'movie' },{ q: 'Paranormal Activity 3', t: 'movie' },{ q: 'Paranormal Activity 4', t: 'movie' },{ q: 'Paranormal Activity: The Marked Ones', t: 'movie' },{ q: 'The Purge', t: 'movie' },{ q: 'The Purge: Anarchy', t: 'movie' },{ q: 'The Purge: Election Year', t: 'movie' },{ q: 'Happy Death Day', t: 'movie' },{ q: 'Happy Death Day 2U', t: 'movie' },{ q: 'Freaky', t: 'movie' },{ q: 'The Babysitter', t: 'movie' },{ q: 'The Babysitter: Killer Queen', t: 'movie' },{ q: 'Fear Street Part One: 1994', t: 'movie' },{ q: 'Fear Street Part Two: 1978', t: 'movie' },{ q: 'Fear Street Part Three: 1666', t: 'movie' },{ q: 'Stranger Things', t: 'tv' },{ q: 'Chilling Adventures of Sabrina', t: 'tv' },{ q: 'Scream: The TV Series', t: 'tv' },{ q: 'The Vampire Diaries', t: 'tv' },{ q: 'Teen Wolf', t: 'tv' },{ q: 'Supernatural', t: 'tv' },{ q: 'Locke & Key', t: 'tv' },{ q: 'The Order', t: 'tv' },{ q: 'October Faction', t: 'tv' },{ q: 'Daybreak', t: 'tv' },{ q: 'Santa Clarita Diet', t: 'tv' },{ q: 'iZombie', t: 'tv' },{ q: 'Ash vs Evil Dead', t: 'tv' },{ q: 'Z Nation', t: 'tv' },{ q: 'Van Helsing', t: 'tv' },{ q: 'Wynonna Earp', t: 'tv' },{ q: 'Shadowhunters', t: 'tv' },{ q: 'The Secret Circle', t: 'tv' },{ q: 'The Haunting of Hill House', t: 'tv' },{ q: 'The Haunting of Bly Manor', t: 'tv' },{ q: 'Midnight Mass', t: 'tv' },{ q: 'The Midnight Club', t: 'tv' },{ q: 'Archive 81', t: 'tv' },{ q: 'Brand New Cherry Flavor', t: 'tv' },{ q: 'Channel Zero', t: 'tv' },{ q: 'Castle Rock', t: 'tv' },{ q: 'Creepshow', t: 'tv' },{ q: 'Two Sentence Horror Stories', t: 'tv' },{ q: 'Monsterland', t: 'tv' },{ q: 'Black Summer', t: 'tv' },{ q: 'All of Us Are Dead', t: 'tv' },{ q: 'Sweet Home', t: 'tv' },{ q: 'Hellbound', t: 'tv' },{ q: 'The Walking Dead', t: 'tv' },{ q: 'Fear the Walking Dead', t: 'tv' },{ q: 'The Strain', t: 'tv' },{ q: 'The Mist', t: 'tv' },{ q: 'The Stand', t: 'tv' },{ q: 'Love, Death & Robots', t: 'tv' },{ q: 'Primal', t: 'tv' },{ q: 'Preacher', t: 'tv' },{ q: 'True Blood', t: 'tv' },{ q: 'The Returned', t: 'tv' },{ q: 'Dark', t: 'tv' },{ q: 'Squid Game', t: 'tv' },{ q: 'Alice in Borderland', t: 'tv' },{ q: 'Yellowjackets', t: 'tv' },{ q: 'Servant', t: 'tv' },{ q: 'Them', t: 'tv' },{ q: 'Swarm', t: 'tv' },{ q: 'The Horror of Dolores Roach', t: 'tv' },{ q: 'The Fall of the House of Usher', t: 'tv' },{ q: 'Cabinet of Curiosities', t: 'tv' },{ q: 'Penny Dreadful', t: 'tv' },{ q: 'The Terror', t: 'tv' },{ q: 'Chapelwaite', t: 'tv' },{ q: 'NOS4A2', t: 'tv' },{ q: 'The Passage', t: 'tv' },{ q: 'Helix', t: 'tv' },{ q: 'Scream Queens', t: 'tv' },{ q: 'American Horror Stories', t: 'tv' },{ q: 'What We Do in the Shadows', t: 'tv' },{ q: 'Ghosts', t: 'tv' },{ q: 'Over the Garden Wall', t: 'tv' },{ q: 'Gravity Falls', t: 'tv' },{ q: 'Eerie, Indiana', t: 'tv' },{ q: 'So Weird', t: 'tv' },{ q: 'The Haunting Hour', t: 'tv' },{ q: 'Creeped Out', t: 'tv' },{ q: 'The Frighteners', t: 'movie' },{ q: 'Edward Scissorhands', t: 'movie' },{ q: 'Sleepy Hollow', t: 'movie' },{ q: 'Sweeney Todd: The Demon Barber of Fleet Street', t: 'movie' },{ q: 'Kubo and the Two Strings', t: 'movie' },{ q: 'The Boxtrolls', t: 'movie' },{ q: 'Hotel Transylvania 2', t: 'movie' },{ q: 'Hotel Transylvania 3: Summer Vacation', t: 'movie' },{ q: 'Hotel Transylvania: Transformania', t: 'movie' },{ q: 'The Maze Runner', t: 'movie' },{ q: 'Maze Runner: The Scorch Trials', t: 'movie' },{ q: 'Maze Runner: The Death Cure', t: 'movie' },{ q: 'The Hunger Games', t: 'movie' },{ q: 'The Hunger Games: Catching Fire', t: 'movie' },{ q: 'The Hunger Games: Mockingjay - Part 1', t: 'movie' },{ q: 'The Hunger Games: Mockingjay - Part 2', t: 'movie' },{ q: 'Divergent', t: 'movie' },{ q: 'Insurgent', t: 'movie' },{ q: 'Allegiant', t: 'movie' },{ q: 'Twilight', t: 'movie' },{ q: 'The Twilight Saga: New Moon', t: 'movie' },{ q: 'The Twilight Saga: Eclipse', t: 'movie' },{ q: 'The Twilight Saga: Breaking Dawn - Part 1', t: 'movie' },{ q: 'The Twilight Saga: Breaking Dawn - Part 2', t: 'movie' },{ q: 'Vampire Academy', t: 'movie' },{ q: 'The Mortal Instruments: City of Bones', t: 'movie' },{ q: 'Beautiful Creatures', t: 'movie' },{ q: "Cirque du Freak: The Vampire's Assistant", t: 'movie' },{ q: 'The Mummy', t: 'movie' },{ q: 'The Mummy Returns', t: 'movie' },{ q: 'The Mummy: Tomb of the Dragon Emperor', t: 'movie' },{ q: 'Van Helsing', t: 'movie' },{ q: 'The Wolfman', t: 'movie' },{ q: 'Fright Night', t: 'movie' },{ q: 'The Lost Boys', t: 'movie' },{ q: 'The Blob', t: 'movie' },{ q: 'Killer Klowns from Outer Space', t: 'movie' },{ q: 'Tucker & Dale vs. Evil', t: 'movie' },{ q: 'The Cabin in the Woods', t: 'movie' },{ q: 'Zombieland', t: 'movie' },{ q: 'Zombieland: Double Tap', t: 'movie' },{ q: 'Warm Bodies', t: 'movie' },{ q: 'Shaun of the Dead', t: 'movie' },{ q: 'Pride and Prejudice and Zombies', t: 'movie' },{ q: 'Abraham Lincoln: Vampire Hunter', t: 'movie' },{ q: 'I Am Legend', t: 'movie' },{ q: 'World War Z', t: 'movie' },{ q: 'Resident Evil', t: 'movie' },{ q: 'Resident Evil: Apocalypse', t: 'movie' },{ q: 'Resident Evil: Extinction', t: 'movie' },{ q: 'Resident Evil: Afterlife', t: 'movie' },{ q: 'Resident Evil: Retribution', t: 'movie' },{ q: 'Resident Evil: The Final Chapter', t: 'movie' },{ q: 'Underworld', t: 'movie' },{ q: 'Underworld: Evolution', t: 'movie' },{ q: 'Underworld: Rise of the Lycans', t: 'movie' },{ q: 'Underworld: Awakening', t: 'movie' },{ q: 'Underworld: Blood Wars', t: 'movie' },{ q: 'Blade', t: 'movie' },{ q: 'Blade II', t: 'movie' },{ q: 'Blade: Trinity', t: 'movie' },{ q: 'The Crow', t: 'movie' },{ q: 'The Craft: Legacy', t: 'movie' },{ q: 'The Covenant', t: 'movie' },{ q: 'Constantine', t: 'movie' },{ q: 'Ghost Rider', t: 'movie' },{ q: 'Ghost Rider: Spirit of Vengeance', t: 'movie' },{ q: 'The Rite', t: 'movie' },{ q: 'The Exorcism of Emily Rose', t: 'movie' },{ q: 'The Exorcist', t: 'movie' },{ q: 'The Exorcist: Believer', t: 'movie' },{ q: "The Pope's Exorcist", t: 'movie' },{ q: 'The Possession', t: 'movie' },{ q: 'The Last Exorcism', t: 'movie' },{ q: 'The Last Exorcism Part II', t: 'movie' },{ q: 'Carrie', t: 'movie' },{ q: 'Firestarter', t: 'movie' },{ q: 'Pet Sematary', t: 'movie' },{ q: 'Pet Sematary: Bloodlines', t: 'movie' },{ q: 'Cujo', t: 'movie' },{ q: 'Christine', t: 'movie' },{ q: 'Silver Bullet', t: 'movie' },{ q: 'The Dead Zone', t: 'movie' },{ q: 'Needful Things', t: 'movie' },{ q: 'The Shining', t: 'movie' },{ q: 'Doctor Sleep', t: 'movie' },{ q: 'It', t: 'movie' },{ q: 'It Chapter Two', t: 'movie' },{ q: "Salem's Lot", t: 'movie' },{ q: '1408', t: 'movie' },{ q: 'In the Tall Grass', t: 'movie' },{ q: "Gerald's Game", t: 'movie' },{ q: '1922', t: 'movie' },{ q: 'The Boogeyman', t: 'movie' },{ q: 'The Black Phone', t: 'movie' },{ q: 'Sinister', t: 'movie' },{ q: 'Sinister 2', t: 'movie' },{ q: 'Insidious: Chapter 3', t: 'movie' },{ q: 'Insidious: The Last Key', t: 'movie' },{ q: 'The Conjuring: The Devil Made Me Do It', t: 'movie' },{ q: 'Annabelle: Creation', t: 'movie' },{ q: 'Annabelle Comes Home', t: 'movie' },{ q: 'The Nun II', t: 'movie' },{ q: 'Scream', t: 'movie' },{ q: 'Scream 2', t: 'movie' },{ q: 'Scream 3', t: 'movie' },{ q: 'Scream 4', t: 'movie' },{ q: 'Scream', t: 'movie' },{ q: 'Scream VI', t: 'movie' },{ q: 'I Still Know What You Did Last Summer', t: 'movie' },{ q: "I'll Always Know What You Did Last Summer", t: 'movie' },{ q: 'Urban Legends: Final Cut', t: 'movie' },{ q: 'Urban Legends: Bloody Mary', t: 'movie' },{ q: 'Final Destination 2', t: 'movie' },{ q: 'Final Destination 3', t: 'movie' },{ q: 'The Final Destination', t: 'movie' },{ q: 'Final Destination 5', t: 'movie' },{ q: 'Krampus', t: 'movie' },{ q: 'Rare Exports', t: 'movie' },{ q: 'A Christmas Horror Story', t: 'movie' },{ q: 'Black Christmas', t: 'movie' },{ q: 'My Bloody Valentine', t: 'movie' },{ q: 'Escape Room', t: 'movie' },{ q: 'Escape Room: Tournament of Champions', t: 'movie' },{ q: 'Ready or Not', t: 'movie' },{ q: "You're Next", t: 'movie' },{ q: 'The Guest', t: 'movie' },{ q: 'Totally Killer', t: 'movie' },{ q: 'The Final Girls', t: 'movie' },{ q: 'Behind the Mask: The Rise of Leslie Vernon', t: 'movie' },{ q: 'Little Evil', t: 'movie' },{ q: 'Cooties', t: 'movie' },{ q: 'Scouts Guide to the Zombie Apocalypse', t: 'movie' },{ q: 'The Descent', t: 'movie' },{ q: 'As Above, So Below', t: 'movie' },{ q: 'Grave Encounters', t: 'movie' },{ q: 'Grave Encounters 2', t: 'movie' },{ q: 'The Pyramid', t: 'movie' },{ q: 'Catacombs', t: 'movie' },{ q: 'The Tunnel', t: 'movie' },{ q: 'The Bay', t: 'movie' },{ q: 'Dark Skies', t: 'movie' },{ q: 'The Fourth Kind', t: 'movie' },{ q: 'The Mothman Prophecies', t: 'movie' },{ q: 'Willow Creek', t: 'movie' },{ q: 'The Houses October Built', t: 'movie' },{ q: 'Hell House LLC', t: 'movie' },{ q: 'The Taking of Deborah Logan', t: 'movie' },{ q: 'Afflicted', t: 'movie' },{ q: 'Trollhunter', t: 'movie' },{ q: 'The Ritual', t: 'movie' },{ q: 'The Ruins', t: 'movie' },{ q: 'The Green Inferno', t: 'movie' },{ q: 'Hostel', t: 'movie' },{ q: 'Saw', t: 'movie' },{ q: 'Saw II', t: 'movie' },{ q: 'Saw III', t: 'movie' },{ q: 'Saw IV', t: 'movie' },{ q: 'Saw V', t: 'movie' },{ q: 'Saw VI', t: 'movie' },{ q: 'Saw 3D', t: 'movie' },{ q: 'Jigsaw', t: 'movie' },{ q: 'Spiral: From the Book of Saw', t: 'movie' },{ q: 'The Texas Chain Saw Massacre', t: 'movie' },{ q: 'Halloween', t: 'movie' },{ q: 'Halloween II', t: 'movie' },{ q: 'Halloween H20: 20 Years Later', t: 'movie' },{ q: 'Halloween', t: 'movie' },{ q: 'Halloween Kills', t: 'movie' },{ q: 'Halloween Ends', t: 'movie' },{ q: 'Friday the 13th', t: 'movie' },{ q: 'Friday the 13th Part 2', t: 'movie' },{ q: 'Friday the 13th Part III', t: 'movie' },{ q: 'Friday the 13th: The Final Chapter', t: 'movie' },{ q: 'Friday the 13th: A New Beginning', t: 'movie' },{ q: 'Friday the 13th Part VI: Jason Lives', t: 'movie' },{ q: 'Friday the 13th Part VII: The New Blood', t: 'movie' },{ q: 'Friday the 13th Part VIII: Jason Takes Manhattan', t: 'movie' },{ q: 'Jason Goes to Hell: The Final Friday', t: 'movie' },{ q: 'Jason X', t: 'movie' },{ q: 'Freddy vs. Jason', t: 'movie' },{ q: 'A Nightmare on Elm Street', t: 'movie' },{ q: "A Nightmare on Elm Street 2: Freddy's Revenge", t: 'movie' },{ q: 'A Nightmare on Elm Street 3: Dream Warriors', t: 'movie' },{ q: 'A Nightmare on Elm Street 4: The Dream Master', t: 'movie' },{ q: 'A Nightmare on Elm Street 5: The Dream Child', t: 'movie' },{ q: "Freddy's Dead: The Final Nightmare", t: 'movie' },{ q: "Wes Craven's New Nightmare", t: 'movie' },{ q: "Child's Play", t: 'movie' },{ q: 'Child\'s Play 2', t: 'movie' },{ q: 'Child\'s Play 3', t: 'movie' },{ q: 'Bride of Chucky', t: 'movie' },{ q: 'Seed of Chucky', t: 'movie' },{ q: 'Curse of Chucky', t: 'movie' },{ q: 'Cult of Chucky', t: 'movie' },{ q: 'Candyman', t: 'movie' },{ q: 'Hellraiser', t: 'movie' },{ q: 'Hellbound: Hellraiser II', t: 'movie' },{ q: 'Hellraiser III: Hell on Earth', t: 'movie' },{ q: 'Hellraiser: Bloodline', t: 'movie' },{ q: 'Hellraiser: Inferno', t: 'movie' },{ q: 'Hellraiser: Hellseeker', t: 'movie' },{ q: 'Hellraiser: Deader', t: 'movie' },{ q: 'Hellraiser: Hellworld', t: 'movie' },{ q: 'Hellraiser: Revelations', t: 'movie' },{ q: 'Hellraiser: Judgment', t: 'movie' }
                         ];
-
                         targetQueries.forEach(target => {
                             promises.push(
                                 fetch(`https://api.themoviedb.org/3/search/${target.t}?api_key=${API_KEY}&query=${encodeURIComponent(target.q)}`)
@@ -934,11 +630,8 @@
                                     let filtered = [];
                                     if (data.results) {
                                         filtered = data.results.filter(item => {
-                                            if (target.t === 'movie') {
-                                                return item.genre_ids && item.genre_ids.includes(27);
-                                            } else if (target.t === 'tv') {
-                                                return item.genre_ids && item.genre_ids.includes(10765);
-                                            }
+                                            if (target.t === 'movie') return item.genre_ids && item.genre_ids.includes(27);
+                                            else if (target.t === 'tv') return item.genre_ids && item.genre_ids.includes(10765);
                                             return false;
                                         });
                                     }
@@ -946,7 +639,6 @@
                                 })
                             );
                         });
-
                         promises.push(
                             fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&certification_country=US&certification.lte=PG-13&page=1`)
                             .then(res => res.json()).then(data => data.results || [])
@@ -955,15 +647,11 @@
                             fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&certification_country=US&certification.lte=TV-14&page=1`)
                             .then(res => res.json()).then(data => data.results || [])
                         );
-
                         const arrays = await Promise.all(promises);
                         let aggregated = [].concat(...arrays);
-                        
                         let uniqueMap = new Map();
                         aggregated.forEach(item => {
-                            if (item && item.id && item.poster_path && !uniqueMap.has(item.id)) {
-                                uniqueMap.set(item.id, item);
-                            }
+                            if (item && item.id && item.poster_path && !uniqueMap.has(item.id)) uniqueMap.set(item.id, item);
                         });
                         results = Array.from(uniqueMap.values());
                         currentPage = 2;
@@ -973,7 +661,6 @@
                         let targetUrl = isMoviePage ? 
                             `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&certification_country=US&certification.lte=PG-13&page=${pageTarget}` :
                             `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&certification_country=US&certification.lte=TV-14&page=${pageTarget}`;
-                        
                         const res = await fetch(targetUrl);
                         const data = await res.json();
                         results = data.results || [];
@@ -994,19 +681,15 @@
         async function fetchAfterDark() {
             const grid = document.getElementById('movie-grid');
             grid.innerHTML = '';
-            
             const darkTitles = [
                 "House on Haunted Hill", "Thir13en Ghosts", "Ghost Ship", "Gothika", "House of Wax", "The Reaping", "The Invasion", "The Haunting", "The Unborn", "Orphan", "Whiteout", "The Hills Have Eyes", "The Hills Have Eyes 2", "The Last House on the Left", "The Crazies", "The Collector", "The Collection", "The Quiet Ones", "The Boy", "The Belko Experiment", "The Bye Bye Man", "The Nun", "The Curse of La Llorona", "The Prodigy", "The Turning", "The Wretched",
                 "The Abandoned", "The Deaths of Ian Stone", "Lake Dead", "Unrest", "Penny Dreadful", "Darkness Falls", "The Gravedancers", "The Hamiltons", "Reincarnation", "Wicked Little Things", "Autopsy", "Borderland", "Crazy Eights", "Frontier(s)", "The Final", "The Broken", "Dread", "From Within", "Kill Theory", "The Graves", "The Reeds", "The Task", "Sick Girl", "Freakshow", "Butchered", "The Other Side of the Tracks", "Headgame", "Husk", "The Terror", "The Tortured",
                 "Captivity", "Offspring", "The Uninvited", "Slaughter", "The Dread", "The Covenant"
             ];
-
             const searchPromises = darkTitles.map(title => 
                 fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
-                .then(r => r.json())
-                .then(data => data.results ? data.results[0] : null)
+                .then(r => r.json()).then(data => data.results ? data.results[0] : null)
             );
-
             const results = await Promise.all(searchPromises);
             renderGrid(results.filter(m => m && m.poster_path));
         }
@@ -1022,37 +705,11 @@
 
         async function fetchExtremeMoviesInitial() {
             const extremeTitles = [
-                { q: 'Terrified', t: 'movie' },
-                { q: 'I Spit on Your Grave 3', t: 'movie' },
-                { q: 'Seed', t: 'movie' },
-                { q: 'Guinea Pig', t: 'movie' },
-                { q: 'Cannibal Holocaust', t: 'movie' },
-                { q: 'Grotesque', t: 'movie' },
-                { q: 'Ed Gein', t: 'movie' },
-                { q: '100 Years', t: 'movie' },
-                { q: 'Wrinkles the Clown', t: 'movie' },
-                { q: 'We Are the Flesh', t: 'movie' },
-                { q: 'The Burning Moon', t: 'movie' },
-                { q: 'We\'re All Going to the World\'s Fair', t: 'movie' },
-                { q: 'The Ice Demon', t: 'movie' },
-                { q: 'Cold Fish', t: 'movie' },
-                { q: 'Housebound', t: 'movie' },
-                { q: 'The Bunny Game', t: 'movie' },
-                { q: 'Borgman', t: 'movie' },
-                { q: 'Dark Waters', t: 'movie' },
-                { q: 'Toolbox Murders 2: Coffin Baby', t: 'movie' },
-                { q: 'The Kindred', t: 'movie' },
-                { q: 'My House', t: 'movie' },
-                { q: 'Macabre', t: 'movie' },
-                { q: 'Taxidermia', t: 'movie' },
-                { q: 'Strange Circus', t: 'movie' },
-                { q: 'Devoured', t: 'movie' },
-                { q: 'The Hoarder', t: 'movie' }
+                { q: 'Terrified', t: 'movie' },{ q: 'I Spit on Your Grave 3', t: 'movie' },{ q: 'Seed', t: 'movie' },{ q: 'Guinea Pig', t: 'movie' },{ q: 'Cannibal Holocaust', t: 'movie' },{ q: 'Grotesque', t: 'movie' },{ q: 'Ed Gein', t: 'movie' },{ q: '100 Years', t: 'movie' },{ q: 'Wrinkles the Clown', t: 'movie' },{ q: 'We Are the Flesh', t: 'movie' },{ q: 'The Burning Moon', t: 'movie' },{ q: "We're All Going to the World's Fair", t: 'movie' },{ q: 'The Ice Demon', t: 'movie' },{ q: 'Cold Fish', t: 'movie' },{ q: 'Housebound', t: 'movie' },{ q: 'The Bunny Game', t: 'movie' },{ q: 'Borgman', t: 'movie' },{ q: 'Dark Waters', t: 'movie' },{ q: 'Toolbox Murders 2: Coffin Baby', t: 'movie' },{ q: 'The Kindred', t: 'movie' },{ q: 'My House', t: 'movie' },{ q: 'Macabre', t: 'movie' },{ q: 'Taxidermia', t: 'movie' },{ q: 'Strange Circus', t: 'movie' },{ q: 'Devoured', t: 'movie' },{ q: 'The Hoarder', t: 'movie' }
             ];
             let promises = extremeTitles.map(target =>
                 fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(target.q)}`)
-                .then(res => res.json())
-                .then(data => data.results ? data.results.filter(item => item.genre_ids && item.genre_ids.includes(27))[0] : null)
+                .then(res => res.json()).then(data => data.results ? data.results.filter(item => item.genre_ids && item.genre_ids.includes(27))[0] : null)
             );
             const results = await Promise.all(promises);
             let movies = results.filter(m => m && m.poster_path);
