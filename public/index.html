@@ -127,8 +127,11 @@
         // ---- Youth Horror infinite scroll trackers ----
         let youthHorrorPage = 1;
         let loadedYouthHorrorIds = new Set();
+        // ---- Horror From Abroad trackers ----
+        let abroadPage = 1;
+        let loadedAbroadIds = new Set();
 
-        // ---- IMDb IDs provided by the user ----
+        // ---- IMDb ID lists ----
         const HARD_WIRED_IMDB_IDS = [
             "tt0071095","tt7544954","tt3743358","tt13365348","tt0160016","tt16997558",
             "tt4798836","tt0120603","tt12298506","tt15475330","tt0193013","tt26453917",
@@ -194,7 +197,6 @@
 
         // ---- IMDb → TMDB cache ----
         const imdbCache = new Map();
-
         async function fetchTMDBFromIMDb(imdbId) {
             if (imdbCache.has(imdbId)) return imdbCache.get(imdbId);
             try {
@@ -232,7 +234,6 @@
             return items.filter(Boolean);
         }
 
-        // Black actor IDs for discover
         const UNIQUE_BLACK_IDS = [...new Set([
             147, 20810, 2963, 16582, 134, 17259, 538, 78029, 521, 17697,
             76748, 97169, 25619, 2372, 64235, 34503, 15313, 856, 16214,
@@ -263,10 +264,49 @@
                 loadedHorrorShowIds.clear();
                 loadedYouthHorrorIds.clear();
                 youthHorrorPage = 1;
+                loadedAbroadIds.clear();
+                abroadPage = 1;
             }
 
             let results = [];
-            if (activeType === 'black_horror') {
+            if (activeType === 'abroad') {
+                // ---- HORROR FROM ABROAD: Nollywood + Japanese horror/thriller (movies & TV) ----
+                const horrorGenre = '27|53'; // horror and thriller movies
+                const tvHorrorKeywords = '33507|6152|9653|193386|230113|12334|9748|168713'; // horror + thriller keywords
+                const urls = [
+                    // Nollywood movies
+                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${horrorGenre}&with_origin_country=NG&sort_by=popularity.desc&page=${abroadPage}`,
+                    // Japanese movies
+                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${horrorGenre}&with_origin_country=JP&sort_by=popularity.desc&page=${abroadPage}`,
+                    // Japanese TV series (using Sci‑Fi/Fantasy genre + horror/thriller keywords)
+                    `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_origin_country=JP&with_keywords=${tvHorrorKeywords}&sort_by=popularity.desc&page=${abroadPage}`
+                ];
+                const responses = await Promise.all(urls.map(url => fetch(url).then(r => r.json())));
+                let items = [];
+                // process movie results from Nigeria and Japan
+                [responses[0], responses[1]].forEach(data => {
+                    (data.results || []).forEach(m => {
+                        if (m.poster_path && !loadedAbroadIds.has(m.id)) {
+                            items.push({ ...m, media_type: 'movie' });
+                        }
+                    });
+                });
+                // process TV results from Japan
+                (responses[2].results || []).forEach(t => {
+                    if (t.poster_path && !loadedAbroadIds.has(t.id)) {
+                        items.push({ ...t, media_type: 'tv' });
+                    }
+                });
+                let unique = new Map();
+                items.forEach(item => {
+                    if (!unique.has(item.id)) {
+                        unique.set(item.id, item);
+                        loadedAbroadIds.add(item.id);
+                    }
+                });
+                results = Array.from(unique.values());
+                abroadPage++;
+            } else if (activeType === 'black_horror') {
                 if (!append) {
                     const hardwiredItems = await resolveItemsFromImdbList(HARD_WIRED_IMDB_IDS, loadedBlackHorrorIds);
                     renderBlackHorror(hardwiredItems, false);
@@ -429,14 +469,13 @@
             } else {
                 let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}`;
                 if (activeType === 'trending') url = `https://api.themoviedb.org/3/trending/all/day?api_key=${API_KEY}&page=${currentPage}`;
-                else if (activeType === 'abroad') url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&without_original_language=en&page=${currentPage}`;
                 else if (activeType === 'search') url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${activeID}&page=${currentPage}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 results = data.results;
             }
             renderGrid(results);
-            if (activeType !== 'horror_shows' && activeType !== 'youth' && activeType !== 'unrated') currentPage++;
+            if (activeType !== 'horror_shows' && activeType !== 'youth' && activeType !== 'unrated' && activeType !== 'abroad') currentPage++;
             isLoading = false;
         }
 
