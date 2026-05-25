@@ -116,23 +116,22 @@
         let activeType = 'trending', activeID = '', currentMedia = {};
         let currentPage = 1, isLoading = false;
 
-        // ---- Ghastly Series infinite scroll trackers ----
+        // ---- Trackers for infinite scroll ----
         let loadedHorrorShowIds = new Set();
         let horrorShowPageEn = 1;
-        // ---- Unrated extreme movies tracker ----
         let loadedUnratedIds = new Set();
-        // ---- Black Horror infinite scroll trackers ----
         let blackHorrorPage = 1;
         let loadedBlackHorrorIds = new Set();
-        // ---- Youth Horror infinite scroll trackers ----
         let youthHorrorPage = 1;
         let loadedYouthHorrorIds = new Set();
-        // ---- Horror From Abroad trackers ----
         let abroadPage = 1;
         let loadedAbroadIds = new Set();
+        // ---- LATEST BLOOD (2020‑now horror/thriller movies) ----
+        let latestBloodPage = 1;
+        let loadedLatestBloodIds = new Set();
 
-        // ---- IMDb ID lists ----
-        const HARD_WIRED_IMDB_IDS = [
+        // ---- IMDb ID lists (unchanged) ----
+        const HARD_WIRED_IMDB_IDS = [ /* ... same as before ... */
             "tt0071095","tt7544954","tt3743358","tt13365348","tt0160016","tt16997558",
             "tt4798836","tt0120603","tt12298506","tt15475330","tt0193013","tt26453917",
             "tt5184138","tt8520140","tt2274248","tt8110652","tt0103919","tt0165662",
@@ -161,7 +160,7 @@
             "tt38090790","tt4065260","tt39094274"
         ];
 
-        const YOUTH_IMDB_IDS = [
+        const YOUTH_IMDB_IDS = [ /* ... same as before ... */
             "tt0175142","tt0257106","tt0306047","tt0362120","tt0795461","tt32093575",
             "tt0094862","tt0099253","tt0101535","tt0144120","tt0387575","tt2230358",
             "tt3280262","tt8663516","tt0467421","tt1017465","tt0173886","tt0274761",
@@ -266,43 +265,41 @@
                 youthHorrorPage = 1;
                 loadedAbroadIds.clear();
                 abroadPage = 1;
+                loadedLatestBloodIds.clear();
+                latestBloodPage = 1;
             }
 
             let results = [];
-            if (activeType === 'abroad') {
-                // ---- HORROR FROM ABROAD: Nollywood + Japanese horror/thriller (movies & TV) ----
-                const horrorGenre = '27|53'; // horror and thriller movies
-                const tvHorrorKeywords = '33507|6152|9653|193386|230113|12334|9748|168713'; // horror + thriller keywords
+            if (activeType === 'trending') {
+                // ---- LATEST BLOOD: horror & thriller movies from 2020 to now ----
+                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27|53&primary_release_date.gte=2020-01-01&sort_by=popularity.desc&page=${latestBloodPage}`;
+                const res = await fetch(url);
+                const data = await res.json();
+                let movies = (data.results || []).filter(m => m.poster_path && !loadedLatestBloodIds.has(m.id));
+                movies.forEach(m => loadedLatestBloodIds.add(m.id));
+                results = movies.map(m => ({ ...m, media_type: 'movie' }));
+                latestBloodPage++;
+            } else if (activeType === 'abroad') {
+                const horrorGenre = '27|53';
+                const tvHorrorKeywords = '33507|6152|9653|193386|230113|12334|9748|168713';
                 const urls = [
-                    // Nollywood movies
                     `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${horrorGenre}&with_origin_country=NG&sort_by=popularity.desc&page=${abroadPage}`,
-                    // Japanese movies
                     `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${horrorGenre}&with_origin_country=JP&sort_by=popularity.desc&page=${abroadPage}`,
-                    // Japanese TV series (using Sci‑Fi/Fantasy genre + horror/thriller keywords)
                     `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_origin_country=JP&with_keywords=${tvHorrorKeywords}&sort_by=popularity.desc&page=${abroadPage}`
                 ];
                 const responses = await Promise.all(urls.map(url => fetch(url).then(r => r.json())));
                 let items = [];
-                // process movie results from Nigeria and Japan
                 [responses[0], responses[1]].forEach(data => {
                     (data.results || []).forEach(m => {
-                        if (m.poster_path && !loadedAbroadIds.has(m.id)) {
-                            items.push({ ...m, media_type: 'movie' });
-                        }
+                        if (m.poster_path && !loadedAbroadIds.has(m.id)) items.push({ ...m, media_type: 'movie' });
                     });
                 });
-                // process TV results from Japan
                 (responses[2].results || []).forEach(t => {
-                    if (t.poster_path && !loadedAbroadIds.has(t.id)) {
-                        items.push({ ...t, media_type: 'tv' });
-                    }
+                    if (t.poster_path && !loadedAbroadIds.has(t.id)) items.push({ ...t, media_type: 'tv' });
                 });
                 let unique = new Map();
                 items.forEach(item => {
-                    if (!unique.has(item.id)) {
-                        unique.set(item.id, item);
-                        loadedAbroadIds.add(item.id);
-                    }
+                    if (!unique.has(item.id)) { unique.set(item.id, item); loadedAbroadIds.add(item.id); }
                 });
                 results = Array.from(unique.values());
                 abroadPage++;
@@ -327,12 +324,7 @@
                     responses[2].results && responses[2].results.forEach(m => { if (m.poster_path && !loadedBlackHorrorIds.has(m.id)) items.push({...m, media_type:'movie'}); });
                     responses[3].results && responses[3].results.forEach(m => { if (m.poster_path && !loadedBlackHorrorIds.has(m.id)) items.push({...m, media_type:'movie'}); });
                     let unique = new Map();
-                    items.forEach(item => {
-                        if (!unique.has(item.id)) {
-                            unique.set(item.id, item);
-                            loadedBlackHorrorIds.add(item.id);
-                        }
-                    });
+                    items.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); loadedBlackHorrorIds.add(item.id); } });
                     renderBlackHorror(Array.from(unique.values()), true);
                     blackHorrorPage++;
                     isLoading = false;
@@ -361,12 +353,7 @@
                         ((item.genre_ids && (item.genre_ids.includes(27) || item.genre_ids.includes(10765))) || item.media_type)
                     ).map(item => ({ ...item, media_type: item.media_type || (item.first_air_date ? 'tv' : 'movie') }));
                     let unique = new Map();
-                    fetched.forEach(item => {
-                        if (!unique.has(item.id)) {
-                            unique.set(item.id, item);
-                            loadedYouthHorrorIds.add(item.id);
-                        }
-                    });
+                    fetched.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); loadedYouthHorrorIds.add(item.id); } });
                     results = Array.from(unique.values());
                     currentPage++;
                 }
@@ -468,14 +455,13 @@
                 currentPage++;
             } else {
                 let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}`;
-                if (activeType === 'trending') url = `https://api.themoviedb.org/3/trending/all/day?api_key=${API_KEY}&page=${currentPage}`;
-                else if (activeType === 'search') url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${activeID}&page=${currentPage}`;
+                if (activeType === 'search') url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${activeID}&page=${currentPage}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 results = data.results;
             }
             renderGrid(results);
-            if (activeType !== 'horror_shows' && activeType !== 'youth' && activeType !== 'unrated' && activeType !== 'abroad') currentPage++;
+            if (!['horror_shows','youth','unrated','abroad','trending'].includes(activeType)) currentPage++;
             isLoading = false;
         }
 
