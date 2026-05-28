@@ -594,7 +594,9 @@
             const playerOverlay = document.getElementById('player-overlay');
             const iframe = document.getElementById('luxe-player');
             playerOverlay.style.display = 'block';
-            iframe.src = (type === 'movie' ? `https://vidsrc.cc/v2/embed/movie/${id}` : `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}`);
+            iframe.src = (type === 'movie'
+                ? `https://vidsrc.cc/v2/embed/movie/${id}?autoplay=1`
+                : `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}?autoplay=1`);
             setTimeout(() => document.getElementById('close-player-btn').focus(), 500);
         }
 
