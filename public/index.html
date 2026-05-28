@@ -271,7 +271,6 @@
 
             let results = [];
             if (activeType === 'trending') {
-                // ---- LATEST BLOOD: horror & thriller movies from 2020 to now ----
                 const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27|53&primary_release_date.gte=2020-01-01&sort_by=popularity.desc&page=${latestBloodPage}`;
                 const res = await fetch(url);
                 const data = await res.json();
@@ -465,7 +464,6 @@
             isLoading = false;
         }
 
-        // ---- After Dark ----
         async function fetchAfterDark() {
             const grid = document.getElementById('movie-grid');
             grid.innerHTML = '';
@@ -595,8 +593,8 @@
             const iframe = document.getElementById('luxe-player');
             playerOverlay.style.display = 'block';
             iframe.src = (type === 'movie'
-                ? `https://vidsrc.cc/v2/embed/movie/${id}?autoplay=1`
-                : `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}?autoplay=1`);
+                ? `https://vidsrc.cc/v2/embed/movie/${id}`
+                : `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}`);
             setTimeout(() => document.getElementById('close-player-btn').focus(), 500);
         }
 
