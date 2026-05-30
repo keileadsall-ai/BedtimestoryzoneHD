@@ -141,8 +141,8 @@
             <button id="close-player-btn" onclick="closePlayer()" class="player-close-btn focusable">✕ CEASE</button>
         </div>
         <div class="player-wrapper">
-            <!-- Sandbox allows the player to run while blocking pop-ups, new windows, and redirects -->
-            <iframe id="luxe-player" sandbox="allow-scripts allow-same-origin" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+            <!-- Sandbox with only essential permissions – popups, new windows, and redirects are blocked -->
+            <iframe id="luxe-player" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-modals" allowfullscreen allow="autoplay; encrypted-media"></iframe>
         </div>
     </div>
 
