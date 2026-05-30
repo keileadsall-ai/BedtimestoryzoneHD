@@ -166,7 +166,7 @@
         let loadedLatestBloodIds = new Set();
 
         // ---- IMDb ID lists (unchanged) ----
-        const HARD_WIRED_IMDB_IDS = [ /* ... same as before ... */
+        const HARD_WIRED_IMDB_IDS = [
             "tt0071095","tt7544954","tt3743358","tt13365348","tt0160016","tt16997558",
             "tt4798836","tt0120603","tt12298506","tt15475330","tt0193013","tt26453917",
             "tt5184138","tt8520140","tt2274248","tt8110652","tt0103919","tt0165662",
@@ -195,7 +195,7 @@
             "tt38090790","tt4065260","tt39094274"
         ];
 
-        const YOUTH_IMDB_IDS = [ /* ... same as before ... */
+        const YOUTH_IMDB_IDS = [
             "tt0175142","tt0257106","tt0306047","tt0362120","tt0795461","tt32093575",
             "tt0094862","tt0099253","tt0101535","tt0144120","tt0387575","tt2230358",
             "tt3280262","tt8663516","tt0467421","tt1017465","tt0173886","tt0274761",
@@ -627,10 +627,10 @@
             const playerOverlay = document.getElementById('player-overlay');
             const iframe = document.getElementById('luxe-player');
             playerOverlay.style.display = 'block';
-            // 2embed.skin embed with autoplay support (browser policies still apply)
+            // MultiEmbed: automatically searches multiple sources for any TMDB movie or TV show
             iframe.src = (type === 'movie'
-                ? `https://www.2embed.skin/embed/movie/${id}?autoplay=1`
-                : `https://www.2embed.skin/embed/tv/${id}/${s}/${e}?autoplay=1`);
+                ? `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1`
+                : `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1&s=${s}&e=${e}`);
             setTimeout(() => document.getElementById('close-player-btn').focus(), 500);
         }
 
