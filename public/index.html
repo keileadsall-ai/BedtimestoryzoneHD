@@ -165,6 +165,8 @@
         let loadedLatestBloodIds = new Set();
         let horrorMoviesPage = 1;
         let loadedHorrorMoviesIds = new Set();
+        let horrorFestPage = 1;
+        let loadedHorrorFestIds = new Set();
 
         // ---- IMDb ID lists ----
         const HARD_WIRED_IMDB_IDS = [
@@ -231,45 +233,6 @@
             "tt3200580","tt7390506","tt1781816","tt1082592","tt0084516","tt0091778",
             "tt0095889","tt1029360","tt0115317","tt0087800","tt0089907","tt0093629",
             "tt0095742","tt0097987","tt0101917","tt0111686","tt0329101","tt1179056"
-        ];
-
-        // ---- Stephen King hard‑wired IMDb IDs ----
-        const STEPHEN_KING_IMDB_IDS = [
-            "tt0079844","tt0099849","tt0101138","tt0106156","tt0108941","tt0112040",
-            "tt0118463","tt0135659","tt0259153","tt0281432","tt0324864","tt0347463",
-            "tt0478056","tt1519681","tt1954313","tt1553656","tt2879552","tt6520336",
-            "tt4354880","tt6548228","tt9310638","tt8550800","tt1831804","tt11822704",
-            "tt11737520","tt29340643","tt26656754"
-        ];
-
-        // ---- Wes Craven hard‑wired IMDb IDs ----
-        const WES_CRAVEN_IMDB_IDS = [
-            "tt0068845","tt0122943","tt0076149","tt0078330","tt0082245","tt0084745",
-            "tt0087480","tt0087436","tt0087800","tt0088912","tt0090911","tt0093629",
-            "tt0096071","tt0098320","tt0100253","tt0102757","tt0110362","tt0114817",
-            "tt0117428","tt0120656","tt0166735","tt0134208","tt0257497","tt0425870",
-            "tt0872230","tt0381061","tt0090933","tt0068846","tt0076132","tt0078278",
-            "tt0082260","tt0084745","tt0087515","tt0087800","tt0087436","tt0088930",
-            "tt0093629","tt0096158","tt0098320","tt0102657","tt0110362","tt0114817",
-            "tt0257498","tt0878657","tt0067862","tt0120524","tt0120627","tt0219653",
-            "tt0426459","tt0454841","tt0455362","tt0139045","tt0892769","tt0169123",
-            "tt3826866","tt0094503","tt0087800","tt0117571","tt0076142","tt0068846",
-            "tt0190587","tt0169389","tt0303861"
-        ];
-
-        // ---- Horror Fest hard‑wired IMDb IDs ----
-        const HORROR_FEST_IMDB_IDS = [
-            "tt0475319","tt0435661","tt0456012","tt0490074","tt0478132","tt0478125",
-            "tt0435644","tt0466847","tt0478123","tt0452608","tt0810841","tt0490104",
-            "tt0810852","tt0810853","tt0810854","tt0810857","tt0810858","tt0814683",
-            "tt0492497","tt0906734","tt1277197","tt1034333","tt1082596","tt1230438",
-            "tt1186831","tt1258169","tt1331307","tt1385826","tt1386695","tt1337073",
-            "tt1300947","tt1316536","tt1300945","tt1300946","tt4429734","tt2395682",
-            "tt1612319","tt4405364","tt4433612","tt3643766","tt3597446","tt4590380",
-            "tt0452636","tt1633454","tt1634125","tt1504419","tt1632709","tt1705727",
-            "tt1634126","tt1632703","tt2188806","tt2326798","tt2188812","tt2261908",
-            "tt2401835","tt2188801","tt2283344","tt3020616","tt2948332","tt3569420",
-            "tt3867622","tt2330693","tt3931168","tt3110960","tt3748250"
         ];
 
         // ---- IMDb → TMDB cache ----
@@ -409,6 +372,8 @@
                 latestBloodPage = 1;
                 loadedHorrorMoviesIds.clear();
                 horrorMoviesPage = 1;
+                loadedHorrorFestIds.clear();
+                horrorFestPage = 1;
             }
 
             let results = [];
@@ -532,21 +497,75 @@
                     results = Array.from(unique.values());
                     horrorMoviesPage++;
                 }
+            } else if (activeType === 'horror_fest') {
+                if (!append) {
+                    loadedHorrorFestIds.clear();
+                    horrorFestPage = 1;
+                    const horrorFestImdbIds = [
+                        "tt0475319","tt0435661","tt0456012","tt0490074","tt0478132","tt0478125",
+                        "tt0435644","tt0466847","tt0478123","tt0452608","tt0810841","tt0490104",
+                        "tt0810852","tt0810853","tt0810854","tt0810857","tt0810858","tt0814683",
+                        "tt0492497","tt0906734","tt1277197","tt1034333","tt1082596","tt1230438",
+                        "tt1186831","tt1258169","tt1331307","tt1385826","tt1386695","tt1337073",
+                        "tt1300947","tt1316536","tt1300945","tt1300946","tt4429734","tt2395682",
+                        "tt1612319","tt4405364","tt4433612","tt3643766","tt3597446","tt4590380",
+                        "tt0452636","tt1633454","tt1634125","tt1504419","tt1632709","tt1705727",
+                        "tt1634126","tt1632703","tt2188806","tt2326798","tt2188812","tt2261908",
+                        "tt2401835","tt2188801","tt2283344","tt3020616","tt2948332","tt3569420",
+                        "tt3867622","tt2330693","tt3931168","tt3110960","tt3748250"
+                    ];
+                    const hardwiredItems = await resolveItemsFromImdbList(horrorFestImdbIds, loadedHorrorFestIds);
+                    let unique = new Map();
+                    hardwiredItems.forEach(item => unique.set(item.id, item));
+                    results = Array.from(unique.values());
+                    currentPage = 2;
+                } else {
+                    const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&sort_by=popularity.desc&page=${horrorFestPage}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    let fetched = (data.results || []).filter(m => m.poster_path && !loadedHorrorFestIds.has(m.id)).map(m => ({ ...m, media_type: 'movie' }));
+                    let unique = new Map();
+                    fetched.forEach(m => { if (!unique.has(m.id)) { unique.set(m.id, m); loadedHorrorFestIds.add(m.id); } });
+                    results = Array.from(unique.values());
+                    horrorFestPage++;
+                }
             } else if (activeType === 'stephen_king') {
-                // ONLY the hard‑wired Stephen King IMDb IDs – no extras, no infinite scroll
-                const fetched = await resolveItemsFromImdbList(STEPHEN_KING_IMDB_IDS, new Set());
+                const stephenKingImdbIds = [
+                    "tt0079844","tt0099849","tt0101138","tt0106156","tt0108941","tt0112040",
+                    "tt0118463","tt0135659","tt0259153","tt0281432","tt0324864","tt0347463",
+                    "tt0478056","tt1519681","tt1954313","tt1553656","tt2879552","tt6520336",
+                    "tt4354880","tt6548228","tt9310638","tt8550800","tt1831804","tt11822704",
+                    "tt11737520","tt29340643","tt26656754"
+                ];
+                const fetched = await resolveItemsFromImdbList(stephenKingImdbIds, new Set());
+                const creditRes = await fetch(`https://api.themoviedb.org/3/person/3027/combined_credits?api_key=${API_KEY}`);
+                const creditData = await creditRes.json();
+                let creditPool = [...creditData.cast, ...creditData.crew].filter(m => m.poster_path && (m.job === 'Writer' || m.job === 'Novel' || m.job === 'Author') && !m.genre_ids.includes(99));
+                const seen = new Set(fetched.map(item => item.id));
+                creditPool.forEach(item => { if (!seen.has(item.id)) { seen.add(item.id); fetched.push({...item, media_type: item.media_type || 'movie'}); } });
                 renderGrid(fetched);
                 isLoading = false;
                 return;
             } else if (activeType === 'wes_craven') {
-                // ONLY the hard‑wired Wes Craven IMDb IDs – no extras, no infinite scroll
-                const fetched = await resolveItemsFromImdbList(WES_CRAVEN_IMDB_IDS, new Set());
-                renderGrid(fetched);
-                isLoading = false;
-                return;
-            } else if (activeType === 'horror_fest') {
-                // ONLY the hard‑wired Horror Fest IMDb IDs – no extras, no infinite scroll
-                const fetched = await resolveItemsFromImdbList(HORROR_FEST_IMDB_IDS, new Set());
+                const wesCravenImdbIds = [
+                    "tt0068845","tt0122943","tt0076149","tt0078330","tt0082245","tt0084745",
+                    "tt0087480","tt0087436","tt0087800","tt0088912","tt0090911","tt0093629",
+                    "tt0096071","tt0098320","tt0100253","tt0102757","tt0110362","tt0114817",
+                    "tt0117428","tt0120656","tt0166735","tt0134208","tt0257497","tt0425870",
+                    "tt0872230","tt0381061","tt0090933","tt0068846","tt0076132","tt0078278",
+                    "tt0082260","tt0084745","tt0087515","tt0087800","tt0087436","tt0088930",
+                    "tt0093629","tt0096158","tt0098320","tt0102657","tt0110362","tt0114817",
+                    "tt0257498","tt0878657","tt0067862","tt0120524","tt0120627","tt0219653",
+                    "tt0426459","tt0454841","tt0455362","tt0139045","tt0892769","tt0169123",
+                    "tt3826866","tt0094503","tt0087800","tt0117571","tt0076142","tt0068846",
+                    "tt0190587","tt0169389","tt0303861"
+                ];
+                const fetched = await resolveItemsFromImdbList(wesCravenImdbIds, new Set());
+                const creditRes = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_crew=5140&sort_by=release_date.desc&page=1`);
+                const creditData = await creditRes.json();
+                let creditResults = creditData.results || [];
+                const seen = new Set(fetched.map(item => item.id));
+                creditResults.forEach(item => { if (!seen.has(item.id)) { seen.add(item.id); fetched.push({...item, media_type: 'movie'}); } });
                 renderGrid(fetched);
                 isLoading = false;
                 return;
@@ -658,7 +677,7 @@
                 results = data.results;
             }
             renderGrid(results);
-            if (!['horror_shows','youth','unrated','abroad','trending','horror_movies','stephen_king','wes_craven','horror_fest'].includes(activeType)) currentPage++;
+            if (!['horror_shows','youth','unrated','abroad','trending','horror_movies','horror_fest','stephen_king','wes_craven'].includes(activeType)) currentPage++;
             isLoading = false;
         }
 
