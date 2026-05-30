@@ -196,7 +196,6 @@
             "tt32560625","tt15532464","tt0220506","tt0070893","tt6535880","tt0133751",
             "tt0462160","tt6133466","tt37521114","tt35684711","tt31777631","tt12776978",
             "tt38090790","tt4065260","tt39094274",
-            // Additional black horror titles
             "tt33347919","tt27300761","tt33494429","tt25477164","tt24973148","tt26569112",
             "tt26569123","tt0499573","tt1760998","tt9308464","tt35286916","tt36817730",
             "tt29929565","tt27990725"
@@ -406,7 +405,6 @@
                     currentPage++;
                 }
             } else if (activeType === 'horror_movies') {
-                // ---- HORROR FILMS ----
                 if (!append) {
                     loadedHorrorMoviesIds.clear();
                     horrorMoviesPage = 1;
@@ -444,7 +442,6 @@
                     horrorMoviesPage++;
                 }
             } else if (activeType === 'horror_fest') {
-                // ---- HORROR FEST (former Dark Castle) ----
                 if (!append) {
                     loadedHorrorFestIds.clear();
                     horrorFestPage = 1;
@@ -467,7 +464,6 @@
                     results = Array.from(unique.values());
                     currentPage = 2;
                 } else {
-                    // Generic horror movie discovery for subsequent pages
                     const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&sort_by=popularity.desc&page=${horrorFestPage}`;
                     const res = await fetch(url);
                     const data = await res.json();
@@ -486,7 +482,6 @@
                     "tt11737520","tt29340643","tt26656754"
                 ];
                 const fetched = await resolveItemsFromImdbList(stephenKingImdbIds, new Set());
-                // Also fetch from Stephen King's TMDB credits
                 const creditRes = await fetch(`https://api.themoviedb.org/3/person/3027/combined_credits?api_key=${API_KEY}`);
                 const creditData = await creditRes.json();
                 let creditPool = [...creditData.cast, ...creditData.crew].filter(m => m.poster_path && (m.job === 'Writer' || m.job === 'Novel' || m.job === 'Author') && !m.genre_ids.includes(99));
@@ -608,7 +603,9 @@
                     results = await resolveItemsFromImdbList(unratedImdbIds, loadedUnratedIds);
                     currentPage = 2;
                 } else {
-                    const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&certification_country=US&certification=NR|UR|NC-17&with_keywords=33507|6152|9653|193386|230113&sort_by=popularity.desc&page=${currentPage}`;
+                    // EXTREME HORROR KEYWORDS (splatter, gore, exploitation, found footage, extreme horror, torture, cannibal, home invasion, backwoods, anthology, indie, erotic, demonic, survival, vampire, werewolf)
+                    const extremeKeywords = '12341|6152|33507|193386|230113|15284|10349|14638|1551|9679|9748|10244|11181|10123|10220|10322|20711';
+                    const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&certification_country=US&certification=NR|UR|NC-17&with_keywords=${extremeKeywords}&sort_by=popularity.desc&page=${currentPage}`;
                     const res = await fetch(url);
                     const data = await res.json();
                     let movies = (data.results || []).filter(m => m.poster_path && m.genre_ids && m.genre_ids.includes(27) && !loadedUnratedIds.has(m.id));
@@ -628,9 +625,6 @@
             if (!['horror_shows','youth','unrated','abroad','trending','horror_movies','horror_fest','stephen_king','wes_craven'].includes(activeType)) currentPage++;
             isLoading = false;
         }
-
-        // ---- Stephen King and Wes Craven are handled above, no separate functions needed ----
-        // ---- After Dark removed, replaced by Horror Fest ----
 
         function renderBlackHorror(items, append) {
             const container = document.getElementById('black-horror-section');
