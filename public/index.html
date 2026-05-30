@@ -141,7 +141,8 @@
             <button id="close-player-btn" onclick="closePlayer()" class="player-close-btn focusable">✕ CEASE</button>
         </div>
         <div class="player-wrapper">
-            <iframe id="luxe-player" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+            <!-- Sandbox allows the player to run while blocking pop-ups, new windows, and redirects -->
+            <iframe id="luxe-player" sandbox="allow-scripts allow-same-origin" allowfullscreen allow="autoplay; encrypted-media"></iframe>
         </div>
     </div>
 
@@ -627,7 +628,7 @@
             const playerOverlay = document.getElementById('player-overlay');
             const iframe = document.getElementById('luxe-player');
             playerOverlay.style.display = 'block';
-            // MultiEmbed – automatically finds streams from multiple sources
+            // MultiEmbed (corrected URL) – automatically finds streams from multiple sources
             iframe.src = (type === 'movie'
                 ? `https://multiembed.mov/?video_id=${id}&tmdb=1`
                 : `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`);
