@@ -292,96 +292,61 @@
         // ---- Horror Films sub‑genre keywords ----
         const HORROR_FILMS_KEYWORDS = '9715|6152|12341|10541|1297|33507|9673|12334|1299|3133|12645|24558|179430|10244|15290|33501|972|1295|9951|9672|33505|14638|128|10322|10123|154|10349|10220|9679|15284|2673|9950|9748|20711|6151';
 
+        // ---- Youth Horror sub‑genre keywords ----
+        const YOUTH_KEYWORDS = '162846|1551|1956|15097|9748|10349|15284|10123|10220|9679|10181|3356|1297|12334|11181|10683';
+
         // ---- Abroad category specs (priority 1 = top) ----
         const abroadSpecs = [
-            // Japanese & Anime (top priority)
             { type: 'movie', genre: '27', country: 'JP', keywords: '1287', sort: 'popularity.desc', priority: 1 },
-            { type: 'movie', genre: '27', keywords: '2104', sort: 'popularity.desc', priority: 1 }, // anime horror movies
+            { type: 'movie', genre: '27', keywords: '2104', sort: 'popularity.desc', priority: 1 },
             { type: 'tv', genre: '10765', country: 'JP', keywords: '1287', sort: 'popularity.desc', priority: 1 },
-            // Nollywood
             { type: 'movie', genre: '27', country: 'NG', sort: 'popularity.desc', priority: 2 },
-            // Korean
             { type: 'movie', genre: '27', country: 'KR', keywords: '5375', sort: 'popularity.desc', priority: 3 },
-            // Thai
             { type: 'movie', genre: '27', country: 'TH', keywords: '6151', sort: 'popularity.desc', priority: 4 },
-            // Indonesian
             { type: 'movie', genre: '27', country: 'ID', keywords: '13758', sort: 'popularity.desc', priority: 5 },
-            // Hong Kong
             { type: 'movie', genre: '27', country: 'HK', keywords: '1437|1760', sort: 'popularity.desc', priority: 6 },
-            // Indian
             { type: 'movie', genre: '27', country: 'IN', keywords: '4002|14903', sort: 'popularity.desc', priority: 7 },
-            // Filipino
             { type: 'movie', genre: '27', country: 'PH', keywords: '13666', sort: 'popularity.desc', priority: 8 },
-            // Taiwanese
             { type: 'movie', genre: '27', country: 'TW', keywords: '13757', sort: 'popularity.desc', priority: 9 },
-            // Chinese
             { type: 'movie', genre: '27', country: 'CN', keywords: '1287', sort: 'popularity.desc', priority: 10 },
-            // Turkish
             { type: 'movie', genre: '27', country: 'TR', keywords: '15787', sort: 'popularity.desc', priority: 11 },
-            // Japanese Pinku / Erotic
             { type: 'movie', genre: '27', country: 'JP', keywords: '1632', sort: 'popularity.desc', priority: 12 },
-            // Kaiju
             { type: 'movie', genre: '27', keywords: '1286', sort: 'popularity.desc', priority: 13 },
-            // South Korean Revenge (already covered)
             { type: 'movie', genre: '27', country: 'KR', keywords: '5375', sort: 'popularity.desc', priority: 14 },
-            // Ghanaian
             { type: 'movie', genre: '27', country: 'GH', sort: 'popularity.desc', priority: 15 },
-            // South African
             { type: 'movie', genre: '27', country: 'ZA', keywords: '6422', sort: 'popularity.desc', priority: 16 },
-            // North African (multiple countries)
             { type: 'movie', genre: '27', country: 'MA', sort: 'popularity.desc', priority: 17 },
             { type: 'movie', genre: '27', country: 'DZ', sort: 'popularity.desc', priority: 17 },
             { type: 'movie', genre: '27', country: 'TN', sort: 'popularity.desc', priority: 17 },
             { type: 'movie', genre: '27', country: 'EG', sort: 'popularity.desc', priority: 17 },
-            // East African (Kenya)
             { type: 'movie', genre: '27', country: 'KE', sort: 'popularity.desc', priority: 18 },
-            // African Diaspora Voodoo/Zombie
             { type: 'movie', genre: '27', keywords: '1613', sort: 'popularity.desc', priority: 19 },
-            // Giallo (Italian)
             { type: 'movie', genre: '27', country: 'IT', keywords: '227', sort: 'popularity.desc', priority: 20 },
-            // Italian Cannibal
             { type: 'movie', genre: '27', country: 'IT', keywords: '1241', sort: 'popularity.desc', priority: 21 },
-            // Italian Zombie
             { type: 'movie', genre: '27', country: 'IT', keywords: '1290', sort: 'popularity.desc', priority: 22 },
-            // Italian Gothic
             { type: 'movie', genre: '27', country: 'IT', keywords: '437', sort: 'popularity.desc', priority: 23 },
-            // French New Extremity
             { type: 'movie', genre: '27', country: 'FR', keywords: '6127', sort: 'popularity.desc', priority: 24 },
-            // French Fantastique
             { type: 'movie', genre: '27', country: 'FR', keywords: '5716', sort: 'popularity.desc', priority: 25 },
-            // Spanish Fantaterror
             { type: 'movie', genre: '27', country: 'ES', keywords: '1196', sort: 'popularity.desc', priority: 26 },
-            // Catalan / Spanish Modern
             { type: 'movie', genre: '27', country: 'ES', sort: 'popularity.desc', priority: 27 },
-            // German Expressionism
             { type: 'movie', genre: '27', country: 'DE', keywords: '396', sort: 'popularity.desc', priority: 28 },
-            // Krimi (German)
             { type: 'movie', genre: '27', country: 'DE', keywords: '226', sort: 'popularity.desc', priority: 29 },
-            // German Underground Gore
             { type: 'movie', genre: '27', country: 'DE', keywords: '1790', sort: 'popularity.desc', priority: 30 },
-            // British Folk Horror
             { type: 'movie', genre: '27', country: 'GB', keywords: '1968', sort: 'popularity.desc', priority: 31 },
-            // Hammer Horror
             { type: 'movie', genre: '27', country: 'GB', keywords: '1366', sort: 'popularity.desc', priority: 32 },
-            // British New Wave
             { type: 'movie', genre: '27', country: 'GB', keywords: '1545', sort: 'popularity.desc', priority: 33 },
-            // Nordic Folk Horror (multiple countries)
             { type: 'movie', genre: '27', country: 'SE', keywords: '1968', sort: 'popularity.desc', priority: 34 },
             { type: 'movie', genre: '27', country: 'NO', keywords: '1968', sort: 'popularity.desc', priority: 34 },
             { type: 'movie', genre: '27', country: 'DK', keywords: '1968', sort: 'popularity.desc', priority: 34 },
             { type: 'movie', genre: '27', country: 'FI', keywords: '1968', sort: 'popularity.desc', priority: 34 },
             { type: 'movie', genre: '27', country: 'IS', keywords: '1968', sort: 'popularity.desc', priority: 34 },
-            // Eastern European
             { type: 'movie', genre: '27', country: 'PL', sort: 'popularity.desc', priority: 35 },
             { type: 'movie', genre: '27', country: 'CZ', sort: 'popularity.desc', priority: 35 },
             { type: 'movie', genre: '27', country: 'RU', keywords: '1968', sort: 'popularity.desc', priority: 35 },
-            // Benelux
             { type: 'movie', genre: '27', country: 'NL', sort: 'popularity.desc', priority: 36 },
             { type: 'movie', genre: '27', country: 'BE', sort: 'popularity.desc', priority: 36 },
             { type: 'movie', genre: '27', country: 'LU', sort: 'popularity.desc', priority: 36 },
-            // Greek
             { type: 'movie', genre: '27', country: 'GR', sort: 'popularity.desc', priority: 37 },
-            // Portuguese/Brazilian (Coffin Joe)
             { type: 'movie', genre: '27', country: 'BR', keywords: '1239', sort: 'popularity.desc', priority: 38 },
             { type: 'movie', genre: '27', country: 'PT', keywords: '1239', sort: 'popularity.desc', priority: 38 }
         ];
@@ -421,7 +386,6 @@
                 results = movies.map(m => ({ ...m, media_type: 'movie' }));
                 latestBloodPage++;
             } else if (activeType === 'abroad') {
-                // ---- HORROR FROM ABROAD (multi-category, prioritized) ----
                 const fetchPromises = abroadSpecs.map(spec => {
                     let url = `https://api.themoviedb.org/3/discover/${spec.type}?api_key=${API_KEY}&with_genres=${spec.genre}&sort_by=${spec.sort}&page=${abroadPage}`;
                     if (spec.country) url += `&with_origin_country=${spec.country}`;
@@ -482,8 +446,8 @@
                     const isMoviePage = currentPage % 2 === 0;
                     const pageTarget = Math.floor(currentPage / 2) + 1;
                     let targetUrl = isMoviePage ? 
-                        `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&certification_country=US&certification.lte=PG-13&page=${pageTarget}` :
-                        `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&certification_country=US&certification.lte=TV-14&page=${pageTarget}`;
+                        `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&certification_country=US&certification.lte=PG-13&with_keywords=${YOUTH_KEYWORDS}&sort_by=popularity.desc&page=${pageTarget}` :
+                        `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&certification_country=US&certification.lte=TV-14&with_keywords=${YOUTH_KEYWORDS}&sort_by=popularity.desc&page=${pageTarget}`;
                     const res = await fetch(targetUrl);
                     const data = await res.json();
                     let fetched = (data.results || []).filter(item => 
