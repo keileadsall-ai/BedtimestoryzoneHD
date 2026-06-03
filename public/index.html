@@ -141,7 +141,7 @@
             <button id="close-player-btn" onclick="closePlayer()" class="player-close-btn focusable">✕ CEASE</button>
         </div>
         <div class="player-wrapper">
-            <iframe id="luxe-player" allowfullscreen="allowfullscreen" allow="autoplay; encrypted-media; fullscreen" sandbox="allow-scripts allow-same-origin allow-forms allow-top-navigation-by-user-activation"></iframe>
+            <iframe id="luxe-player" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" allow="autoplay; fullscreen; encrypted-media"></iframe>
         </div>
     </div>
 
@@ -275,6 +275,45 @@
             "tt1535470","tt1535462"
         ];
 
+        // ---- IMDb → TMDB cache ----
+        const imdbCache = new Map();
+        async function fetchTMDBFromIMDb(imdbId) {
+            if (imdbCache.has(imdbId)) return imdbCache.get(imdbId);
+            try {
+                const res = await fetch(`https://api.themoviedb.org/3/find/${imdbId}?api_key=${API_KEY}&external_source=imdb_id`);
+                const data = await res.json();
+                if (data.movie_results && data.movie_results.length > 0) {
+                    const result = { id: data.movie_results[0].id, type: 'movie' };
+                    imdbCache.set(imdbId, result);
+                    return result;
+                } else if (data.tv_results && data.tv_results.length > 0) {
+                    const result = { id: data.tv_results[0].id, type: 'tv' };
+                    imdbCache.set(imdbId, result);
+                    return result;
+                }
+            } catch (e) {}
+            return null;
+        }
+
+        async function resolveItemsFromImdbList(imdbIds, idSet) {
+            const promises = imdbIds.map(async (imdbId) => {
+                const tmdb = await fetchTMDBFromIMDb(imdbId);
+                if (tmdb && !idSet.has(tmdb.id)) {
+                    try {
+                        const res = await fetch(`https://api.themoviedb.org/3/${tmdb.type}/${tmdb.id}?api_key=${API_KEY}`);
+                        const data = await res.json();
+                        if (data && data.poster_path) {
+                            idSet.add(tmdb.id);
+                            return { ...data, media_type: tmdb.type, id: tmdb.id };
+                        }
+                    } catch (e) {}
+                }
+                return null;
+            });
+            const items = await Promise.all(promises);
+            return items.filter(Boolean);
+        }
+
         const UNIQUE_BLACK_IDS = [...new Set([
             147, 20810, 2963, 16582, 134, 17259, 538, 78029, 521, 17697,
             76748, 97169, 25619, 2372, 64235, 34503, 15313, 856, 16214,
@@ -290,9 +329,13 @@
             12778, 12830, 12897, 12984, 13151, 13217, 13378, 13413, 13641
         ])];
 
+        // ---- Horror Films sub‑genre keywords ----
         const HORROR_FILMS_KEYWORDS = '9715|6152|12341|10541|1297|33507|9673|12334|1299|3133|12645|24558|179430|10244|15290|33501|972|1295|9951|9672|33505|14638|128|10322|10123|154|10349|10220|9679|15284|2673|9950|9748|20711|6151';
+
+        // ---- Youth Horror sub‑genre keywords ----
         const YOUTH_KEYWORDS = '162846|1551|1956|15097|9748|10349|15284|10123|10220|9679|10181|3356|1297|12334|11181|10683';
 
+        // ---- Abroad category specs (Expanded With More Worldwide Horror Footprints) ----
         const abroadSpecs = [
             { type: 'movie', genre: '27', country: 'JP', keywords: '1287', sort: 'popularity.desc', priority: 1 },
             { type: 'movie', genre: '27', keywords: '2104', sort: 'popularity.desc', priority: 1 },
@@ -353,44 +396,6 @@
             { type: 'movie', genre: '27', country: 'AT', sort: 'popularity.desc', priority: 42 }
         ];
 
-        const imdbCache = new Map();
-        async function fetchTMDBFromIMDb(imdbId) {
-            if (imdbCache.has(imdbId)) return imdbCache.get(imdbId);
-            try {
-                const res = await fetch(`https://api.themoviedb.org/3/find/${imdbId}?api_key=${API_KEY}&external_source=imdb_id`);
-                const data = await res.json();
-                if (data.movie_results && data.movie_results.length > 0) {
-                    const result = { id: data.movie_results[0].id, type: 'movie' };
-                    imdbCache.set(imdbId, result);
-                    return result;
-                } else if (data.tv_results && data.tv_results.length > 0) {
-                    const result = { id: data.tv_results[0].id, type: 'tv' };
-                    imdbCache.set(imdbId, result);
-                    return result;
-                }
-            } catch (e) {}
-            return null;
-        }
-
-        async function resolveItemsFromImdbList(imdbIds, idSet) {
-            const promises = imdbIds.map(async (imdbId) => {
-                const tmdb = await fetchTMDBFromIMDb(imdbId);
-                if (tmdb && !idSet.has(tmdb.id)) {
-                    try {
-                        const res = await fetch(`https://api.themoviedb.org/3/${tmdb.type}/${tmdb.id}?api_key=${API_KEY}`);
-                        const data = await res.json();
-                        if (data && data.poster_path) {
-                            idSet.add(tmdb.id);
-                            return { ...data, media_type: tmdb.type, id: tmdb.id };
-                        }
-                    } catch (e) {}
-                }
-                return null;
-            });
-            const items = await Promise.all(promises);
-            return items.filter(Boolean);
-        }
-
         async function fetchContent(append = false) {
             if (isLoading) return;
             isLoading = true;
@@ -416,7 +421,7 @@
 
             let results = [];
             if (activeType === 'trending') {
-                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&primary_release_date.gte=2024-01-01&without_genres=16,35,10751&sort_by=popularity.desc&page=${latestBloodPage}`;
+                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&without_genres=16,10751,35&primary_release_date.gte=2024-01-01&sort_by=popularity.desc&page=${latestBloodPage}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 let movies = (data.results || []).filter(m => m.poster_path && !loadedLatestBloodIds.has(m.id));
@@ -475,7 +480,7 @@
                 if (!append) {
                     loadedYouthHorrorIds.clear();
                     youthHorrorPage = 1;
-                    const hardwiredItems = await resolveItemsFromImdbList(YOUTH_IMDB_IDS, loadedYouthHorrorIds);
+                    const hardwiredItems = await resolveItemsFromImdbList([...new Set(YOUTH_IMDB_IDS)], loadedYouthHorrorIds);
                     let unique = new Map();
                     hardwiredItems.forEach(item => unique.set(item.id, item));
                     results = Array.from(unique.values());
@@ -520,7 +525,7 @@
                         "tt0090094","tt13638858","tt9301428","tt0255702","tt0479968","tt0295254",
                         "tt3850590","tt20114976","tt0361679","tt0982914"
                     ];
-                    const hardwiredItems = await resolveItemsFromImdbList(specificImdbIds, loadedHorrorMoviesIds);
+                    const hardwiredItems = await resolveItemsFromImdbList([...new Set(specificImdbIds)], loadedHorrorMoviesIds);
                     let unique = new Map();
                     hardwiredItems.forEach(item => unique.set(item.id, item));
                     results = Array.from(unique.values());
@@ -536,17 +541,20 @@
                     horrorMoviesPage++;
                 }
             } else if (activeType === 'stephen_king') {
-                const fetched = await resolveItemsFromImdbList(STEPHEN_KING_IMDB_IDS, new Set());
+                if (append) { isLoading = false; return; }
+                const fetched = await resolveItemsFromImdbList([...new Set(STEPHEN_KING_IMDB_IDS)], new Set());
                 renderGrid(fetched);
                 isLoading = false;
                 return;
             } else if (activeType === 'wes_craven') {
-                const fetched = await resolveItemsFromImdbList(WES_CRAVEN_IMDB_IDS, new Set());
+                if (append) { isLoading = false; return; }
+                const fetched = await resolveItemsFromImdbList([...new Set(WES_CRAVEN_IMDB_IDS)], new Set());
                 renderGrid(fetched);
                 isLoading = false;
                 return;
             } else if (activeType === 'horror_fest') {
-                const fetched = await resolveItemsFromImdbList(HORROR_FEST_IMDB_IDS, new Set());
+                if (append) { isLoading = false; return; }
+                const fetched = await resolveItemsFromImdbList([...new Set(HORROR_FEST_IMDB_IDS)], new Set());
                 renderGrid(fetched);
                 isLoading = false;
                 return;
@@ -581,7 +589,7 @@
                         'Hellsing', 'Bag of Bones', "Freddy's Nightmares", 'Light as a Feather',
                         'Creepshow'
                     ];
-                    specifiedShows.forEach(title => {
+                    [...new Set(specifiedShows)].forEach(title => {
                         promises.push(
                             fetch(`https://api.themoviedb.org/3/search/tv?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
                             .then(res => res.json())
@@ -637,7 +645,7 @@
                         "tt0120755","tt21799918","tt0471011","tt0871020","tt0405977","tt2317412",
                         "tt2771800","tt0066836"
                     ];
-                    results = await resolveItemsFromImdbList(unratedImdbIds, loadedUnratedIds);
+                    results = await resolveItemsFromImdbList([...new Set(unratedImdbIds)], loadedUnratedIds);
                     currentPage = 2;
                 } else {
                     const extremeKeywords = '12341|6152|33507|193386|230113|15284|10349|14638|1551|9679|9748|10244|11181|10123|10220|10322|20711';
@@ -741,8 +749,8 @@
             const iframe = document.getElementById('luxe-player');
             playerOverlay.style.display = 'block';
             iframe.src = (type === 'movie'
-                ? `https://multiembed.mov/?video_id=${id}&tmdb=1`
-                : `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`);
+                ? `https://vidlink.pro/movie/${id}?primaryColor=e50914&autoplay=1`
+                : `https://vidlink.pro/tv/${id}/${s}/${e}?primaryColor=e50914&autoplay=1`);
             setTimeout(() => document.getElementById('close-player-btn').focus(), 500);
         }
 
