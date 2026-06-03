@@ -141,7 +141,7 @@
             <button id="close-player-btn" onclick="closePlayer()" class="player-close-btn focusable">✕ CEASE</button>
         </div>
         <div class="player-wrapper">
-            <iframe id="luxe-player" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" allow="autoplay; encrypted-media; fullscreen"></iframe>
+            <iframe id="luxe-player" allowfullscreen allow="autoplay; encrypted-media" sandbox="allow-scripts allow-same-origin allow-forms allow-top-navigation-by-user-activation allow-popups allow-popups-to-escape-sandbox"></iframe>
         </div>
     </div>
 
@@ -239,6 +239,7 @@
             "tt0478056","tt1519681","tt1954313","tt1553656","tt2879552","tt6520336",
             "tt4354880","tt6548228","tt9310638","tt8550800","tt1831804","tt11822704",
             "tt11737520","tt29340643","tt26656754",
+            // Additions:
             "tt0081505","tt0085426","tt0087032","tt0089798","tt0091499","tt0093903",
             "tt0098084","tt0102481","tt0105123","tt0107611","tt0110407","tt0114658",
             "tt0119894","tt0120802","tt0222142","tt0361127","tt1051904","tt1301294",
@@ -271,6 +272,7 @@
             "tt1634126","tt1632703","tt2188806","tt2326798","tt2188812","tt2261908",
             "tt2401835","tt2188801","tt2283344","tt3020616","tt2948332","tt3569420",
             "tt3867622","tt2330693","tt3931168","tt3110960","tt3748250",
+            // Additions:
             "tt1535466","tt1535446","tt1535409","tt1535484","tt1535443","tt1535414",
             "tt1535470","tt1535462"
         ];
@@ -335,7 +337,7 @@
         // ---- Youth Horror sub‑genre keywords ----
         const YOUTH_KEYWORDS = '162846|1551|1956|15097|9748|10349|15284|10123|10220|9679|10181|3356|1297|12334|11181|10683';
 
-        // ---- Abroad category specs ----
+        // ---- Abroad category specs (Expanded With More Worldwide Horror Footprints) ----
         const abroadSpecs = [
             { type: 'movie', genre: '27', country: 'JP', keywords: '1287', sort: 'popularity.desc', priority: 1 },
             { type: 'movie', genre: '27', keywords: '2104', sort: 'popularity.desc', priority: 1 },
@@ -349,7 +351,7 @@
             { type: 'movie', genre: '27', country: 'PH', keywords: '13666', sort: 'popularity.desc', priority: 8 },
             { type: 'movie', genre: '27', country: 'TW', keywords: '13757', sort: 'popularity.desc', priority: 9 },
             { type: 'movie', genre: '27', country: 'CN', keywords: '1287', sort: 'popularity.desc', priority: 10 },
-            { type: 'TR', genre: '27', country: 'TR', keywords: '15787', sort: 'popularity.desc', priority: 11 },
+            { type: 'movie', genre: '27', country: 'TR', keywords: '15787', sort: 'popularity.desc', priority: 11 },
             { type: 'movie', genre: '27', country: 'JP', keywords: '1632', sort: 'popularity.desc', priority: 12 },
             { type: 'movie', genre: '27', keywords: '1286', sort: 'popularity.desc', priority: 13 },
             { type: 'movie', genre: '27', country: 'KR', keywords: '5375', sort: 'popularity.desc', priority: 14 },
@@ -421,9 +423,7 @@
 
             let results = [];
             if (activeType === 'trending') {
-                const excludedKeywords = '1287|157929|170420|236316|292900';
-                const excludedGenres = '16|10751';
-                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&primary_release_date.gte=2024-01-01&without_genres=${excludedGenres}&without_keywords=${excludedKeywords}&sort_by=popularity.desc&page=${latestBloodPage}`;
+                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&primary_release_date.gte=2024-01-01&without_genres=16,35,10751&sort_by=popularity.desc&page=${latestBloodPage}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 let movies = (data.results || []).filter(m => m.poster_path && !loadedLatestBloodIds.has(m.id));
