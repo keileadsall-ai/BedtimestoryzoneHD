@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Metal+Mania&family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
 
     <style>
-        :root { --blood: #e50914; --void: #000; --ash: #1a1a1a; --slime: #142416; }
+        :root { --blood: #e50914; --void: #000; --ash: #1a1a1a; }
         body { background: var(--void); color: white; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; touch-action: pan-y; }
         .horror-font { font-family: 'Creepster', cursive; }
         .nosifer { font-family: 'Nosifer', cursive; }
@@ -25,45 +25,59 @@
         .focusable:focus { outline: none; border-color: #fff !important; transform: scale(1.08); box-shadow: 0 0 25px rgba(229, 9, 20, 0.8); z-index: 50; }
         header { height: 45vh; background: linear-gradient(to bottom, transparent, var(--void)), url('IMG_8238.jpeg') no-repeat center top; background-size: cover; display: flex; align-items: flex-end; padding: 40px; }
         .btn-play-blood { background: var(--blood); color: white; font-weight: 700; padding: 14px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; max-width: 400px; }
-        
-        /* --- Beautifully Disgusting Player Overlay Modification --- */
+
+        /* ═══════════════════ GORGEOUSLY DISGUSTING PLAYER OVERLAY ═══════════════════ */
         #player-overlay {
-            display: none; position: fixed; inset: 0; 
-            background: radial-gradient(circle, rgba(20,10,10,0.98) 0%, rgba(0,0,0,1) 100%);
-            backdrop-filter: blur(25px); z-index: 9000;
-            animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            display: none; position: fixed; inset: 0; z-index: 9000;
+            background: rgba(0,0,0,0.92); backdrop-filter: blur(25px);
+            animation: fadeIn 0.5s ease;
+        }
+        /* Blood drip effect – top */
+        #player-overlay::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0;
+            height: 100px; background: linear-gradient(to bottom, rgba(229,9,20,0.25) 0%, transparent 100%);
+            pointer-events: none; z-index: 2;
+        }
+        /* Cracked flesh texture overlay */
+        #player-overlay::after {
+            content: ''; position: absolute; inset: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><path d="M50,0 L60,100 L30,120 L20,50 Z M100,0 L110,80 L80,100 L90,30 Z M150,0 L140,90 L170,110 L160,40 Z" fill="rgba(139,0,0,0.08)"/></svg>') repeat;
+            pointer-events: none; z-index: 2;
         }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
         .player-header {
-            position: absolute; top: 25px; left: 25px; right: 25px;
+            position: absolute; top: 20px; left: 20px; right: 20px;
             display: flex; justify-content: space-between; align-items: center;
             z-index: 9001;
         }
         .player-title {
-            font-family: 'Metal Mania', cursive; color: var(--blood);
-            background: linear-gradient(135deg, #0d0101, #1f0303); padding: 10px 24px;
-            border-radius: 4px; border: 2px solid rgba(229,9,20,0.8);
-            font-size: 1.4rem; letter-spacing: 3px;
-            text-shadow: 0 0 8px rgba(229,9,20,0.6);
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.9), 0 0 25px rgba(229,9,20,0.4);
+            font-family: 'Creepster', cursive; color: var(--blood);
+            background: rgba(0,0,0,0.75); padding: 8px 20px;
+            border-radius: 30px; border: 1px solid rgba(229,9,20,0.7);
+            font-size: 1.2rem; letter-spacing: 2px;
+            box-shadow: 0 0 25px rgba(229,9,20,0.5), inset 0 0 10px rgba(0,0,0,0.8);
+            text-shadow: 0 0 10px #000;
         }
         .player-close-btn {
-            background: linear-gradient(180deg, #990000 0%, #4a0000 100%); color: #fff; border: 2px solid #ff3333;
+            background: #8b0000; color: #fff; border: 1px solid var(--blood);
             font-family: 'Creepster', cursive; font-size: 1.3rem;
-            padding: 8px 24px; border-radius: 4px; cursor: pointer;
-            letter-spacing: 2px; box-shadow: 0 0 20px rgba(229,9,20,0.6);
-            transition: all 0.3s ease; text-shadow: 1px 1px 2px #000;
+            padding: 8px 22px; border-radius: 30px; cursor: pointer;
+            letter-spacing: 1px; box-shadow: 0 0 18px rgba(229,9,20,0.7);
+            transition: all 0.2s; text-shadow: 0 0 10px #000;
         }
-        .player-close-btn:hover { background: #e50914; transform: scale(1.05) rotate(-1deg); box-shadow: 0 0 35px #e50914; }
+        .player-close-btn:hover { background: #b30000; transform: scale(1.08); }
+
         .player-wrapper {
             width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
-            padding: 80px 25px 25px 25px; box-sizing: border-box;
+            position: relative; z-index: 3;
         }
         #luxe-player {
-            width: 100%; height: 100%; max-width: 1400px; aspect-ratio: 16/9; border: 3px solid #1a0202; border-radius: 4px;
+            width: 96%; height: 92%; border: 3px solid rgba(139,0,0,0.7); border-radius: 24px;
+            box-shadow: 0 0 60px rgba(229,9,20,0.3), inset 0 0 20px rgba(0,0,0,0.6);
             background: #000;
-            box-shadow: 0 0 60px rgba(229,9,20,0.35), inset 0 0 40px rgba(0,0,0,1);
         }
+        /* Hide scrollbar */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .episode-row { display: flex; gap: 15px; padding: 12px; border-bottom: 1px solid #111; cursor: pointer; border: 2px solid transparent; border-radius: 8px; }
         .ep-thumbnail { width: 120px; aspect-ratio: 16/9; background-size: cover; border-radius: 4px; flex-shrink: 0; background-color: #111; position: relative; }
@@ -142,17 +156,11 @@
 
     <div id="player-overlay">
         <div class="player-header">
-            <div class="player-title horror-font">Now Consuming</div>
+            <div class="player-title">Now Consuming</div>
             <button id="close-player-btn" onclick="closePlayer()" class="player-close-btn focusable">✕ CEASE</button>
         </div>
         <div class="player-wrapper">
-            <iframe id="luxe-player" 
-                    allowfullscreen="true" 
-                    webkitallowfullscreen="true" 
-                    mozallowfullscreen="true" 
-                    sandbox="allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-top-navigation"
-                    allow="autoplay; fullscreen; encrypted-media; picture-in-picture">
-            </iframe>
+            <iframe id="luxe-player" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" allow="autoplay; fullscreen; encrypted-media"></iframe>
         </div>
     </div>
 
@@ -179,9 +187,34 @@
 
         // ---- IMDb ID lists ----
         const HARD_WIRED_IMDB_IDS = [
-            "tt0144120","tt0114126","tt0101535","tt0117571","tt0120082","tt0134084","tt1262416",
-            "tt11245972","tt17663992","tt27047903","tt0075005","tt0077394","tt0102585",
-            "tt0466909","tt0195714","tt0309593","tt0452608","tt1144884","tt1570928"
+            "tt0071095","tt7544954","tt3743358","tt13365348","tt0160016","tt16997558",
+            "tt4798836","tt0120603","tt12298506","tt15475330","tt0193013","tt26453917",
+            "tt5184138","tt8520140","tt2274248","tt8110652","tt0103919","tt0165662",
+            "tt9347730","tt0119988","tt0285487","tt0090888","tt3104930","tt23648404",
+            "tt9331416","tt7631568","tt6803212","tt0074430","tt0119080","tt28088571",
+            "tt9088954","tt11057594","tt2583620","tt9813792","tt0068619","tt7475988",
+            "tt0338094","tt1695843","tt8508734","tt11668454","tt0372975","tt0449599",
+            "tt9567548","tt0130018","tt20859392","tt22496012","tt9742392","tt6131712",
+            "tt0209095","tt6905686","tt9472334","tt0365519","tt32916093","tt1289419",
+            "tt0475989","tt10931784","tt12308018","tt9289116","tt2011159","tt10954984",
+            "tt0361417","tt2579836","tt5505722","tt0265537","tt1395783","tt0238546",
+            "tt0183714","tt8656686","tt0427848","tt15726046","tt0397101","tt4411234",
+            "tt0499573","tt0033075","tt14961048","tt10638522","tt0114609","tt0277370",
+            "tt19896150","tt11703244","tt10772662","tt0112625","tt8559532","tt1449394",
+            "tt14074602","tt12921446","tt6133466","tt21905744","tt1457765","tt0264696",
+            "tt6722030","tt2221362","tt7928156","tt26569323","tt21365986","tt3862750",
+            "tt15507512","tt13358022","tt1678042","tt7320482","tt31022076","tt16437278",
+            "tt9064858","tt9873892","tt4991112","tt7671414","tt18394428","tt0100791",
+            "tt3859272","tt12545262","tt9177040","tt0285869","tt14191916","tt28239363",
+            "tt14349100","tt0188694","tt0415348","tt0428251","tt14921402","tt8417466",
+            "tt29275554","tt4287470","tt1389139","tt31314296","tt21821538","tt1342115",
+            "tt1112697","tt0099395","tt0074703","tt0114608","tt0196181","tt0430066",
+            "tt0089593","tt0119099","tt0078078","tt33049264","tt15146646","tt37543196",
+            "tt32560625","tt15532464","tt0220506","tt0070893","tt6535880","tt0133751",
+            "tt0462160","tt37521114","tt35684711","tt31777631","tt12776978",
+            "tt38090790","tt4065260","tt39094274","tt33347919","tt27300761",
+            "tt33494429","tt25477164","tt24973148","tt26569112","tt1760998",
+            "tt9308464","tt35286916","tt36817730","tt29929565","tt27990725"
         ];
 
         const YOUTH_IMDB_IDS = [
@@ -192,7 +225,7 @@
             "tt11245972","tt17663992","tt27047903","tt0075005","tt0077394","tt0102585",
             "tt0466909","tt0195714","tt0309593","tt0452608","tt1144884","tt1570928",
             "tt9619824","tt0100944","tt0805647","tt0064098","tt0068091","tt0081896",
-            "tt0078729","tt0088531","tt0094528","tt0321289","tt161230","tt0283011",
+            "tt0078729","tt0088531","tt0094528","tt0321289","tt1691230","tt0283011",
             "tt0331632","tt0220880","tt0094721","tt2049403","tt0096543","tt0057729",
             "tt0126771","tt0222517","tt0172031","tt13443470","tt0101272","tt0106220",
             "tt0146402","tt1620981","tt11125620","tt8760708","tt26342662","tt4589218",
@@ -218,56 +251,47 @@
             "tt0095742","tt0097987","tt0101917","tt0111686","tt0329101","tt1179056"
         ];
 
-        // ---- Stephen King Structural Content List ----
+        // ---- Stephen King hard‑wired IMDb IDs (Deduplicated & Expanded) ----
         const STEPHEN_KING_IMDB_IDS = [
-            "tt0079844", "tt0099849", "tt0101138", "tt0106156", "tt0108941", "tt0112040", 
-            "tt0118463", "tt0135659", "tt0259153", "tt0281432", "tt0324864", "tt0347463", 
-            "tt0478056", "tt1519681", "tt1954313", "tt1553656", "tt2879552", "tt6520336", 
-            "tt4354880", "tt6548228", "tt9310638", "tt8550800", "tt1831804", "tt11822704", 
-            "tt11737520", "tt29340643", "tt26656754", "tt0102960", "tt0119975", "tt0120382", 
-            "tt0319159", "tt0349334", "tt0446415", "tt1310343", "tt3700010", "tt0292534", 
-            "tt0086822", "tt0094512", "tt0120612", "tt0100157", "tt34316130", "tt0088889", 
-            "tt0090021", "tt0468569", "tt0085333", "tt0074285", "tt0088634", "tt0091499", 
-            "tt0092005", "tt0092796", "tt0093843", "tt0093894", "tt0098084", "tt0104691", 
-            "tt0105417", "tt0105128", "tt0103964", "tt0106649", "tt0107665", "tt0111161", 
-            "tt0112666", "tt0113762", "tt0117896", "tt0115875", "tt0119194", "tt0120380", 
-            "tt0119784", "tt0118636", "tt0132953", "tt0144616", "tt0120684", "tt0144814", 
-            "tt0191910", "tt0234215", "tt0282420", "tt0284711", "tt0295217", "tt0349354", 
-            "tt0363988", "tt0355954", "tt0453051", "tt0837194", "tt0884328", "tt1010007", 
-            "tt1160401", "tt1326942", "tt1655078", "tt1930353", "tt2180994", "tt2557566", 
-            "tt3487376", "tt0775447", "tt1396484", "tt3748172", "tt6214954", "tt6905626", 
-            "tt0837110", "tt7349950", "tt8427280", "tt5606664", "tt12750374", "tt1787321", 
-            "tt13150584", "tt3427252", "tt14197478"
+            "tt0079844","tt0099849","tt0101138","tt0106156","tt0108941","tt0112040",
+            "tt0118463","tt0135659","tt0259153","tt0281432","tt0324864","tt0347463",
+            "tt0478056","tt1519681","tt1954313","tt1553656","tt2879552","tt6520336",
+            "tt4354880","tt6548228","tt9310638","tt8550800","tt1831804","tt11822704",
+            "tt11737520","tt29340643","tt26656754",
+            "tt0081505","tt0085426","tt0087032","tt0089798","tt0091499","tt0093903",
+            "tt0098084","tt0102481","tt0105123","tt0107611","tt0110407","tt0114658",
+            "tt0119894","tt0120802","tt0222142","tt0361127","tt1051904","tt1301294",
+            "tt1701990","tt2235082","tt11352012","tt10698680","tt14620314"
         ];
 
-        // ---- Wes Craven Structural Content List ----
+        // ---- Wes Craven hard‑wired IMDb IDs (Deduplicated & Expanded) ----
         const WES_CRAVEN_IMDB_IDS = [
-            "tt0068845", "tt0068846", "tt0122943", "tt0076149", "tt0076132", "tt0078330", 
-            "tt0078278", "tt0082245", "tt0082260", "tt0084745", "tt0087480", "tt0087515", 
-            "tt0087436", "tt0087800", "tt0088912", "tt0088930", "tt0088634", "tt0090911", 
-            "tt0090933", "tt0090803", "tt0093629", "tt0096071", "tt0096158", "tt0094503", 
-            "tt0098320", "tt0100253", "tt0102757", "tt0102657", "tt0067862", "tt0103502", 
-            "tt0110362", "tt0114817", "tt0113821", "tt0117428", "tt0120656", "tt0120524", 
-            "tt0120627", "tt0169389", "tt0190587", "tt0134208", "tt0219653", "tt0303861", 
-            "tt0283362", "tt27648368", "tt0338942", "tt0257497", "tt0257498", "tt0425870", 
-            "tt0426459", "tt0412671", "tt0463347", "tt0454841", "tt0455362", "tt0454919", 
-            "tt0791305", "tt0139045", "tt1172921", "tt0872230", "tt0878657", "tt0892769", 
-            "tt0381061", "tt0169123", "tt3826866", "tt3924046", "tt0117571", "tt0076142"
+            "tt0068845","tt0122943","tt0076149","tt0078330","tt0082245","tt0084745",
+            "tt0087480","tt0087436","tt0087800","tt0088912","tt0090911","tt0093629",
+            "tt0096071","tt0098320","tt0100253","tt0102757","tt0110362","tt0114817",
+            "tt0117428","tt0120656","tt0166735","tt0134208","tt0257497","tt0425870",
+            "tt0872230","tt0381061","tt0090933","tt0068846","tt0076132","tt0078278",
+            "tt0082260","tt0087515","tt0088930","tt0096158","tt0102657","tt0257498",
+            "tt0878657","tt0067862","tt0120524","tt0120627","tt0219653","tt0426459",
+            "tt0454841","tt0455362","tt0139045","tt0892769","tt0169123","tt3826866",
+            "tt0094503","tt0117571","tt0076142","tt0190587","tt0169389","tt0303861"
         ];
 
-        // ---- Horror Fest Structural Content List ----
+        // ---- Horror Fest hard‑wired IMDb IDs (Deduplicated & Expanded) ----
         const HORROR_FEST_IMDB_IDS = [
-            "tt0475319", "tt0435644", "tt0435661", "tt0456012", "tt0490074", "tt0466847", 
-            "tt0452636", "tt0478123", "tt0478125", "tt0478132", "tt0452608", "tt0490104", 
-            "tt0810841", "tt0814683", "tt0810852", "tt0810853", "tt0810854", "tt0810857", 
-            "tt0810858", "tt0492497", "tt0906734", "tt1277197", "tt1034333", "tt1082596", 
-            "tt1230438", "tt1186831", "tt1258169", "tt1331307", "tt1385826", "tt1386695", 
-            "tt1337073", "tt1300947", "tt1316536", "tt1300945", "tt1300946", "tt1633454", 
-            "tt1634125", "tt1504419", "tt1632709", "tt1705727", "tt1634126", "tt1632703", 
-            "tt3020616", "tt2326798", "tt2261908", "tt2188812", "tt2188806", "tt2401835", 
-            "tt2188801", "tt2283344", "tt3597446", "tt3569420", "tt4590380", "tt3867622", 
-            "tt4429734", "tt2395682", "tt2948332", "tt1612319", "tt2330693", "tt4433612", 
-            "tt3931168", "tt4405364", "tt3110960", "tt3643766", "tt3748250"
+            "tt0475319","tt0435661","tt0456012","tt0490074","tt0478132","tt0478125",
+            "tt0435644","tt0466847","tt0478123","tt0452608","tt0810841","tt0490104",
+            "tt0810852","tt0810853","tt0810854","tt0810857","tt0810858","tt0814683",
+            "tt0492497","tt0906734","tt1277197","tt1034333","tt1082596","tt1230438",
+            "tt1186831","tt1258169","tt1331307","tt1385826","tt1386695","tt1337073",
+            "tt1300947","tt1316536","tt1300945","tt1300946","tt4429734","tt2395682",
+            "tt1612319","tt4405364","tt4433612","tt3643766","tt3597446","tt4590380",
+            "tt0452636","tt1633454","tt1634125","tt1504419","tt1632709","tt1705727",
+            "tt1634126","tt1632703","tt2188806","tt2326798","tt2188812","tt2261908",
+            "tt2401835","tt2188801","tt2283344","tt3020616","tt2948332","tt3569420",
+            "tt3867622","tt2330693","tt3931168","tt3110960","tt3748250",
+            "tt1535466","tt1535446","tt1535409","tt1535484","tt1535443","tt1535414",
+            "tt1535470","tt1535462"
         ];
 
         // ---- IMDb → TMDB cache ----
@@ -316,12 +340,21 @@
             8691, 1813, 714, 1264, 5049, 15860, 335, 5463, 36196, 65731,
             15001, 10205, 9281, 56159, 1103, 77801, 16484, 4247, 12138,
             12000, 9775, 1566, 438, 10750, 5921, 11109, 3547, 15090, 14344,
-            5443, 16307, 822, 6949, 10860, 291, 17838, 141251
+            5443, 16307, 822, 6949, 10860, 291, 17838, 141251,
+            933, 4517, 5064, 6193, 7420, 8210, 8266, 8318, 8687, 8783, 8832,
+            8932, 9318, 9440, 9599, 9665, 9716, 9780, 9879, 9913, 10025,
+            10093, 10182, 10356, 10402, 10556, 10797, 10828, 10882, 11087,
+            11207, 11288, 11518, 11857, 11916, 12190, 12440, 12520, 12642,
+            12778, 12830, 12897, 12984, 13151, 13217, 13378, 13413, 13641
         ])];
 
+        // ---- Horror Films sub‑genre keywords ----
         const HORROR_FILMS_KEYWORDS = '9715|6152|12341|10541|1297|33507|9673|12334|1299|3133|12645|24558|179430|10244|15290|33501|972|1295|9951|9672|33505|14638|128|10322|10123|154|10349|10220|9679|15284|2673|9950|9748|20711|6151';
+
+        // ---- Youth Horror sub‑genre keywords ----
         const YOUTH_KEYWORDS = '162846|1551|1956|15097|9748|10349|15284|10123|10220|9679|10181|3356|1297|12334|11181|10683';
 
+        // ---- Abroad category specs (Expanded With More Worldwide Horror Footprints) ----
         const abroadSpecs = [
             { type: 'movie', genre: '27', country: 'JP', keywords: '1287', sort: 'popularity.desc', priority: 1 },
             { type: 'movie', genre: '27', keywords: '2104', sort: 'popularity.desc', priority: 1 },
@@ -329,7 +362,57 @@
             { type: 'movie', genre: '27', country: 'NG', sort: 'popularity.desc', priority: 2 },
             { type: 'movie', genre: '27', country: 'KR', keywords: '5375', sort: 'popularity.desc', priority: 3 },
             { type: 'movie', genre: '27', country: 'TH', keywords: '6151', sort: 'popularity.desc', priority: 4 },
-            { type: 'movie', genre: '27', country: 'ID', keywords: '13758', sort: 'popularity.desc', priority: 5 }
+            { type: 'movie', genre: '27', country: 'ID', keywords: '13758', sort: 'popularity.desc', priority: 5 },
+            { type: 'movie', genre: '27', country: 'HK', keywords: '1437|1760', sort: 'popularity.desc', priority: 6 },
+            { type: 'movie', genre: '27', country: 'IN', keywords: '4002|14903', sort: 'popularity.desc', priority: 7 },
+            { type: 'movie', genre: '27', country: 'PH', keywords: '13666', sort: 'popularity.desc', priority: 8 },
+            { type: 'movie', genre: '27', country: 'TW', keywords: '13757', sort: 'popularity.desc', priority: 9 },
+            { type: 'movie', genre: '27', country: 'CN', keywords: '1287', sort: 'popularity.desc', priority: 10 },
+            { type: 'movie', genre: '27', country: 'TR', keywords: '15787', sort: 'popularity.desc', priority: 11 },
+            { type: 'movie', genre: '27', country: 'JP', keywords: '1632', sort: 'popularity.desc', priority: 12 },
+            { type: 'movie', genre: '27', keywords: '1286', sort: 'popularity.desc', priority: 13 },
+            { type: 'movie', genre: '27', country: 'KR', keywords: '5375', sort: 'popularity.desc', priority: 14 },
+            { type: 'movie', genre: '27', country: 'GH', sort: 'popularity.desc', priority: 15 },
+            { type: 'movie', genre: '27', country: 'ZA', keywords: '6422', sort: 'popularity.desc', priority: 16 },
+            { type: 'movie', genre: '27', country: 'MA', sort: 'popularity.desc', priority: 17 },
+            { type: 'movie', genre: '27', country: 'DZ', sort: 'popularity.desc', priority: 17 },
+            { type: 'movie', genre: '27', country: 'TN', sort: 'popularity.desc', priority: 17 },
+            { type: 'movie', genre: '27', country: 'EG', sort: 'popularity.desc', priority: 17 },
+            { type: 'movie', genre: '27', country: 'KE', sort: 'popularity.desc', priority: 18 },
+            { type: 'movie', genre: '27', keywords: '1613', sort: 'popularity.desc', priority: 19 },
+            { type: 'movie', genre: '27', country: 'IT', keywords: '227', sort: 'popularity.desc', priority: 20 },
+            { type: 'movie', genre: '27', country: 'IT', keywords: '1241', sort: 'popularity.desc', priority: 21 },
+            { type: 'movie', genre: '27', country: 'IT', keywords: '1290', sort: 'popularity.desc', priority: 22 },
+            { type: 'movie', genre: '27', country: 'IT', keywords: '437', sort: 'popularity.desc', priority: 23 },
+            { type: 'movie', genre: '27', country: 'FR', keywords: '6127', sort: 'popularity.desc', priority: 24 },
+            { type: 'movie', genre: '27', country: 'FR', keywords: '5716', sort: 'popularity.desc', priority: 25 },
+            { type: 'movie', genre: '27', country: 'ES', keywords: '1196', sort: 'popularity.desc', priority: 26 },
+            { type: 'movie', genre: '27', country: 'ES', sort: 'popularity.desc', priority: 27 },
+            { type: 'movie', genre: '27', country: 'DE', keywords: '396', sort: 'popularity.desc', priority: 28 },
+            { type: 'movie', genre: '27', country: 'DE', keywords: '226', sort: 'popularity.desc', priority: 29 },
+            { type: 'movie', genre: '27', country: 'DE', keywords: '1790', sort: 'popularity.desc', priority: 30 },
+            { type: 'movie', genre: '27', country: 'GB', keywords: '1968', sort: 'popularity.desc', priority: 31 },
+            { type: 'movie', genre: '27', country: 'GB', keywords: '1366', sort: 'popularity.desc', priority: 32 },
+            { type: 'movie', genre: '27', country: 'GB', keywords: '1545', sort: 'popularity.desc', priority: 33 },
+            { type: 'movie', genre: '27', country: 'SE', keywords: '1968', sort: 'popularity.desc', priority: 34 },
+            { type: 'movie', genre: '27', country: 'NO', keywords: '1968', sort: 'popularity.desc', priority: 34 },
+            { type: 'movie', genre: '27', country: 'DK', keywords: '1968', sort: 'popularity.desc', priority: 34 },
+            { type: 'movie', genre: '27', country: 'FI', keywords: '1968', sort: 'popularity.desc', priority: 34 },
+            { type: 'movie', genre: '27', country: 'IS', keywords: '1968', sort: 'popularity.desc', priority: 34 },
+            { type: 'movie', genre: '27', country: 'PL', sort: 'popularity.desc', priority: 35 },
+            { type: 'movie', genre: '27', country: 'CZ', sort: 'popularity.desc', priority: 35 },
+            { type: 'movie', genre: '27', country: 'RU', keywords: '1968', sort: 'popularity.desc', priority: 35 },
+            { type: 'movie', genre: '27', country: 'NL', sort: 'popularity.desc', priority: 36 },
+            { type: 'movie', genre: '27', country: 'BE', sort: 'popularity.desc', priority: 36 },
+            { type: 'movie', genre: '27', country: 'LU', sort: 'popularity.desc', priority: 36 },
+            { type: 'movie', genre: '27', country: 'GR', sort: 'popularity.desc', priority: 37 },
+            { type: 'movie', genre: '27', country: 'BR', keywords: '1239', sort: 'popularity.desc', priority: 38 },
+            { type: 'movie', genre: '27', country: 'PT', keywords: '1239', sort: 'popularity.desc', priority: 38 },
+            { type: 'movie', genre: '27', country: 'MX', sort: 'popularity.desc', priority: 39 },
+            { type: 'movie', genre: '27', country: 'AR', sort: 'popularity.desc', priority: 39 },
+            { type: 'movie', genre: '27', country: 'CO', sort: 'popularity.desc', priority: 40 },
+            { type: 'movie', genre: '27', country: 'IR', sort: 'popularity.desc', priority: 41 },
+            { type: 'movie', genre: '27', country: 'AT', sort: 'popularity.desc', priority: 42 }
         ];
 
         async function fetchContent(append = false) {
@@ -394,11 +477,17 @@
                 } else {
                     const actorIdsParam = UNIQUE_BLACK_IDS.join('|');
                     const urls = [
-                        `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_people=${actorIdsParam}&sort_by=popularity.desc&page=${blackHorrorPage}`
+                        `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_people=${actorIdsParam}&with_keywords=233306|209825&sort_by=popularity.desc&page=${blackHorrorPage}`,
+                        `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_people=${actorIdsParam}&with_keywords=233306|209825&sort_by=popularity.desc&page=${blackHorrorPage}`,
+                        `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=233306&sort_by=popularity.desc&page=${blackHorrorPage}`,
+                        `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=209825&sort_by=popularity.desc&page=${blackHorrorPage}`,
                     ];
                     const responses = await Promise.all(urls.map(url => fetch(url).then(r => r.json())));
                     let items = [];
                     responses[0].results && responses[0].results.forEach(m => { if (m.poster_path && !loadedBlackHorrorIds.has(m.id)) items.push({...m, media_type:'movie'}); });
+                    responses[1].results && responses[1].results.forEach(t => { if (t.poster_path && !loadedBlackHorrorIds.has(t.id)) items.push({...t, media_type:'tv'}); });
+                    responses[2].results && responses[2].results.forEach(m => { if (m.poster_path && !loadedBlackHorrorIds.has(m.id)) items.push({...m, media_type:'movie'}); });
+                    responses[3].results && responses[3].results.forEach(m => { if (m.poster_path && !loadedBlackHorrorIds.has(m.id)) items.push({...m, media_type:'movie'}); });
                     let unique = new Map();
                     items.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); loadedBlackHorrorIds.add(item.id); } });
                     renderBlackHorror(Array.from(unique.values()), true);
@@ -423,7 +512,11 @@
                         `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&certification_country=US&certification.lte=TV-14&with_keywords=${YOUTH_KEYWORDS}&sort_by=popularity.desc&page=${pageTarget}`;
                     const res = await fetch(targetUrl);
                     const data = await res.json();
-                    let fetched = (data.results || []).filter(item => item.poster_path && !loadedYouthHorrorIds.has(item.id)).map(item => ({ ...item, media_type: item.media_type || (item.first_air_date ? 'tv' : 'movie') }));
+                    let fetched = (data.results || []).filter(item => 
+                        item.poster_path && 
+                        !loadedYouthHorrorIds.has(item.id) &&
+                        ((item.genre_ids && (item.genre_ids.includes(27) || item.genre_ids.includes(10765))) || item.media_type)
+                    ).map(item => ({ ...item, media_type: item.media_type || (item.first_air_date ? 'tv' : 'movie') }));
                     let unique = new Map();
                     fetched.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); loadedYouthHorrorIds.add(item.id); } });
                     results = Array.from(unique.values());
@@ -433,31 +526,54 @@
                 if (!append) {
                     loadedHorrorMoviesIds.clear();
                     horrorMoviesPage = 1;
-                    currentPage = 1;
+                    const specificImdbIds = [
+                        "tt28821588","tt1017460","tt4520364","tt0091064","tt1189073","tt0119675",
+                        "tt0450278","tt1288558","tt0073820","tt0069316","tt0083844","tt0082235",
+                        "tt0068985","tt0098530","tt0068632","tt10362566","tt0404032","tt10097362",
+                        "tt3564860","tt3800796","tt22051596","tt0490919","tt1273235","tt1029234",
+                        "tt1530509","tt0066921","tt1010271","tt1723126","tt15109068","tt11866324",
+                        "tt27828062","tt27074415","tt13403046","tt15791034","tt9764362","tt14966898",
+                        "tt23137390","tt1517268","tt18412256","tt27489557","tt12749596","tt16300962",
+                        "tt21307994","tt12108194","tt6739014","tt6738136","tt1204977","tt4361050",
+                        "tt0090327","tt7375304","tt2061864","tt3826026","tt7593344","tt4859032",
+                        "tt0251736","tt0395584","tt0373883","tt1311067","tt0499604","tt1731697",
+                        "tt3835080","tt8368512","tt15206990","tt1603257","tt0102926","tt0081505",
+                        "tt0078748","tt5052448","tt3496784","tt6659778","tt0114016","tt17081088",
+                        "tt0380066","tt0422401","tt0397065","tt12274228","tt0114681","tt0131484",
+                        "tt0118908","tt0119158","tt0385278","tt0120088","tt0113303","tt0117717",
+                        "tt0090094","tt13638858","tt9301428","tt0255702","tt0479968","tt0295254",
+                        "tt3850590","tt20114976","tt0361679","tt0982914"
+                    ];
+                    const hardwiredItems = await resolveItemsFromImdbList([...new Set(specificImdbIds)], loadedHorrorMoviesIds);
+                    let unique = new Map();
+                    hardwiredItems.forEach(item => unique.set(item.id, item));
+                    results = Array.from(unique.values());
+                    currentPage = 2;
+                } else {
+                    const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=${HORROR_FILMS_KEYWORDS}&sort_by=popularity.desc&page=${horrorMoviesPage}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    let fetched = (data.results || []).filter(m => m.poster_path && !loadedHorrorMoviesIds.has(m.id)).map(m => ({ ...m, media_type: 'movie' }));
+                    let unique = new Map();
+                    fetched.forEach(m => { if (!unique.has(m.id)) { unique.set(m.id, m); loadedHorrorMoviesIds.add(m.id); } });
+                    results = Array.from(unique.values()).map(m => ({ ...m, media_type: 'movie' }));
+                    horrorMoviesPage++;
                 }
-                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=${HORROR_FILMS_KEYWORDS}&sort_by=popularity.desc&page=${horrorMoviesPage}`;
-                const res = await fetch(url);
-                const data = await res.json();
-                let fetched = (data.results || []).filter(m => m.poster_path && !loadedHorrorMoviesIds.has(m.id)).map(m => ({ ...m, media_type: 'movie' }));
-                let unique = new Map();
-                fetched.forEach(m => { if (!unique.has(m.id)) { unique.set(m.id, m); loadedHorrorMoviesIds.add(m.id); } });
-                results = Array.from(unique.values()).map(m => ({ ...m, media_type: 'movie' }));
-                horrorMoviesPage++;
             } else if (activeType === 'stephen_king') {
                 if (append) { isLoading = false; return; }
-                const fetched = await resolveItemsFromImdbList(STEPHEN_KING_IMDB_IDS, new Set());
+                const fetched = await resolveItemsFromImdbList([...new Set(STEPHEN_KING_IMDB_IDS)], new Set());
                 renderGrid(fetched);
                 isLoading = false;
                 return;
             } else if (activeType === 'wes_craven') {
                 if (append) { isLoading = false; return; }
-                const fetched = await resolveItemsFromImdbList(WES_CRAVEN_IMDB_IDS, new Set());
+                const fetched = await resolveItemsFromImdbList([...new Set(WES_CRAVEN_IMDB_IDS)], new Set());
                 renderGrid(fetched);
                 isLoading = false;
                 return;
             } else if (activeType === 'horror_fest') {
                 if (append) { isLoading = false; return; }
-                const fetched = await resolveItemsFromImdbList(HORROR_FEST_IMDB_IDS, new Set());
+                const fetched = await resolveItemsFromImdbList([...new Set(HORROR_FEST_IMDB_IDS)], new Set());
                 renderGrid(fetched);
                 isLoading = false;
                 return;
@@ -465,35 +581,102 @@
                 if (!append) {
                     loadedHorrorShowIds.clear();
                     horrorShowPageEn = 1;
+                    let promises = [];
+                    const specifiedShows = [
+                        'The Walking Dead: Dead City', 'Them', 'American Horror Story', 'American Horror Stories', 
+                        'Are You Afraid of the Dark?', 'Channel Zero', 'Teacup', 'Castle Rock', 'Midnight Mass', 
+                        'Scream', 'Scream Queens', 'Scare Tactics', 'Evil', 'Buffy the Vampire Slayer', 'Charmed', 
+                        'The Walking Dead', 'The Strain', 'The Beauty', 'Grotesquerie', 'The Outsider', 
+                        'Criss Angel Mindfreak', 'Resident Evil', "Lisey's Story", 'The Institute', 'Toy Story of Terror!', 
+                        'Dead Ringers', 'Widows Bay', 'Sabrina the Teenage Witch', 'Wednesday', 'Hex', 
+                        'Love, Death & Robots', 'It: Welcome to Derry', 'Primal', 'Penny Dreadful', 
+                        'The Haunting of Hill House', 'The Haunting of Bly Manor', 'The Mist', 'The Twilight Zone', 
+                        'Lovecraft Country', 'Creeped Out', "Storm of the Century", 'Z Nation', 
+                        'Ash vs Evil Dead', 'The Stand', 'Hannibal', 'Shining Vale', 'Goosebumps', 'Bates Motel', 
+                        'Swarm', 'Yellowjackets', 'Ratched', "The Devil's Hour", 'Sweet Home', 'Fear the Walking Dead', 
+                        'Masters of Horror', 'Outcast', 'Preacher', 'Stranger Things', 'Supernatural', 'Lore', 
+                        'The Terror', 'Twin Peaks', 'The Vampire Diaries', 'Fear Itself', 'The Tommyknockers', 'Cult', 
+                        "Neil Gaiman's Likely Stories", 'Into the Dark', 'Tales from the Crypt', 'The Returned', 
+                        'Angel', 'True Blood', 'The X-Files', 'Locke & Key', 'Brand New Cherry Flavor', 
+                        'All of us are dead', 'Parasyte: The Grey', 'Cassandra', 'Marvel Zombies', 'Alien: Earth', 
+                        'Hellbound', '1899', 'The Midnight Club', 'Something Very Bad Is Going To Happen', 
+                        'Devil on Silver', 'Dexter', 'Red Rose', 'The Fall of the House of Usher', 'The Creep Tapes', 
+                        'Van Helsing', 'Chapelwaite', 'Archive 81', 'Haunted Hotel', 'Chilling Adventures of Sabrina', 
+                        "Devil's Diner", 'Scooby-Doo', 'Courage the Cowardly Dog', 'Zombieverse', 
+                        "Rose Red", "Rosemary's Baby", 'The Kingdom Exodus', '50 States of Fright', 'Day of the Dead', 
+                        'Dead Still', 'Dead of Summer', 'In the Flesh', 'The Enfield Haunting', 'Dead House Dark', 
+                        'Hellsing', 'Bag of Bones', "Freddy's Nightmares", 'Light as a Feather',
+                        'Creepshow'
+                    ];
+                    [...new Set(specifiedShows)].forEach(title => {
+                        promises.push(
+                            fetch(`https://api.themoviedb.org/3/search/tv?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
+                            .then(res => res.json())
+                            .then(data => {
+                                if(data.results && data.results.length > 0) {
+                                    return data.results.filter(show => show.genre_ids && show.genre_ids.includes(10765));
+                                }
+                                return [];
+                            })
+                        );
+                    });
+                    const arrays = await Promise.all(promises);
+                    let mixedResults = [].concat(...arrays);
+                    let uniqueMap = new Map();
+                    mixedResults.forEach(item => {
+                        if (item && item.id && item.poster_path && !uniqueMap.has(item.id)) {
+                            uniqueMap.set(item.id, item);
+                            loadedHorrorShowIds.add(item.id);
+                        }
+                    });
+                    results = Array.from(uniqueMap.values());
                     currentPage = 1;
-                }
-                const horrorKeywords = '33507|6152|9653|193386|230113';
-                const url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_keywords=${horrorKeywords}&sort_by=popularity.desc&page=${horrorShowPageEn}`;
-                const res = await fetch(url);
-                const data = await res.json();
-                let combined = [];
-                if (data.results) {
-                    combined = combined.concat(data.results.filter(item => item.poster_path && item.genre_ids && item.genre_ids.includes(10765) && !loadedHorrorShowIds.has(item.id)));
-                }
-                let uniqueMap = new Map();
-                combined.forEach(item => {
-                    if (!uniqueMap.has(item.id)) {
-                        uniqueMap.set(item.id, item);
-                        loadedHorrorShowIds.add(item.id);
+                } else {
+                    const horrorKeywords = '33507|6152|9653|193386|230113';
+                    const url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_keywords=${horrorKeywords}&sort_by=popularity.desc&page=${horrorShowPageEn}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    let combined = [];
+                    if (data.results) {
+                        combined = combined.concat(data.results.filter(item => 
+                            item.poster_path && 
+                            item.genre_ids && 
+                            item.genre_ids.includes(10765) && 
+                            !loadedHorrorShowIds.has(item.id)
+                        ));
                     }
-                });
-                results = Array.from(uniqueMap.values()).map(t => ({ ...t, media_type: 'tv' }));
-                horrorShowPageEn++;
+                    let uniqueMap = new Map();
+                    combined.forEach(item => {
+                        if (!uniqueMap.has(item.id)) {
+                            uniqueMap.set(item.id, item);
+                            loadedHorrorShowIds.add(item.id);
+                        }
+                    });
+                    results = Array.from(uniqueMap.values());
+                    horrorShowPageEn++;
+                }
             } else if (activeType === 'unrated') {
-                const extremeKeywords = '12341|6152|33507|193386|230113|15284|10349|14638|1551|9679|9748|10244|11181|10123|10220|10322|20711';
-                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&certification_country=US&certification=NR|UR|NC-17&with_keywords=${extremeKeywords}&sort_by=popularity.desc&page=${currentPage}`;
-                const res = await fetch(url);
-                const data = await res.json();
-                let movies = (data.results || []).filter(m => m.poster_path && m.genre_ids && m.genre_ids.includes(27) && !loadedUnratedIds.has(m.id));
-                let unique = new Map();
-                movies.forEach(m => { if (!unique.has(m.id)) { unique.set(m.id, m); loadedUnratedIds.add(m.id); } });
-                results = Array.from(unique.values()).map(m => ({ ...m, media_type: 'movie' }));
-                currentPage++;
+                if (!append) {
+                    loadedUnratedIds.clear();
+                    const unratedImdbIds = [
+                        "tt1656889","tt0093635","tt0102554","tt2953059","tt1646191","tt0114508",
+                        "tt1029234","tt4003440","tt0098253","tt0082340","tt11403070","tt0131102",
+                        "tt0120755","tt21799918","tt0471011","tt0871020","tt0405977","tt2317412",
+                        "tt2771800","tt0066836"
+                    ];
+                    results = await resolveItemsFromImdbList([...new Set(unratedImdbIds)], loadedUnratedIds);
+                    currentPage = 2;
+                } else {
+                    const extremeKeywords = '12341|6152|33507|193386|230113|15284|10349|14638|1551|9679|9748|10244|11181|10123|10220|10322|20711';
+                    const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&certification_country=US&certification=NR|UR|NC-17&with_keywords=${extremeKeywords}&sort_by=popularity.desc&page=${currentPage}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    let movies = (data.results || []).filter(m => m.poster_path && m.genre_ids && m.genre_ids.includes(27) && !loadedUnratedIds.has(m.id));
+                    let unique = new Map();
+                    movies.forEach(m => { if (!unique.has(m.id)) { unique.set(m.id, m); loadedUnratedIds.add(m.id); } });
+                    results = Array.from(unique.values()).map(m => ({ ...m, media_type: 'movie' }));
+                    currentPage++;
+                }
             } else {
                 let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}`;
                 if (activeType === 'search') url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${activeID}&page=${currentPage}`;
@@ -584,12 +767,9 @@
             const playerOverlay = document.getElementById('player-overlay');
             const iframe = document.getElementById('luxe-player');
             playerOverlay.style.display = 'block';
-            
-            // Hardcoded parameters bypass standard tracking constraints, enforcing native fullscreen initialization and audio handshakes
             iframe.src = (type === 'movie'
-                ? `https://vidlink.pro/movie/${id}?primaryColor=e50914&autoplay=true&muted=false`
-                : `https://vidlink.pro/tv/${id}/${s}/${e}?primaryColor=e50914&autoplay=true&muted=false`);
-                
+                ? `https://vidlink.pro/movie/${id}?primaryColor=e50914&autoplay=1`
+                : `https://vidlink.pro/tv/${id}/${s}/${e}?primaryColor=e50914&autoplay=1`);
             setTimeout(() => document.getElementById('close-player-btn').focus(), 500);
         }
 
@@ -600,7 +780,7 @@
         function setFilter(type, id = '') {
             activeType = type; activeID = id;
             document.querySelectorAll('nav button').forEach(b => b.classList.remove('nav-active'));
-            if(window.event && window.event.target.tagName === 'BUTTON') window.event.target.classList.add('nav-active');
+            if(event && event.target.tagName === 'BUTTON') event.target.classList.add('nav-active');
             fetchContent();
             document.getElementById('side-menu').classList.remove('menu-open');
             window.scrollTo(0,0);
