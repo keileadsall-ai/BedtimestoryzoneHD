@@ -340,6 +340,37 @@
             return items.filter(Boolean);
         }
 
+        // --- NEW ISOLATED BATCH PROCESSSOR FOR CUSTOM VAULTS ---
+        // Processes elements in chunks of 15 dynamically to stay safe from TMDB limit-blocks, preventing missing titles.
+        async function resolveItemsInBatches(imdbIds) {
+            const uniqueImdb = [...new Set(imdbIds)];
+            let resolvedItems = [];
+            const chunkLength = 15;
+            
+            for (let i = 0; i < uniqueImdb.length; i += chunkLength) {
+                const currentChunk = uniqueImdb.slice(i, i + chunkLength);
+                const chunkPromises = currentChunk.map(async (imdbId) => {
+                    const tmdb = await fetchTMDBFromIMDb(imdbId);
+                    if (tmdb) {
+                        try {
+                            const res = await fetch(`https://api.themoviedb.org/3/${tmdb.type}/${tmdb.id}?api_key=${API_KEY}`);
+                            const data = await res.json();
+                            if (data && data.poster_path) {
+                                return { ...data, media_type: tmdb.type, id: tmdb.id };
+                            }
+                        } catch (err) {}
+                    }
+                    return null;
+                });
+                
+                const results = await Promise.all(chunkPromises);
+                resolvedItems = resolvedItems.concat(results.filter(Boolean));
+                // Minor baseline pause across block tasks to protect connection channels completely
+                await new Promise(resolve => setTimeout(resolve, 80));
+            }
+            return resolvedItems;
+        }
+
         const UNIQUE_BLACK_IDS = [...new Set([
             147, 20810, 2963, 16582, 134, 17259, 538, 78029, 521, 17697,
             76748, 97169, 25619, 2372, 64235, 34503, 15313, 856, 16214,
@@ -418,6 +449,9 @@
         ];
 
         async function fetchContent(append = false) {
+            // Stop loop fires if a static vault collection layout is currently live on screen
+            if (['stephen_king', 'wes_craven', 'horror_fest'].includes(activeType) && append) return;
+            
             if (isLoading) return;
             isLoading = true;
             const grid = document.getElementById('movie-grid');
@@ -562,17 +596,17 @@
                     horrorMoviesPage++;
                 }
             } else if (activeType === 'stephen_king') {
-                const fetched = await resolveItemsFromImdbList(STEPHEN_KING_IMDB_IDS, new Set());
+                const fetched = await resolveItemsInBatches(STEPHEN_KING_IMDB_IDS);
                 renderGrid(fetched);
                 isLoading = false;
                 return;
             } else if (activeType === 'wes_craven') {
-                const fetched = await resolveItemsFromImdbList(WES_CRAVEN_IMDB_IDS, new Set());
+                const fetched = await resolveItemsInBatches(WES_CRAVEN_IMDB_IDS);
                 renderGrid(fetched);
                 isLoading = false;
                 return;
             } else if (activeType === 'horror_fest') {
-                const fetched = await resolveItemsFromImdbList(HORROR_FEST_IMDB_IDS, new Set());
+                const fetched = await resolveItemsInBatches(HORROR_FEST_IMDB_IDS);
                 renderGrid(fetched);
                 isLoading = false;
                 return;
@@ -768,14 +802,12 @@
             
             playerOverlay.style.display = 'block';
             
-            // Build target multiembed stream link cleanly
             const streamUrl = (type === 'movie'
                 ? `https://multiembed.mov/?video_id=${id}&tmdb=1`
                 : `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`);
             
             iframe.src = streamUrl;
 
-            // Immediate DOM application request for Element Fullscreen Mode
             setTimeout(() => {
                 try {
                     if (playerOverlay.requestFullscreen) {
@@ -788,7 +820,7 @@
                         playerOverlay.msRequestFullscreen();
                     }
                 } catch (err) {
-                    console.log("Fullscreen request initialization deferred: Execution requires structural interaction.");
+                    console.log("Fullscreen request initialization deferred.");
                 }
                 document.getElementById('close-player-btn').focus();
             }, 400);
@@ -801,7 +833,6 @@
             document.getElementById('luxe-player').src = ""; 
             document.getElementById('player-overlay').style.display = 'none'; 
             
-            // Gracefully step down from full application workspace presentation
             if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement) {
                 if (document.exitFullscreen) {
                     document.exitFullscreen();
