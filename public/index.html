@@ -61,7 +61,6 @@
             width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
             position: relative;
         }
-        /* Blood drip effect */
         .blood-drip {
             position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
             width: 80%; height: 20px; background: radial-gradient(ellipse at center, var(--blood), transparent);
@@ -247,7 +246,7 @@
             "tt0095742","tt0097987","tt0101917","tt0111686","tt0329101","tt1179056"
         ];
 
-        // ---- Stephen King hard‑wired IMDb IDs (duplicates removed) ----
+        // ---- Stephen King hard‑wired IMDb IDs (deduplicated) ----
         const STEPHEN_KING_IMDB_IDS = [...new Set([
             "tt0079844","tt0099849","tt0101138","tt0106156","tt0108941","tt0112040",
             "tt0118463","tt0135659","tt0259153","tt0281432","tt0324864","tt0347463",
@@ -266,12 +265,10 @@
             "tt0837194","tt0884328","tt1010007","tt1160401","tt1326942","tt1655078",
             "tt1930353","tt2180994","tt2557566","tt3487376","tt0775447","tt1396484",
             "tt3748172","tt6214954","tt6905626","tt0837110","tt7349950","tt8427280",
-            "tt5606664","tt12750374","tt1787321","tt13150584","tt3427252","tt14197478",
-            "tt0119975","tt0349334","tt0120380","tt0120382","tt0119194","tt0120684",
-            "tt011116","tt0120380","tt0120382"
+            "tt5606664","tt12750374","tt1787321","tt13150584","tt3427252","tt14197478"
         ])];
 
-        // ---- Wes Craven hard‑wired IMDb IDs (duplicates removed) ----
+        // ---- Wes Craven hard‑wired IMDb IDs (deduplicated) ----
         const WES_CRAVEN_IMDB_IDS = [...new Set([
             "tt0068845","tt0068846","tt0122943","tt0076149","tt0076132","tt0078330",
             "tt0078278","tt0082245","tt0082260","tt0084745","tt0087480","tt0087515",
@@ -287,7 +284,7 @@
             "tt0076142","tt0068846"
         ])];
 
-        // ---- Horror Fest hard‑wired IMDb IDs (duplicates removed) ----
+        // ---- Horror Fest hard‑wired IMDb IDs (deduplicated) ----
         const HORROR_FEST_IMDB_IDS = [...new Set([
             "tt0475319","tt0435644","tt0435661","tt0456012","tt0490074","tt0466847",
             "tt0452636","tt0478123","tt0478125","tt0478132","tt0452608","tt0490104",
@@ -767,10 +764,10 @@
             const playerOverlay = document.getElementById('player-overlay');
             const iframe = document.getElementById('luxe-player');
             playerOverlay.style.display = 'block';
-            // vidsrc.cc embed with autoplay (browser policies may still mute)
+            // Reliable multi‑source player that actually works
             iframe.src = (type === 'movie'
-                ? `https://vidsrc.cc/v2/embed/movie/${id}`
-                : `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}`);
+                ? `https://multiembed.mov/?video_id=${id}&tmdb=1`
+                : `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`);
             setTimeout(() => document.getElementById('close-player-btn').focus(), 500);
         }
 
