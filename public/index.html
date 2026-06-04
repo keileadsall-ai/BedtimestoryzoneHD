@@ -26,50 +26,43 @@
         header { height: 45vh; background: linear-gradient(to bottom, transparent, var(--void)), url('IMG_8238.jpeg') no-repeat center top; background-size: cover; display: flex; align-items: flex-end; padding: 40px; }
         .btn-play-blood { background: var(--blood); color: white; font-weight: 700; padding: 14px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; max-width: 400px; }
 
-        /* --- GORGEOUSLY DISGUSTING PLAYER OVERLAY --- */
+        /* --- IMMERSIVE ANTI-REDIRECT HORROR PLAYER CONTAINER --- */
         #player-overlay {
-            display: none; position: fixed; inset: 0; background: radial-gradient(circle at center, #1a0000, #000);
-            backdrop-filter: blur(20px); z-index: 9000;
+            display: none; position: fixed; inset: 0; background: #000;
+            z-index: 9000;
             animation: fadeIn 0.4s ease;
         }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .player-header {
             position: absolute; top: 20px; left: 20px; right: 20px;
             display: flex; justify-content: space-between; align-items: center;
-            z-index: 9001;
+            z-index: 9005;
+            pointer-events: none;
         }
         .player-title {
             font-family: 'Nosifer', cursive; color: var(--blood);
-            background: rgba(0,0,0,0.7); padding: 12px 24px;
+            background: rgba(0,0,0,0.8); padding: 10px 20px;
             border-radius: 30px; border: 2px solid var(--blood);
-            font-size: 1.4rem; letter-spacing: 3px;
+            font-size: 1.1rem; letter-spacing: 2px;
             box-shadow: 0 0 30px rgba(229,9,20,0.5);
             text-shadow: 0 0 10px var(--blood);
-            animation: pulse 2s infinite;
         }
-        @keyframes pulse { 0% { box-shadow: 0 0 30px rgba(229,9,20,0.5); } 50% { box-shadow: 0 0 60px rgba(229,9,20,0.8); } 100% { box-shadow: 0 0 30px rgba(229,9,20,0.5); } }
         .player-close-btn {
             background: var(--blood); color: white; border: none;
-            font-family: 'Creepster', cursive; font-size: 1.4rem;
-            padding: 10px 24px; border-radius: 30px; cursor: pointer;
+            font-family: 'Creepster', cursive; font-size: 1.3rem;
+            padding: 8px 20px; border-radius: 30px; cursor: pointer;
             letter-spacing: 1px; box-shadow: 0 0 20px rgba(229,9,20,0.7);
             transition: all 0.2s;
             text-shadow: 0 0 5px #000;
+            pointer-events: auto;
         }
         .player-close-btn:hover { background: #ff1a1a; transform: scale(1.05); box-shadow: 0 0 40px rgba(255,0,0,0.9); }
         .player-wrapper {
             width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
-            position: relative;
-        }
-        .blood-drip {
-            position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
-            width: 80%; height: 20px; background: radial-gradient(ellipse at center, var(--blood), transparent);
-            filter: blur(5px); opacity: 0.6; z-index: 9002;
+            position: relative; background: #000;
         }
         #luxe-player {
-            width: 95%; height: 90%; border: none; border-radius: 18px;
-            box-shadow: 0 0 60px rgba(229,9,20,0.3), inset 0 0 20px rgba(0,0,0,0.8);
-            border: 2px solid var(--blood);
+            width: 100%; height: 100%; border: none; background: #000;
         }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .episode-row { display: flex; gap: 15px; padding: 12px; border-bottom: 1px solid #111; cursor: pointer; border: 2px solid transparent; border-radius: 8px; }
@@ -148,13 +141,12 @@
     </div>
 
     <div id="player-overlay">
-        <div class="blood-drip"></div>
         <div class="player-header">
             <div class="player-title">NOW CONSUMING</div>
             <button id="close-player-btn" onclick="closePlayer()" class="player-close-btn focusable">✕ CEASE</button>
         </div>
         <div class="player-wrapper">
-            <iframe id="luxe-player" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+            <iframe id="luxe-player" allowfullscreen allow="autoplay; encrypted-media" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"></iframe>
         </div>
     </div>
 
@@ -320,14 +312,16 @@
         }
 
         async function resolveItemsFromImdbList(imdbIds, idSet) {
+            const tmdbIdSet = new Set();
             const promises = imdbIds.map(async (imdbId) => {
                 const tmdb = await fetchTMDBFromIMDb(imdbId);
-                if (tmdb && !idSet.has(tmdb.id)) {
+                if (tmdb && !idSet.has(tmdb.id) && !tmdbIdSet.has(tmdb.id)) {
                     try {
                         const res = await fetch(`https://api.themoviedb.org/3/${tmdb.type}/${tmdb.id}?api_key=${API_KEY}`);
                         const data = await res.json();
                         if (data && data.poster_path) {
                             idSet.add(tmdb.id);
+                            tmdbIdSet.add(tmdb.id);
                             return { ...data, media_type: tmdb.type, id: tmdb.id };
                         }
                     } catch (e) {}
@@ -763,17 +757,38 @@
             const { type, id, s, e } = currentMedia;
             const playerOverlay = document.getElementById('player-overlay');
             const iframe = document.getElementById('luxe-player');
+            
             playerOverlay.style.display = 'block';
-            // Reliable multi‑source player that actually works
-            iframe.src = (type === 'movie'
+            
+            // Generate clean target stream path
+            const targetSrc = (type === 'movie'
                 ? `https://multiembed.mov/?video_id=${id}&tmdb=1`
                 : `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`);
+            
+            iframe.src = targetSrc;
+
+            // Trigger full screen window engagement instantly
+            if (playerOverlay.requestFullscreen) {
+                playerOverlay.requestFullscreen();
+            } else if (playerOverlay.webkitRequestFullscreen) {
+                playerOverlay.webkitRequestFullscreen();
+            } else if (playerOverlay.msRequestFullscreen) {
+                playerOverlay.msRequestFullscreen();
+            }
+            
             setTimeout(() => document.getElementById('close-player-btn').focus(), 500);
         }
 
         function toggleMenu() { document.getElementById('side-menu').classList.toggle('menu-open'); }
         function closeSelector() { document.getElementById('selector-overlay').classList.add('hidden'); document.getElementById('main-app-wrapper').classList.remove('hidden'); }
-        function closePlayer() { document.getElementById('luxe-player').src = ""; document.getElementById('player-overlay').style.display = 'none'; }
+        
+        function closePlayer() { 
+            document.getElementById('luxe-player').src = ""; 
+            document.getElementById('player-overlay').style.display = 'none'; 
+            if (document.fullscreenElement) {
+                document.exitFullscreen().catch(() => {});
+            }
+        }
         
         function setFilter(type, id = '') {
             activeType = type; activeID = id;
