@@ -319,25 +319,39 @@
             return null;
         }
 
+        // Updated lookup module to fetch your full list in fast, safe timed groups to avoid 429 TMDB blocks
         async function resolveItemsFromImdbList(imdbIds, idSet) {
             const tmdbIdSet = new Set();
-            const promises = imdbIds.map(async (imdbId) => {
-                const tmdb = await fetchTMDBFromIMDb(imdbId);
-                if (tmdb && !idSet.has(tmdb.id) && !tmdbIdSet.has(tmdb.id)) {
-                    try {
-                        const res = await fetch(`https://api.themoviedb.org/3/${tmdb.type}/${tmdb.id}?api_key=${API_KEY}`);
-                        const data = await res.json();
-                        if (data && data.poster_path) {
-                            idSet.add(tmdb.id);
-                            tmdbIdSet.add(tmdb.id);
-                            return { ...data, media_type: tmdb.type, id: tmdb.id };
-                        }
-                    } catch (e) {}
+            const items = [];
+            const batchSize = 10;
+            
+            for (let i = 0; i < imdbIds.length; i += batchSize) {
+                const batch = imdbIds.slice(i, i + batchSize);
+                const batchPromises = batch.map(async (imdbId) => {
+                    const tmdb = await fetchTMDBFromIMDb(imdbId);
+                    if (tmdb && !idSet.has(tmdb.id) && !tmdbIdSet.has(tmdb.id)) {
+                        try {
+                            const res = await fetch(`https://api.themoviedb.org/3/${tmdb.type}/${tmdb.id}?api_key=${API_KEY}`);
+                            const data = await res.json();
+                            if (data && data.poster_path) {
+                                idSet.add(tmdb.id);
+                                tmdbIdSet.add(tmdb.id);
+                                return { ...data, media_type: tmdb.type, id: tmdb.id };
+                            }
+                        } catch (e) {}
+                    }
+                    return null;
+                });
+                
+                const batchResults = await Promise.all(batchPromises);
+                items.push(...batchResults.filter(Boolean));
+                
+                // Fast execution spacer to cleanly manage API throughput thresholds
+                if (i + batchSize < imdbIds.length) {
+                    await new Promise(resolve => setTimeout(resolve, 150));
                 }
-                return null;
-            });
-            const items = await Promise.all(promises);
-            return items.filter(Boolean);
+            }
+            return items;
         }
 
         const UNIQUE_BLACK_IDS = [...new Set([
@@ -768,14 +782,12 @@
             
             playerOverlay.style.display = 'block';
             
-            // Build target multiembed stream link cleanly
             const streamUrl = (type === 'movie'
                 ? `https://multiembed.mov/?video_id=${id}&tmdb=1`
                 : `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`);
             
             iframe.src = streamUrl;
 
-            // Immediate DOM application request for Element Fullscreen Mode
             setTimeout(() => {
                 try {
                     if (playerOverlay.requestFullscreen) {
@@ -788,7 +800,7 @@
                         playerOverlay.msRequestFullscreen();
                     }
                 } catch (err) {
-                    console.log("Fullscreen request initialization deferred: Execution requires structural interaction.");
+                    console.log("Fullscreen request deferred.");
                 }
                 document.getElementById('close-player-btn').focus();
             }, 400);
@@ -801,7 +813,6 @@
             document.getElementById('luxe-player').src = ""; 
             document.getElementById('player-overlay').style.display = 'none'; 
             
-            // Gracefully step down from full application workspace presentation
             if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement) {
                 if (document.exitFullscreen) {
                     document.exitFullscreen();
@@ -858,7 +869,13 @@
                 const loader = document.getElementById('loader');
                 if(loader) { loader.style.opacity = '0'; setTimeout(()=>loader.remove(), 800); }
             }, 1200);
-            const obs = new IntersectionObserver(e => { if(e[0].isIntersecting && activeType !== 'after_dark') fetchContent(true); });
+            
+            // Safety constraint to lock infinite scroll loops when browsing custom static arrays
+            const obs = new IntersectionObserver(e => { 
+                if(e[0].isIntersecting && !['stephen_king','wes_craven','horror_fest','after_dark'].includes(activeType)) {
+                    fetchContent(true); 
+                }
+            });
             obs.observe(document.getElementById('sentinel'));
         };
     </script>
