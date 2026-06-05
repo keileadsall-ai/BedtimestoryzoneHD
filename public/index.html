@@ -130,8 +130,9 @@
         let loadedLatestBloodIds = new Set();
         let wesCravenPage = 1;
         let loadedWesCravenIds = new Set();
+        let wesCravenAllLoaded = false;  // flag for Wes Craven full filmography
 
-        // ---- IMDb ID lists ----
+        // ---- IMDb ID lists (unchanged) ----
         const HARD_WIRED_IMDB_IDS = [ /* ... same ... */
             "tt0071095","tt7544954","tt3743358","tt13365348","tt0160016","tt16997558",
             "tt4798836","tt0120603","tt12298506","tt15475330","tt0193013","tt26453917",
@@ -282,6 +283,7 @@
                 latestBloodPage = 1;
                 loadedWesCravenIds.clear();
                 wesCravenPage = 1;
+                wesCravenAllLoaded = false;
             }
 
             let results = [];
@@ -294,16 +296,34 @@
                     results = Array.from(unique.values());
                     renderGrid(results);
                     isLoading = false;
-                    return; // <-- prevents immediate infinite scroll
+                    return;
                 } else {
-                    // ---- INFINITE SCROLL: only Wes Craven HORROR/THRILLER (no dramas) ----
-                    const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27|53&with_crew=5140&sort_by=popularity.desc&page=${wesCravenPage}`;
-                    const res = await fetch(url);
-                    const data = await res.json();
-                    let movies = (data.results || []).filter(m => m.poster_path && !loadedWesCravenIds.has(m.id));
-                    movies.forEach(m => loadedWesCravenIds.add(m.id));
-                    results = movies.map(m => ({ ...m, media_type: 'movie' }));
-                    wesCravenPage++;
+                    if (wesCravenAllLoaded) { isLoading = false; return; }
+                    // ---- INFINITE SCROLL: full Wes Craven filmography (only horror/thriller) ----
+                    try {
+                        const res = await fetch(`https://api.themoviedb.org/3/person/5140/combined_credits?api_key=${API_KEY}`);
+                        const data = await res.json();
+                        let items = [];
+                        // Combine cast and crew, filter by genre 27 (horror) or 53 (thriller) for movies, and 10765 for TV
+                        const allCredits = [...(data.cast || []), ...(data.crew || [])];
+                        allCredits.forEach(item => {
+                            if (!item.poster_path || !item.id) return;
+                            if (loadedWesCravenIds.has(item.id)) return;
+                            const genres = item.genre_ids || [];
+                            const mediaType = item.media_type;
+                            if (mediaType === 'movie' && (genres.includes(27) || genres.includes(53))) {
+                                items.push({ ...item, media_type: 'movie' });
+                            } else if (mediaType === 'tv' && genres.includes(10765)) {
+                                items.push({ ...item, media_type: 'tv' });
+                            }
+                        });
+                        let unique = new Map();
+                        items.forEach(item => { unique.set(item.id, item); loadedWesCravenIds.add(item.id); });
+                        renderGrid(Array.from(unique.values()));
+                        wesCravenAllLoaded = true;
+                    } catch(e) {}
+                    isLoading = false;
+                    return;
                 }
             } else if (activeType === 'trending') {
                 const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27|53&primary_release_date.gte=2020-01-01&sort_by=popularity.desc&page=${latestBloodPage}`;
