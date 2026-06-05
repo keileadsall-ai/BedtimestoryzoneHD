@@ -128,6 +128,7 @@
         let loadedAbroadIds = new Set();
         let latestBloodPage = 1;
         let loadedLatestBloodIds = new Set();
+        let wesCravenPage = 1;
         let loadedWesCravenIds = new Set();
 
         // ---- IMDb ID lists ----
@@ -280,16 +281,30 @@
                 loadedLatestBloodIds.clear();
                 latestBloodPage = 1;
                 loadedWesCravenIds.clear();
+                wesCravenPage = 1;
             }
 
             let results = [];
             if (activeType === 'wes_craven') {
-                // ONLY the hard‑wired list – NO infinite scroll
-                if (append) { isLoading = false; return; }
-                const hardwired = await resolveItemsFromImdbList(WES_CRAVEN_IMDB_IDS, loadedWesCravenIds);
-                let unique = new Map();
-                hardwired.forEach(item => unique.set(item.id, item));
-                results = Array.from(unique.values());
+                if (!append) {
+                    // ---- FIRST LOAD: only hard‑wired IMDb IDs ----
+                    const hardwired = await resolveItemsFromImdbList(WES_CRAVEN_IMDB_IDS, loadedWesCravenIds);
+                    let unique = new Map();
+                    hardwired.forEach(item => unique.set(item.id, item));
+                    results = Array.from(unique.values());
+                    renderGrid(results);
+                    isLoading = false;
+                    return; // <-- prevents immediate infinite scroll
+                } else {
+                    // ---- INFINITE SCROLL: only Wes Craven HORROR/THRILLER (no dramas) ----
+                    const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27|53&with_crew=5140&sort_by=popularity.desc&page=${wesCravenPage}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    let movies = (data.results || []).filter(m => m.poster_path && !loadedWesCravenIds.has(m.id));
+                    movies.forEach(m => loadedWesCravenIds.add(m.id));
+                    results = movies.map(m => ({ ...m, media_type: 'movie' }));
+                    wesCravenPage++;
+                }
             } else if (activeType === 'trending') {
                 const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27|53&primary_release_date.gte=2020-01-01&sort_by=popularity.desc&page=${latestBloodPage}`;
                 const res = await fetch(url);
@@ -473,7 +488,7 @@
                 results = data.results;
             }
             renderGrid(results);
-            if (!['horror_shows','youth','unrated','abroad','trending','wes_craven'].includes(activeType)) currentPage++;
+            if (!['horror_shows','youth','unrated','abroad','trending'].includes(activeType)) currentPage++;
             isLoading = false;
         }
 
