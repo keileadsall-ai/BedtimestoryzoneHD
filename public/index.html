@@ -128,6 +128,8 @@
         let loadedAbroadIds = new Set();
         let latestBloodPage = 1;
         let loadedLatestBloodIds = new Set();
+        // ---- Wes Craven trackers ----
+        let wesCravenPage = 1;
         let loadedWesCravenIds = new Set();
 
         // ---- IMDb ID lists ----
@@ -197,13 +199,13 @@
         const WES_CRAVEN_IMDB_IDS = [
             "tt0068845","tt0122943","tt0076149","tt0078330","tt0082245","tt0084745",
             "tt0087480","tt0087436","tt0087800","tt0088912","tt0088634","tt0090911",
-            "tt0090803","tt0093629","tt0096071","tt0094503","tt0098320","tt0100253",
+            "tt0090803","tt0093629","tt0096071","tt0094466","tt0098320","tt0100253",
             "tt0102757","tt0067862","tt0103502","tt0110362","tt0114817","tt0113821",
             "tt0117428","tt0120656","tt0120524","tt0120627","tt0169389","tt0190587",
             "tt0134208","tt0219653","tt0303861","tt0283632","tt27648368","tt0338942",
             "tt0257497","tt0425870","tt0426459","tt0412671","tt0463347","tt0454841",
             "tt0455362","tt0454919","tt0791305","tt0139045","tt0872230","tt0381061",
-            "tt3826866","tt3924046","tt0076142"
+            "tt3826866","tt3921180","tt0076142"
         ];
 
         // ---- IMDb → TMDB cache ----
@@ -280,10 +282,29 @@
                 loadedLatestBloodIds.clear();
                 latestBloodPage = 1;
                 loadedWesCravenIds.clear();
+                wesCravenPage = 1;
             }
 
             let results = [];
-            if (activeType === 'trending') {
+            if (activeType === 'wes_craven') {
+                if (!append) {
+                    // First load: hard‑wired IMDb IDs
+                    const hardwired = await resolveItemsFromImdbList(WES_CRAVEN_IMDB_IDS, loadedWesCravenIds);
+                    let unique = new Map();
+                    hardwired.forEach(item => unique.set(item.id, item));
+                    results = Array.from(unique.values());
+                    currentPage = 1; // prepare for subsequent discover
+                } else {
+                    // Infinite scroll: discover movies by Wes Craven (crew ID 5140)
+                    const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_crew=5140&sort_by=release_date.desc&page=${wesCravenPage}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    let movies = (data.results || []).filter(m => m.poster_path && !loadedWesCravenIds.has(m.id));
+                    movies.forEach(m => loadedWesCravenIds.add(m.id));
+                    results = movies.map(m => ({ ...m, media_type: 'movie' }));
+                    wesCravenPage++;
+                }
+            } else if (activeType === 'trending') {
                 const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27|53&primary_release_date.gte=2020-01-01&sort_by=popularity.desc&page=${latestBloodPage}`;
                 const res = await fetch(url);
                 const data = await res.json();
@@ -310,9 +331,7 @@
                     if (t.poster_path && !loadedAbroadIds.has(t.id)) items.push({ ...t, media_type: 'tv' });
                 });
                 let unique = new Map();
-                items.forEach(item => {
-                    if (!unique.has(item.id)) { unique.set(item.id, item); loadedAbroadIds.add(item.id); }
-                });
+                items.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); loadedAbroadIds.add(item.id); } });
                 results = Array.from(unique.values());
                 abroadPage++;
             } else if (activeType === 'black_horror') {
@@ -366,31 +385,6 @@
                     ).map(item => ({ ...item, media_type: item.media_type || (item.first_air_date ? 'tv' : 'movie') }));
                     let unique = new Map();
                     fetched.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); loadedYouthHorrorIds.add(item.id); } });
-                    results = Array.from(unique.values());
-                    currentPage++;
-                }
-            } else if (activeType === 'wes_craven') {
-                if (!append) {
-                    // Initial load: hard‑wired IMDb list
-                    const hardwiredItems = await resolveItemsFromImdbList(WES_CRAVEN_IMDB_IDS, loadedWesCravenIds);
-                    let unique = new Map();
-                    hardwiredItems.forEach(item => unique.set(item.id, item));
-                    results = Array.from(unique.values());
-                    // Set currentPage for next crew fetch (page 1)
-                    currentPage = 1;
-                } else {
-                    // Infinite scroll: crew discover with Wes Craven ID (5140)
-                    const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_crew=5140&sort_by=release_date.desc&page=${currentPage}`;
-                    const res = await fetch(url);
-                    const data = await res.json();
-                    let fetched = (data.results || []).filter(m => m.poster_path && !loadedWesCravenIds.has(m.id));
-                    let unique = new Map();
-                    fetched.forEach(item => {
-                        if (!unique.has(item.id)) {
-                            unique.set(item.id, item);
-                            loadedWesCravenIds.add(item.id);
-                        }
-                    });
                     results = Array.from(unique.values());
                     currentPage++;
                 }
