@@ -325,10 +325,10 @@
                     isLoading = false;
                     return;
                 } else {
-                    // INFINITE SCROLL: only Stephen King horror (movies: genre 27; TV: genre 10765 + horror keywords)
+                    // INFINITE SCROLL: only Stephen King horror (movies: genre 27; TV: with_people=3027 + genre 10765 + horror keywords)
                     const horrorKeywords = '33507|6152|9653|193386|230113';
                     const urlMovie = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_crew=3027&sort_by=popularity.desc&page=${stephenKingPage}`;
-                    const urlTV = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_keywords=${horrorKeywords}&with_crew=3027&sort_by=popularity.desc&page=${stephenKingPage}`;
+                    const urlTV = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_keywords=${horrorKeywords}&with_people=3027&sort_by=popularity.desc&page=${stephenKingPage}`;
                     const [movieRes, tvRes] = await Promise.all([fetch(urlMovie).then(r=>r.json()), fetch(urlTV).then(r=>r.json())]);
                     let items = [];
                     (movieRes.results || []).forEach(m => { if (m.poster_path && !loadedStephenKingIds.has(m.id)) items.push({...m, media_type:'movie'}); });
@@ -340,7 +340,6 @@
                     stephenKingPage++;
                 }
             } else if (activeType === 'wes_craven') {
-                // ... same as before ...
                 if (!append) {
                     const hardwired = await resolveItemsFromImdbList(WES_CRAVEN_IMDB_IDS, loadedWesCravenIds);
                     let unique = new Map();
@@ -416,7 +415,6 @@
                     return;
                 }
             } else if (activeType === 'youth') {
-                // ... unchanged ...
                 if (!append) {
                     loadedYouthHorrorIds.clear();
                     youthHorrorPage = 1;
@@ -447,7 +445,6 @@
                 await fetchAfterDark();
                 isLoading = false; return;
             } else if (activeType === 'horror_shows') {
-                // ... unchanged ...
                 if (!append) {
                     loadedHorrorShowIds.clear();
                     horrorShowPageEn = 1;
@@ -544,7 +541,7 @@
             isLoading = false;
         }
 
-        // ---- Stephen King rendering (mirrors black horror) ----
+        // ---- Stephen King rendering ----
         function renderStephenKing(items, append) {
             const container = document.getElementById('stephen-king-section');
             if (!append) container.innerHTML = '';
