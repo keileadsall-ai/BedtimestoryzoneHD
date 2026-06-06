@@ -313,6 +313,7 @@
             let results = [];
             if (activeType === 'stephen_king') {
                 if (!append) {
+                    // ---- ONLY HARD‑WIRED TITLES, NO INFINITE SCROLL ----
                     const hardwired = await resolveItemsFromImdbList(STEPHEN_KING_IMDB_IDS, loadedStephenKingIds);
                     let unique = new Map();
                     hardwired.forEach(item => unique.set(item.id, item));
@@ -321,17 +322,9 @@
                     isLoading = false;
                     return;
                 } else {
-                    // INFINITE SCROLL: ONLY HORROR (movies: genre 27; TV: genre 10765 + horror keywords)
-                    const horrorKeywords = '33507|6152|9653|193386|230113';
-                    const urlMovie = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_crew=3027&sort_by=popularity.desc&page=${stephenKingPage}`;
-                    const urlTV = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_keywords=${horrorKeywords}&with_crew=3027&sort_by=popularity.desc&page=${stephenKingPage}`;
-                    const [movieRes, tvRes] = await Promise.all([fetch(urlMovie).then(r=>r.json()), fetch(urlTV).then(r=>r.json())]);
-                    let items = [];
-                    (movieRes.results || []).forEach(m => { if (m.poster_path && !loadedStephenKingIds.has(m.id)) items.push({...m, media_type:'movie'}); });
-                    (tvRes.results || []).forEach(t => { if (t.poster_path && !loadedStephenKingIds.has(t.id)) items.push({...t, media_type:'tv'}); });
-                    items.forEach(item => loadedStephenKingIds.add(item.id));
-                    results = items;
-                    stephenKingPage++;
+                    // Infinite scroll disabled – do nothing
+                    isLoading = false;
+                    return;
                 }
             } else if (activeType === 'wes_craven') {
                 if (!append) {
