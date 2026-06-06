@@ -131,8 +131,6 @@
         let loadedLatestBloodIds = new Set();
         let wesCravenPage = 1;
         let loadedWesCravenIds = new Set();
-        // ---- Stephen King trackers ----
-        let loadedStephenKingIds = new Set();
 
         // ---- IMDb ID lists ----
         const HARD_WIRED_IMDB_IDS = [
@@ -231,7 +229,75 @@
             "tt13150584","tt3423740"
         ];
 
-        // ---- IMDb → TMDB cache ----
+        // ---- LocalStorage cached TMDB IDs for Stephen King ----
+        const SK_CACHE_KEY = 'stephenKingTMDB';
+
+        function getCachedSKMap() {
+            try {
+                const raw = localStorage.getItem(SK_CACHE_KEY);
+                return raw ? JSON.parse(raw) : {};
+            } catch (e) { return {}; }
+        }
+
+        function saveCachedSKMap(map) {
+            try { localStorage.setItem(SK_CACHE_KEY, JSON.stringify(map)); } catch (e) {}
+        }
+
+        async function fetchTMDBFromIMDbCached(imdbId) {
+            const cache = getCachedSKMap();
+            if (cache[imdbId]) return cache[imdbId];
+            try {
+                const res = await fetch(`https://api.themoviedb.org/3/find/${imdbId}?api_key=${API_KEY}&external_source=imdb_id`);
+                const data = await res.json();
+                let result = null;
+                if (data.movie_results && data.movie_results.length > 0) {
+                    result = { id: data.movie_results[0].id, type: 'movie' };
+                } else if (data.tv_results && data.tv_results.length > 0) {
+                    result = { id: data.tv_results[0].id, type: 'tv' };
+                }
+                if (result) {
+                    cache[imdbId] = result;
+                    saveCachedSKMap(cache);
+                }
+                return result;
+            } catch (e) { return null; }
+        }
+
+        async function fetchStephenKingHardwired() {
+            const cache = getCachedSKMap();
+            const promises = STEPHEN_KING_IMDB_IDS.map(async (imdbId) => {
+                const tmdb = await fetchTMDBFromIMDbCached(imdbId);
+                if (tmdb) {
+                    try {
+                        const res = await fetch(`https://api.themoviedb.org/3/${tmdb.type}/${tmdb.id}?api_key=${API_KEY}`);
+                        const data = await res.json();
+                        if (data && data.poster_path) {
+                            return { ...data, media_type: tmdb.type, id: tmdb.id };
+                        }
+                    } catch (e) {}
+                }
+                return null;
+            });
+            const items = await Promise.all(promises);
+            return items.filter(Boolean);
+        }
+
+        const UNIQUE_BLACK_IDS = [...new Set([
+            147, 20810, 2963, 16582, 134, 17259, 538, 78029, 521, 17697,
+            76748, 97169, 25619, 2372, 64235, 34503, 15313, 856, 16214,
+            68812, 586, 2178, 3497, 6807, 52039, 17522, 537, 13021, 1245,
+            8691, 1813, 714, 1264, 5049, 15860, 335, 5463, 36196, 65731,
+            15001, 10205, 9281, 56159, 1103, 77801, 16484, 4247, 12138,
+            12000, 9775, 1566, 438, 10750, 5921, 11109, 3547, 15090, 14344,
+            5443, 16307, 822, 6949, 10860, 291, 17838, 141251,
+            933, 4517, 5064, 6193, 7420, 8210, 8266, 8318, 8687, 8783, 8832,
+            8932, 9318, 9440, 9599, 9665, 9716, 9780, 9879, 9913, 10025,
+            10093, 10182, 10356, 10402, 10556, 10797, 10828, 10882, 11087,
+            11207, 11288, 11518, 11857, 11916, 12190, 12440, 12520, 12642,
+            12778, 12830, 12897, 12984, 13151, 13217, 13378, 13413, 13641
+        ])];
+
+        // ---- IMDb → TMDB cache for other tabs ----
         const imdbCache = new Map();
         async function fetchTMDBFromIMDb(imdbId) {
             if (imdbCache.has(imdbId)) return imdbCache.get(imdbId);
@@ -270,21 +336,6 @@
             return items.filter(Boolean);
         }
 
-        const UNIQUE_BLACK_IDS = [...new Set([
-            147, 20810, 2963, 16582, 134, 17259, 538, 78029, 521, 17697,
-            76748, 97169, 25619, 2372, 64235, 34503, 15313, 856, 16214,
-            68812, 586, 2178, 3497, 6807, 52039, 17522, 537, 13021, 1245,
-            8691, 1813, 714, 1264, 5049, 15860, 335, 5463, 36196, 65731,
-            15001, 10205, 9281, 56159, 1103, 77801, 16484, 4247, 12138,
-            12000, 9775, 1566, 438, 10750, 5921, 11109, 3547, 15090, 14344,
-            5443, 16307, 822, 6949, 10860, 291, 17838, 141251,
-            933, 4517, 5064, 6193, 7420, 8210, 8266, 8318, 8687, 8783, 8832,
-            8932, 9318, 9440, 9599, 9665, 9716, 9780, 9879, 9913, 10025,
-            10093, 10182, 10356, 10402, 10556, 10797, 10828, 10882, 11087,
-            11207, 11288, 11518, 11857, 11916, 12190, 12440, 12520, 12642,
-            12778, 12830, 12897, 12984, 13151, 13217, 13378, 13413, 13641
-        ])];
-
         async function fetchContent(append = false) {
             if (isLoading) return;
             isLoading = true;
@@ -308,18 +359,14 @@
                 latestBloodPage = 1;
                 loadedWesCravenIds.clear();
                 wesCravenPage = 1;
-                loadedStephenKingIds.clear();
             }
 
             let results = [];
             if (activeType === 'stephen_king') {
-                // ONLY HARD‑WIRED IMDb IDs, NO INFINITE SCROLL
+                // ONLY hard‑wired IMDb IDs – no infinite scroll, no API fallback
                 if (!append) {
-                    const hardwired = await resolveItemsFromImdbList(STEPHEN_KING_IMDB_IDS, loadedStephenKingIds);
-                    let unique = new Map();
-                    hardwired.forEach(item => unique.set(item.id, item));
-                    results = Array.from(unique.values());
-                    renderStephenKing(results, false);
+                    const items = await fetchStephenKingHardwired();
+                    renderStephenKing(items, false);
                     isLoading = false;
                     return;
                 } else {
