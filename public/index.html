@@ -71,6 +71,7 @@
         </div>
 
         <main id="black-horror-section" class="p-6 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"></main>
+        <main id="stephen-king-section" class="p-6 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"></main>
         <main id="movie-grid" class="p-6 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"></main>
         <div id="sentinel" class="h-20"></div>
     </div>
@@ -290,10 +291,12 @@
             isLoading = true;
             const grid = document.getElementById('movie-grid');
             const blackSection = document.getElementById('black-horror-section');
+            const stephenSection = document.getElementById('stephen-king-section');
             if (!append) { 
                 currentPage = 1; 
                 grid.innerHTML = ''; 
                 blackSection.innerHTML = ''; 
+                stephenSection.innerHTML = '';
                 loadedBlackHorrorIds.clear();
                 blackHorrorPage = 1;
                 loadedUnratedIds.clear();
@@ -313,12 +316,12 @@
             let results = [];
             if (activeType === 'stephen_king') {
                 if (!append) {
-                    // FIRST LOAD: only hard‑wired IMDb IDs
+                    // FIRST LOAD: only hard‑wired IMDb IDs → Stephen King grid
                     const hardwired = await resolveItemsFromImdbList(STEPHEN_KING_IMDB_IDS, loadedStephenKingIds);
                     let unique = new Map();
                     hardwired.forEach(item => unique.set(item.id, item));
                     results = Array.from(unique.values());
-                    renderGrid(results);
+                    renderStephenKing(results, false);
                     isLoading = false;
                     return;
                 } else {
@@ -333,9 +336,11 @@
                     let unique = new Map();
                     items.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); loadedStephenKingIds.add(item.id); } });
                     results = Array.from(unique.values());
+                    renderStephenKing(results, true);
                     stephenKingPage++;
                 }
             } else if (activeType === 'wes_craven') {
+                // ... same as before ...
                 if (!append) {
                     const hardwired = await resolveItemsFromImdbList(WES_CRAVEN_IMDB_IDS, loadedWesCravenIds);
                     let unique = new Map();
@@ -411,6 +416,7 @@
                     return;
                 }
             } else if (activeType === 'youth') {
+                // ... unchanged ...
                 if (!append) {
                     loadedYouthHorrorIds.clear();
                     youthHorrorPage = 1;
@@ -441,6 +447,7 @@
                 await fetchAfterDark();
                 isLoading = false; return;
             } else if (activeType === 'horror_shows') {
+                // ... unchanged ...
                 if (!append) {
                     loadedHorrorShowIds.clear();
                     horrorShowPageEn = 1;
@@ -535,6 +542,19 @@
             renderGrid(results);
             if (!['horror_shows','youth','unrated','abroad','trending'].includes(activeType)) currentPage++;
             isLoading = false;
+        }
+
+        // ---- Stephen King rendering (mirrors black horror) ----
+        function renderStephenKing(items, append) {
+            const container = document.getElementById('stephen-king-section');
+            if (!append) container.innerHTML = '';
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'movie-card focusable'; card.tabIndex = 0;
+                card.onclick = () => openDetails(item.id, item.media_type || (item.first_air_date ? 'tv' : 'movie'));
+                card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${item.poster_path}" class="w-full h-full object-cover"><div class="movie-info horror-font"><h3 class="text-red-600 font-bold truncate">${item.title || item.name}</h3><p>${(item.release_date || item.first_air_date || '').split('-')[0]}</p></div>`;
+                container.appendChild(card);
+            });
         }
 
         // ---- After Dark ----
