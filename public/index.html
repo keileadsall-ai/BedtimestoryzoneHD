@@ -132,7 +132,7 @@
         let wesCravenPage = 1;
         let loadedWesCravenIds = new Set();
 
-        // ---- IMDb ID lists for other tabs ----
+        // ---- IMDb ID lists ----
         const HARD_WIRED_IMDB_IDS = [
             "tt0071095","tt7544954","tt3743358","tt13365348","tt0160016","tt16997558",
             "tt4798836","tt0120603","tt12298506","tt15475330","tt0193013","tt26453917",
@@ -208,109 +208,28 @@
             "tt3826866","tt3921180","tt0076142"
         ];
 
-        // ========== HARD‑CODED TMDB IDs FOR STEPHEN KING ==========
-        const STEPHEN_KING_TMDB_IDS = {
-            "Salem's Lot (1979)": { id: 32422, type: "tv" },
-            "It (1990)": { id: 33385, type: "tv" },
-            "Golden Years (1991)": { id: 31354, type: "tv" },
-            "The Tommyknockers (1993)": { id: 33388, type: "tv" },
-            "The Stand (1994)": { id: 33387, type: "tv" },
-            "The Langoliers (1995)": { id: 18197, type: "tv" },
-            "The Shining (1997)": { id: 18204, type: "tv" },
-            "Storm of the Century (1999)": { id: 10612, type: "tv" },
-            "Rose Red (2002)": { id: 18090, type: "tv" },
-            "The Dead Zone (2002–2007)": { id: 944, type: "tv" },
-            "Kingdom Hospital (2004)": { id: 4618, type: "tv" },
-            "Salem's Lot (2004)": { id: 18177, type: "tv" },
-            "Nightmares & Dreamscapes (2006)": { id: 3118, type: "tv" },
-            "Haven (2010–2015)": { id: 31920, type: "tv" },
-            "Bag of Bones (2011)": { id: 43088, type: "tv" },
-            "Under the Dome (2013–2015)": { id: 44217, type: "tv" },
-            "11.22.63 (2016)": { id: 64468, type: "tv" },
-            "The Mist (2017)": { id: 69158, type: "tv" },
-            "Mr. Mercedes (2017–2019)": { id: 71790, type: "tv" },
-            "Castle Rock (2018–2019)": { id: 71686, type: "tv" },
-            "Creepshow (2019–2023)": { id: 89456, type: "tv" },
-            "The Outsider (2020)": { id: 85937, type: "tv" },
-            "The Stand (2020–2021)": { id: 87084, type: "tv" },
-            "Lisey's Story (2021)": { id: 89312, type: "tv" },
-            "Chapelwaite (2021–2023)": { id: 103540, type: "tv" },
-            "The Institute (2025)": { id: 246029, type: "tv" },
-            "It: Welcome to Derry (2025)": { id: 157065, type: "tv" },
-            "Tales from the Darkside (1983–1988)": { id: 2704, type: "tv" },
-            "Monsters (1988–1991)": { id: 31034, type: "tv" },
-            "The Twilight Zone (1985–1989)": { id: 2590, type: "tv" },
-            "Sometimes They Come Back (1991)": { id: 24116, type: "movie" },
-            "Quicksilver Highway (1997)": { id: 27443, type: "movie" },
-            "Trucks (1997)": { id: 26359, type: "movie" },
-            "Carrie (2002)": { id: 16050, type: "movie" },
-            "The Diary of Ellen Rimbauer (2003)": { id: 21175, type: "movie" },
-            "Desperation (2006)": { id: 14011, type: "movie" },
-            "Children of the Corn (2009)": { id: 27434, type: "movie" },
-            "Big Driver (2014)": { id: 295964, type: "movie" },
-            "Firestarter: Rekindled (2002)": { id: 20062, type: "movie" },
-            "The Night Flier (1997)": { id: 10859, type: "movie" },
-            "Misery (1990)": { id: 1700, type: "movie" },
-            "Carrie (2026)": { id: 1275990, type: "movie" },
-            "Cat's Eye (1985)": { id: 11968, type: "movie" },
-            "Silver Bullet (1985)": { id: 14306, type: "movie" },
-            "The Dark Tower (2017)": { id: 353491, type: "movie" },
-            "Christine (1983)": { id: 8740, type: "movie" },
-            "Carrie (1976)": { id: 10144, type: "movie" },
-            "Maximum Overdrive (1986)": { id: 11504, type: "movie" },
-            "Stand by Me (1986)": { id: 295, type: "movie" },
-            "Creepshow 2 (1987)": { id: 16277, type: "movie" },
-            "A Return to Salem's Lot (1987)": { id: 27118, type: "movie" },
-            "The Running Man (1987)": { id: 1844, type: "movie" },
-            "Pet Sematary (1989)": { id: 8912, type: "movie" },
-            "The Lawnmower Man (1992)": { id: 10355, type: "movie" },
-            "Sleepwalkers (1992)": { id: 10860, type: "movie" },
-            "Pet Sematary II (1992)": { id: 19149, type: "movie" },
-            "Children of the Corn II: The Final Sacrifice (1992)": { id: 21252, type: "movie" },
-            "The Dark Half (1993)": { id: 9561, type: "movie" },
-            "Needful Things (1993)": { id: 10354, type: "movie" },
-            "The Shawshank Redemption (1994)": { id: 278, type: "movie" },
-            "Children of the Corn III: Urban Harvest (1995)": { id: 27290, type: "movie" },
-            "The Mangler (1995)": { id: 17462, type: "movie" },
-            "Thinner (1996)": { id: 11425, type: "movie" },
-            "Children of the Corn IV: The Gathering (1996)": { id: 27419, type: "movie" },
-            "Ghosts (1996)": { id: 43719, type: "movie" },
-            "Apt Pupil (1998)": { id: 9445, type: "movie" },
-            "Children of the Corn V: Fields of Terror (1998)": { id: 27421, type: "movie" },
-            "Sometimes They Come Back... for More (1998)": { id: 40251, type: "movie" },
-            "The Green Mile (1999)": { id: 497, type: "movie" },
-            "The Rage: Carrie 2 (1999)": { id: 11449, type: "movie" },
-            "Children of the Corn 666: Isaac's Return (1999)": { id: 27425, type: "movie" },
-            "Hearts in Atlantis (2001)": { id: 11036, type: "movie" },
-            "Children of the Corn: Revelation (2001)": { id: 27430, type: "movie" },
-            "Dreamcatcher (2003)": { id: 6171, type: "movie" },
-            "Secret Window (2004)": { id: 1585, type: "movie" },
-            "Riding the Bullet (2004)": { id: 13962, type: "movie" },
-            "1408 (2007)": { id: 3021, type: "movie" },
-            "The Mist (2007)": { id: 11586, type: "movie" },
-            "No Smoking (2007)": { id: 14249, type: "movie" },
-            "Dolan's Cadillac (2009)": { id: 21644, type: "movie" },
-            "Children of the Corn: Genesis (2011)": { id: 68222, type: "movie" },
-            "Carrie (2013)": { id: 82622, type: "movie" },
-            "A Good Marriage (2014)": { id: 241253, type: "movie" },
-            "Mercy (2014)": { id: 244339, type: "movie" },
-            "Cell (2016)": { id: 273477, type: "movie" },
-            "It (2017)": { id: 346364, type: "movie" },
-            "Gerald's Game (2017)": { id: 343668, type: "movie" },
-            "1922 (2017)": { id: 471488, type: "movie" },
-            "Children of the Corn: Runaway (2018)": { id: 459992, type: "movie" },
-            "Pet Sematary (2019)": { id: 442249, type: "movie" },
-            "It Chapter Two (2019)": { id: 474350, type: "movie" },
-            "In the Tall Grass (2019)": { id: 530385, type: "movie" },
-            "Doctor Sleep (2019)": { id: 501170, type: "movie" },
-            "Children of the Corn (2020)": { id: 713838, type: "movie" },
-            "Firestarter (2022)": { id: 526848, type: "movie" },
-            "Mr. Harrigan's Phone (2022)": { id: 934433, type: "movie" },
-            "The Boogeyman (2023)": { id: 830764, type: "movie" },
-            "Pet Sematary: Bloodlines (2023)": { id: 1151534, type: "movie" }
-        };
+        const STEPHEN_KING_IMDB_IDS = [
+            "tt0079844","tt0099849","tt0101138","tt0106156","tt0108941","tt0112040",
+            "tt0118463","tt0135659","tt0259153","tt0281432","tt0324864","tt0347463",
+            "tt0478056","tt1519681","tt1954313","tt1553656","tt2879552","tt6520336",
+            "tt4354880","tt6548228","tt9310638","tt8550800","tt1831804","tt11822704",
+            "tt11737520","tt29340643","tt26656754","tt0102960","tt0119975","tt0120382",
+            "tt0319159","tt0349334","tt0446415","tt1310343","tt3700010","tt0292534",
+            "tt0086822","tt0094512","tt0120612","tt0100157","tt34316130","tt0088889",
+            "tt0090021","tt0468569","tt0085333","tt0074285","tt0088634","tt0091499",
+            "tt0092005","tt0092796","tt0093843","tt0093894","tt0098084","tt0104691",
+            "tt0105417","tt0105128","tt0103964","tt0106649","tt0107665","tt011116",
+            "tt0112666","tt0113762","tt0117896","tt0115875","tt0119194","tt0120380",
+            "tt0119784","tt0118636","tt0132953","tt0144616","tt0120684","tt0144814",
+            "tt0191910","tt0234215","tt0282420","tt0284711","tt0295217","tt0349354",
+            "tt0363988","tt0355954","tt0453051","tt0837194","tt0884328","tt1010007",
+            "tt1160401","tt1326942","tt1655078","tt1930353","tt2180994","tt2557566",
+            "tt3487376","tt0775447","tt1396484","tt3748172","tt6214954","tt6905626",
+            "tt0837110","tt7349950","tt8427280","tt5606664","tt12750374","tt1787321",
+            "tt13150584","tt3427252","tt14197478"
+        ];
 
-        // ---- IMDb → TMDB cache (for other tabs) ----
+        // ---- IMDb → TMDB cache ----
         const imdbCache = new Map();
         async function fetchTMDBFromIMDb(imdbId) {
             if (imdbCache.has(imdbId)) return imdbCache.get(imdbId);
@@ -391,23 +310,13 @@
 
             let results = [];
             if (activeType === 'stephen_king') {
+                // ONLY HARD‑WIRED IMDb IDs, NO FALLBACK, NO INFINITE SCROLL
                 if (!append) {
-                    // ---- ONLY HARD‑CODED TMDB IDs, NO EXTRAS ----
-                    const items = [];
-                    for (const [title, entry] of Object.entries(STEPHEN_KING_TMDB_IDS)) {
-                        try {
-                            const res = await fetch(`https://api.themoviedb.org/3/${entry.type}/${entry.id}?api_key=${API_KEY}`);
-                            const data = await res.json();
-                            if (data && data.poster_path) {
-                                items.push({ ...data, media_type: entry.type, id: entry.id });
-                            }
-                        } catch (e) {}
-                    }
-                    renderStephenKing(items, false);
+                    const hardwired = await resolveItemsFromImdbList(STEPHEN_KING_IMDB_IDS, new Set());
+                    renderStephenKing(hardwired, false);
                     isLoading = false;
                     return;
                 } else {
-                    // No infinite scroll
                     isLoading = false;
                     return;
                 }
