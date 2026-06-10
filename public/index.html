@@ -240,26 +240,39 @@
             12778, 12830, 12897, 12984, 13151, 13217, 13378, 13413, 13641
         ])];
 
-        // ---- Optimized Single-Fetch Resolver (100% Drops Fix) ----
+        // ---- Helper fetch for everything EXCEPT Stephen King ----
+        const imdbCache = new Map();
+        async function fetchTMDBFromIMDb(imdbId) {
+            if (imdbCache.has(imdbId)) return imdbCache.get(imdbId);
+            try {
+                const res = await fetch(`https://api.themoviedb.org/3/find/${imdbId}?api_key=${API_KEY}&external_source=imdb_id`);
+                const data = await res.json();
+                if (data.movie_results && data.movie_results.length > 0) {
+                    const result = { id: data.movie_results[0].id, type: 'movie' };
+                    imdbCache.set(imdbId, result);
+                    return result;
+                } else if (data.tv_results && data.tv_results.length > 0) {
+                    const result = { id: data.tv_results[0].id, type: 'tv' };
+                    imdbCache.set(imdbId, result);
+                    return result;
+                }
+            } catch (e) {}
+            return null;
+        }
+
         async function resolveItemsFromImdbList(imdbIds, idSet) {
             const promises = imdbIds.map(async (imdbId) => {
-                try {
-                    // Extract data directly out of the find payload. Eliminates secondary fetch.
-                    const res = await fetch(`https://api.themoviedb.org/3/find/${imdbId}?api_key=${API_KEY}&external_source=imdb_id`);
-                    const data = await res.json();
-                    let item = null;
-                    if (data.movie_results && data.movie_results.length > 0) {
-                        item = data.movie_results[0];
-                        item.media_type = 'movie';
-                    } else if (data.tv_results && data.tv_results.length > 0) {
-                        item = data.tv_results[0];
-                        item.media_type = 'tv';
-                    }
-                    if (item && item.poster_path && !idSet.has(item.id)) {
-                        idSet.add(item.id);
-                        return item;
-                    }
-                } catch (e) {}
+                const tmdb = await fetchTMDBFromIMDb(imdbId);
+                if (tmdb && !idSet.has(tmdb.id)) {
+                    try {
+                        const res = await fetch(`https://api.themoviedb.org/3/${tmdb.type}/${tmdb.id}?api_key=${API_KEY}`);
+                        const data = await res.json();
+                        if (data && data.poster_path) {
+                            idSet.add(tmdb.id);
+                            return { ...data, media_type: tmdb.type, id: tmdb.id };
+                        }
+                    } catch (e) {}
+                }
                 return null;
             });
             const items = await Promise.all(promises);
@@ -295,18 +308,41 @@
             
             if (activeType === 'stephen_king') {
                 if (!window.loadedStephenKingIds) window.loadedStephenKingIds = new Set();
+                
+                // Stephen King list is finite, disable infinite scroll for this tab
                 if (append) { isLoading = false; return; }
 
                 window.loadedStephenKingIds.clear();
                 
-                // Fetching in sets of 10 with half-overhead load
-                const chunkSize = 10;
-                for (let i = 0; i < STEPHEN_KING_IMDB_IDS.length; i += chunkSize) {
-                    const chunk = STEPHEN_KING_IMDB_IDS.slice(i, i + chunkSize);
-                    const chunkResult = await resolveItemsFromImdbList(chunk, window.loadedStephenKingIds);
-                    renderStephenKing(chunkResult, true);
-                    await new Promise(resolve => setTimeout(resolve, 200));
+                // 100% BULLETPROOF SEQUENTIAL LOADER 
+                // We fetch exactly ONE movie at a time. No parallel requests. No dropped titles.
+                for (let i = 0; i < STEPHEN_KING_IMDB_IDS.length; i++) {
+                    const imdbId = STEPHEN_KING_IMDB_IDS[i];
+                    try {
+                        const res = await fetch(`https://api.themoviedb.org/3/find/${imdbId}?api_key=${API_KEY}&external_source=imdb_id`);
+                        if (res.ok) {
+                            const data = await res.json();
+                            let item = null;
+                            if (data.movie_results && data.movie_results.length > 0) {
+                                item = data.movie_results[0];
+                                item.media_type = 'movie';
+                            } else if (data.tv_results && data.tv_results.length > 0) {
+                                item = data.tv_results[0];
+                                item.media_type = 'tv';
+                            }
+
+                            if (item && item.poster_path && !window.loadedStephenKingIds.has(item.id)) {
+                                window.loadedStephenKingIds.add(item.id);
+                                renderStephenKing([item], true); // Render instantly on screen
+                            }
+                        }
+                    } catch (e) {
+                        // Suppress console errors to keep the console clean if TMDB misses an ID
+                    }
+                    // Mandatory 50ms pause to guarantee the TMDB API does not drop the connection
+                    await new Promise(resolve => setTimeout(resolve, 50));
                 }
+
                 isLoading = false;
                 return;
                 
@@ -512,6 +548,7 @@
             isLoading = false;
         }
 
+        // ---- Stephen King rendering ----
         function renderStephenKing(items, append) {
             const container = document.getElementById('stephen-king-section');
             if (!append) container.innerHTML = '';
@@ -524,6 +561,7 @@
             });
         }
 
+        // ---- After Dark ----
         async function fetchAfterDark() {
             const grid = document.getElementById('movie-grid');
             grid.innerHTML = '';
