@@ -208,7 +208,6 @@
             "tt3826866","tt3921180","tt0076142"
         ];
 
-        // ---- CORRECTED Stephen King IMDb IDs (no false entries) ----
         const STEPHEN_KING_IMDB_IDS = [
             "tt0079844","tt0099849","tt0101138","tt0106156","tt0108941","tt0112040",
             "tt0118463","tt0135659","tt0259153","tt0281432","tt0324864","tt0347463",
@@ -310,14 +309,62 @@
             }
 
             let results = [];
+            
             if (activeType === 'stephen_king') {
-                // ONLY HARD‑WIRED IMDb IDs, NO FALLBACK, NO INFINITE SCROLL
+                // Initialize tracking variables locally to avoid touching the rest of the file
+                if (!window.loadedStephenKingIds) window.loadedStephenKingIds = new Set();
+                if (!window.stephenKingPage) window.stephenKingPage = 1;
+
                 if (!append) {
-                    const hardwired = await resolveItemsFromImdbList(STEPHEN_KING_IMDB_IDS, new Set());
-                    renderStephenKing(hardwired, false);
+                    window.loadedStephenKingIds.clear();
+                    window.stephenKingPage = 1;
+                    
+                    // 1. Chunk the requests to prevent TMDB 429 Rate Limit errors (which causes missing titles)
+                    let hardwiredItems = [];
+                    const chunkSize = 20;
+                    for (let i = 0; i < STEPHEN_KING_IMDB_IDS.length; i += chunkSize) {
+                        const chunk = STEPHEN_KING_IMDB_IDS.slice(i, i + chunkSize);
+                        const chunkResult = await resolveItemsFromImdbList(chunk, window.loadedStephenKingIds);
+                        hardwiredItems = hardwiredItems.concat(chunkResult);
+                        // Brief pause to appease the API gods
+                        await new Promise(resolve => setTimeout(resolve, 300));
+                    }
+
+                    // 2. Filter out erroneous IMDb typos by enforcing horror/thriller/sci-fi genres
+                    const stephenKingHorror = hardwiredItems.filter(item => {
+                        const genres = item.genres ? item.genres.map(g => g.id) : (item.genre_ids || []);
+                        // 27: Horror, 53: Thriller, 10765: Sci-Fi & Fantasy (TV), 9648: Mystery
+                        return genres.includes(27) || genres.includes(53) || genres.includes(10765) || genres.includes(9648);
+                    });
+
+                    renderStephenKing(stephenKingHorror, false);
                     isLoading = false;
                     return;
                 } else {
+                    // 3. Infinite scroll mirroring the Black Horror Tab exactly
+                    if (!window.stephenKingPersonId) {
+                        try {
+                            const searchRes = await fetch(`https://api.themoviedb.org/3/search/person?api_key=${API_KEY}&query=Stephen+King`);
+                            const searchData = await searchRes.json();
+                            window.stephenKingPersonId = searchData.results[0].id;
+                        } catch (e) {
+                            window.stephenKingPersonId = '1003'; // Fallback to TMDB ID 1003
+                        }
+                    }
+                    const urls = [
+                        `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_people=${window.stephenKingPersonId}&sort_by=popularity.desc&page=${window.stephenKingPage}`,
+                        `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_people=${window.stephenKingPersonId}&sort_by=popularity.desc&page=${window.stephenKingPage}`
+                    ];
+                    const responses = await Promise.all(urls.map(url => fetch(url).then(r => r.json())));
+                    let items = [];
+                    responses[0].results && responses[0].results.forEach(m => { if (m.poster_path && !window.loadedStephenKingIds.has(m.id)) items.push({...m, media_type:'movie'}); });
+                    responses[1].results && responses[1].results.forEach(t => { if (t.poster_path && !window.loadedStephenKingIds.has(t.id)) items.push({...t, media_type:'tv'}); });
+                    
+                    let unique = new Map();
+                    items.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); window.loadedStephenKingIds.add(item.id); } });
+                    renderStephenKing(Array.from(unique.values()), true);
+                    
+                    window.stephenKingPage++;
                     isLoading = false;
                     return;
                 }
