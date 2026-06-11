@@ -134,17 +134,17 @@
 
         // ---- 100% Solidified & Corrected Stephen King Hardcoded List ----
         const STEPHEN_KING_IMDB_IDS = [
-            "tt0079844", "tt0099864", "tt0101103", "tt0106156", "tt0108941",
+            "tt0079844", "tt0099864", "tt0101138", "tt0106156", "tt0108941",
             "tt0112040", "tt0118460", "tt0135659", "tt0259153", "tt0281432",
             "tt0324864", "tt0347463", "tt0478056", "tt1519681", "tt1954313",
             "tt1553656", "tt2879552", "tt6520336", "tt4354880", "tt6548228",
             "tt9310638", "tt8550800", "tt1831804", "tt11822704", "tt11737520",
             "tt29340643", "tt26656754", "tt0102960", "tt0119975", "tt0120380",
             "tt0319159", "tt0349334", "tt0446415", "tt1310343", "tt3700010",
-            "tt0292534", "tt0086814", "tt0094512", "tt0120612", "tt0100157",
+            "tt0292534", "tt0086822", "tt0094512", "tt0120612", "tt0100157",
             "tt34316130", "tt0088889", "tt0090021", "tt0468569", "tt0085333",
             "tt0074285", "tt0088634", "tt0091499", "tt0092005", "tt0092796",
-            "tt0093843", "tt0093894", "tt0098084", "tt0104692", "tt0105417",
+            "tt0093843", "tt0093894", "tt0098084", "tt0104691", "tt0105417",
             "tt0105128", "tt0103964", "tt0106649", "tt0107665", "tt0111161",
             "tt0112666", "tt0113762", "tt0117892", "tt0115888", "tt0119194",
             "tt0118636", "tt0132953", "tt0144616", "tt0120689", "tt0144814",
@@ -286,39 +286,6 @@
             return items.filter(Boolean);
         }
 
-        // --- NEW: BATCH LOADER FOR STEPHEN KING (Prevents API crashing) ---
-        async function fetchStephenKingBatched(imdbIds, idSet) {
-            const batchSize = 10;
-            for (let i = 0; i < imdbIds.length; i += batchSize) {
-                const batch = imdbIds.slice(i, i + batchSize);
-                
-                const promises = batch.map(async (imdbId) => {
-                    const tmdb = await fetchTMDBFromIMDb(imdbId);
-                    if (tmdb && !idSet.has(tmdb.id)) {
-                        try {
-                            const res = await fetch(`https://api.themoviedb.org/3/${tmdb.type}/${tmdb.id}?api_key=${API_KEY}`);
-                            if (!res.ok) return null;
-                            const data = await res.json();
-                            if (data && data.poster_path) {
-                                idSet.add(tmdb.id);
-                                return { ...data, media_type: tmdb.type, id: tmdb.id };
-                            }
-                        } catch (e) {}
-                    }
-                    return null;
-                });
-
-                const items = await Promise.all(promises);
-                const validItems = items.filter(Boolean);
-                
-                // Render progressively to the screen
-                renderStephenKing(validItems, true);
-                
-                // 150ms buffer prevents TMDB API "Too Many Requests" Error
-                await new Promise(resolve => setTimeout(resolve, 150));
-            }
-        }
-
         async function fetchContent(append = false) {
             if (isLoading) return;
             isLoading = true;
@@ -348,16 +315,21 @@
             
             if (activeType === 'stephen_king') {
                 if (!window.loadedStephenKingIds) window.loadedStephenKingIds = new Set();
-                
-                // Stephen King list is finite, disable infinite scroll for this tab
                 if (append) { isLoading = false; return; }
 
                 window.loadedStephenKingIds.clear();
                 document.getElementById('stephen-king-section').innerHTML = '';
                 
-                // Run the batch loader to completely bypass API blockages
-                await fetchStephenKingBatched(STEPHEN_KING_IMDB_IDS, window.loadedStephenKingIds);
-
+                // Process the hardcoded list in chunks to completely bypass TMDB's rate limit dropping titles
+                let accumulatedItems = [];
+                for (let i = 0; i < STEPHEN_KING_IMDB_IDS.length; i += 8) {
+                    const chunk = STEPHEN_KING_IMDB_IDS.slice(i, i + 8);
+                    const items = await resolveItemsFromImdbList(chunk, window.loadedStephenKingIds);
+                    accumulatedItems = accumulatedItems.concat(items);
+                    renderStephenKing(accumulatedItems, false);
+                    await new Promise(r => setTimeout(r, 250)); // The golden safety net
+                }
+                
                 isLoading = false;
                 return;
                 
