@@ -132,19 +132,27 @@
         let wesCravenPage = 1;
         let loadedWesCravenIds = new Set();
 
-        // ---- NEW: 100% Solidified TMDB IDs for Stephen King ----
-        const STEPHEN_KING_TMDB_IDS = [
+        // ---- EXACT TMDB IDS FOR STEPHEN KING ----
+        const STEPHEN_KING_TV_IDS = [
             11343, 11053, 32111, 11603, 9045, 27488, 27503, 10376, 27505, 194, 
             4100, 40698, 2002, 32551, 44374, 46554, 64254, 69241, 71881, 72765, 
-            89456, 84661, 85431, 111860, 114478, 238287, 156947, 24147, 41639, 
-            26359, 18617, 19385, 13940, 28109, 296238, 16353, 2369, 29845, 9777, 
-            1700, 1357597, 11822, 14297, 353491, 8769, 639, 3344, 10300, 295, 
-            15852, 38234, 865, 8912, 10214, 12170, 11501, 22588, 10866, 9280, 
-            278, 24673, 24151, 10014, 25076, 39893, 9471, 25077, 32148, 497, 
-            12595, 25078, 11026, 25079, 6171, 2255, 11874, 3021, 11423, 18606, 
-            22971, 68225, 86835, 253303, 244330, 334539, 346364, 401034, 471506, 
-            503919, 522681, 474350, 580047, 501170, 715039, 615658, 914201, 921636, 
-            1151534
+            89456, 84661, 85431, 111860, 114478, 238287, 156947, 2369, 29845, 3344
+        ];
+
+        const STEPHEN_KING_MOVIE_IDS = [
+            24147, 41639, 26359, 18617, 19385, 13940, 28109, 296238, 16353, 9777, 
+            1700, 1357597, 11822, 14297, 353491, 8769, 639, 10300, 295, 15852, 
+            38234, 865, 8912, 10214, 12170, 11501, 22588, 10866, 9280, 278, 
+            24673, 24151, 10014, 25076, 39893, 9471, 25077, 32148, 497, 12595, 
+            25078, 11026, 25079, 6171, 2255, 11874, 3021, 11423, 18606, 22971, 
+            68225, 86835, 253303, 244330, 334539, 346364, 401034, 471506, 503919, 
+            522681, 474350, 580047, 501170, 715039, 615658, 914201, 921636, 1151534
+        ];
+
+        // Combine into a strict task list so the API knows exactly what endpoint to hit
+        const STEPHEN_KING_TASKS = [
+            ...STEPHEN_KING_TV_IDS.map(id => ({ id, type: 'tv' })),
+            ...STEPHEN_KING_MOVIE_IDS.map(id => ({ id, type: 'movie' }))
         ];
 
         // ---- IMDb ID lists for Other Tabs ----
@@ -277,43 +285,37 @@
             return items.filter(Boolean);
         }
 
-        // ---- NEW BATCHED LOADER TO PREVENT RATE LIMITING ----
-        async function fetchStephenKingBatched(tmdbIds, idSet) {
-            const batchSize = 6; 
-            for (let i = 0; i < tmdbIds.length; i += batchSize) {
-                const batch = tmdbIds.slice(i, i + batchSize);
+        // ---- THE MASTER BATCH LOADER FOR EXACT TMDB IDS ----
+        async function fetchStephenKingBatched(tasks, idSet) {
+            const batchSize = 8;
+            for (let i = 0; i < tasks.length; i += batchSize) {
+                const batch = tasks.slice(i, i + batchSize);
                 
-                const promises = batch.map(async (tmdbId) => {
-                    if (idSet.has(tmdbId)) return null;
+                const promises = batch.map(async ({ id, type }) => {
+                    const uniqueKey = type + '_' + id;
+                    if (idSet.has(uniqueKey)) return null;
                     
                     try {
-                        let res = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${API_KEY}`);
+                        const res = await fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}`);
                         if (res.ok) {
                             const data = await res.json();
                             if (data && data.poster_path) {
-                                idSet.add(tmdbId);
-                                return { ...data, media_type: 'movie', id: tmdbId };
-                            }
-                        } else {
-                            let tvRes = await fetch(`https://api.themoviedb.org/3/tv/${tmdbId}?api_key=${API_KEY}`);
-                            if (tvRes.ok) {
-                                const data = await tvRes.json();
-                                if (data && data.poster_path) {
-                                    idSet.add(tmdbId);
-                                    return { ...data, media_type: 'tv', id: tmdbId };
-                                }
+                                idSet.add(uniqueKey);
+                                return { ...data, media_type: type, id: id };
                             }
                         }
-                    } catch(e) {}
+                    } catch (e) {}
                     return null;
                 });
 
                 const items = await Promise.all(promises);
                 const validItems = items.filter(Boolean);
                 
-                renderStephenKing(validItems, true); 
+                // Render progressively to the screen exactly like the Black Horror tab does
+                renderStephenKing(validItems, true);
                 
-                await new Promise(resolve => setTimeout(resolve, 300));
+                // A rigid 250ms buffer to guarantee the API never drops a single title
+                await new Promise(resolve => setTimeout(resolve, 250));
             }
         }
 
@@ -351,7 +353,8 @@
                 window.loadedStephenKingIds.clear();
                 document.getElementById('stephen-king-section').innerHTML = '';
                 
-                await fetchStephenKingBatched(STEPHEN_KING_TMDB_IDS, window.loadedStephenKingIds);
+                // Launch the new, unbreakable progressive fetcher
+                await fetchStephenKingBatched(STEPHEN_KING_TASKS, window.loadedStephenKingIds);
 
                 isLoading = false;
                 return;
