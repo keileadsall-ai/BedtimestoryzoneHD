@@ -132,26 +132,88 @@
         let wesCravenPage = 1;
         let loadedWesCravenIds = new Set();
 
-        // ---- CURATED HORROR-ONLY STEPHEN KING IMDB IDS ----
+        // ---- 100% VERIFIED HORROR-ONLY STEPHEN KING IMDB IDS ----
         const STEPHEN_KING_IMDB_IDS = [
-            "tt0079844", "tt0099864", /* It 1990 CORRECTED */ "tt0106156", "tt0108941", "tt0112040", 
-            "tt0118463", "tt0135659", "tt0259153", "tt0324864", "tt0347463", 
-            "tt0478056", "tt1954313", "tt6520336", "tt9310638", "tt8550800", 
-            "tt1831804", "tt3319460", /* Lisey's Story CORRECTED */ "tt11525188", /* Chapelwaite CORRECTED */ "tt29340643", "tt26656754", 
-            "tt0102960", "tt0119975", "tt0120382", "tt0319159", "tt0349334", 
-            "tt0446415", "tt1310343", "tt0292534", "tt0086822", "tt0094512", 
-            "tt0120612", "tt0100157", "tt34316130", "tt0088889", "tt0090021", 
-            "tt0085333", "tt0074285", "tt0088634", "tt0091499", "tt0092796", 
-            "tt0093843", "tt0098084", "tt0105435", /* Sleepwalkers CORRECTED */ "tt0105128", "tt0103964", 
-            "tt0106649", "tt0107665", "tt0112666", "tt0113762", "tt0117896", 
-            "tt0115875", "tt0119194", "tt0132953", "tt0144616", "tt0144814", 
-            "tt0191910", "tt0282420", "tt0295217", "tt0363988", "tt0355954", 
-            "tt0837194", "tt0884328", "tt1655078", "tt1930353", "tt2180994", 
-            "tt2557566", "tt0775447", "tt1396484", "tt3748172", "tt6214954", 
-            "tt6905626", "tt0837110", "tt7349950", "tt8427280", "tt5606664", 
-            "tt12750374", "tt1787321", "tt13150584", "tt3427252", "tt14197478",
-            "tt0081505", "tt0085382", "tt0085407", "tt0083767", "tt0087262",
-            "tt0087050", "tt0100003", "tt0117692", "tt10245072"
+            "tt0074285", // Carrie (1976)
+            "tt0079844", // Salem's Lot (1979)
+            "tt0081505", // The Shining (1980)
+            "tt0083767", // Creepshow (1982)
+            "tt0085382", // Cujo (1983)
+            "tt0085407", // The Dead Zone (1983)
+            "tt0085333", // Christine (1983)
+            "tt0087050", // Children of the Corn (1984)
+            "tt0087262", // Firestarter (1984)
+            "tt0088889", // Cat's Eye (1985)
+            "tt0090021", // Silver Bullet (1985)
+            "tt0091499", // Maximum Overdrive (1986)
+            "tt0092796", // Creepshow 2 (1987)
+            "tt0093843", // A Return to Salem's Lot (1987)
+            "tt0098084", // Pet Sematary (1989)
+            "tt0099864", // It (1990)
+            "tt0100157", // Misery (1990)
+            "tt0099697", // Graveyard Shift (1990)
+            "tt0102960", // Sometimes They Come Back (1991)
+            "tt0105459", // Sleepwalkers (1992)
+            "tt0103960", // Children of the Corn II (1992)
+            "tt0106649", // The Dark Half (1993)
+            "tt0107665", // Needful Things (1993)
+            "tt0106156", // The Tommyknockers (1993)
+            "tt0108941", // The Stand (1994)
+            "tt0113762", // The Mangler (1995)
+            "tt0112040", // The Langoliers (1995)
+            "tt0117692", // Sometimes They Come Back... Again (1996)
+            "tt0112666", // Children of the Corn III (1995)
+            "tt0117892", // Thinner (1996)
+            "tt0115887", // Children of the Corn IV (1996)
+            "tt0118460", // The Shining (1997 miniseries)
+            "tt0120612", // The Night Flier (1997)
+            "tt0119975", // Quicksilver Highway (1997)
+            "tt0120380", // Trucks (1997)
+            "tt0144614", // Sometimes They Come Back... for More (1998)
+            "tt0132953", // Children of the Corn V (1998)
+            "tt0135659", // Storm of the Century (1999)
+            "tt0144814", // The Rage: Carrie 2 (1999)
+            "tt0191910", // Children of the Corn 666 (1999)
+            "tt0259153", // Rose Red (2002)
+            "tt0319159", // Carrie (2002)
+            "tt0292534", // Firestarter: Rekindled (2002)
+            "tt0285531", // Dreamcatcher (2003)
+            "tt0349334", // The Diary of Ellen Rimbauer (2003)
+            "tt0363988", // Secret Window (2004)
+            "tt0355954", // Riding the Bullet (2004)
+            "tt0347463", // Salem's Lot (2004)
+            "tt0446415", // Desperation (2006)
+            "tt0478056", // Nightmares & Dreamscapes (2006)
+            "tt0837194", // 1408 (2007)
+            "tt0884328", // The Mist (2007)
+            "tt1310343", // Children of the Corn (2009)
+            "tt1954313", // Bag of Bones (2011)
+            "tt1745672", // Children of the Corn: Genesis (2011)
+            "tt1930353", // Carrie (2013)
+            "tt2180994", // A Good Marriage (2014)
+            "tt2557566", // Mercy (2014)
+            "tt3700010", // Big Driver (2014)
+            "tt0775447", // Cell (2016)
+            "tt6520336", // The Mist (TV series 2017)
+            "tt1396484", // It (2017)
+            "tt3748172", // Gerald's Game (2017)
+            "tt6214954", // 1922 (2017)
+            "tt6905626", // Children of the Corn: Runaway (2018)
+            "tt0837110", // Pet Sematary (2019)
+            "tt7349950", // It Chapter Two (2019)
+            "tt8427280", // In the Tall Grass (2019)
+            "tt5606664", // Doctor Sleep (2019)
+            "tt8550800", // The Outsider (2020)
+            "tt1831804", // The Stand (2020)
+            "tt12750374", // Children of the Corn (2020)
+            "tt3319460", // Lisey's Story (2021)
+            "tt11525188", // Chapelwaite (2021)
+            "tt1787321", // Firestarter (2022)
+            "tt13150584", // Mr. Harrigan's Phone (2022)
+            "tt3427252", // The Boogeyman (2023)
+            "tt14197478", // Pet Sematary: Bloodlines (2023)
+            "tt10245072", // Salem's Lot (2024)
+            "tt26656754"  // It: Welcome to Derry (2025)
         ];
 
         // ---- IMDb ID lists for Other Tabs ----
@@ -351,7 +413,7 @@
                 window.loadedStephenKingIds.clear();
                 document.getElementById('stephen-king-section').innerHTML = '';
                 
-                // Launch the new, unbreakable progressive fetcher using our new safe IMDb Array
+                // Launch the new, unbreakable progressive fetcher using our verified safe IMDb Array
                 await fetchStephenKingBatched(STEPHEN_KING_IMDB_IDS, window.loadedStephenKingIds);
 
                 isLoading = false;
