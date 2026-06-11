@@ -132,27 +132,27 @@
         let wesCravenPage = 1;
         let loadedWesCravenIds = new Set();
 
-        // ---- EXACT TMDB IDS FOR STEPHEN KING ----
-        const STEPHEN_KING_TV_IDS = [
-            11343, 11053, 32111, 11603, 9045, 27488, 27503, 10376, 27505, 194, 
-            4100, 40698, 2002, 32551, 44374, 46554, 64254, 69241, 71881, 72765, 
-            89456, 84661, 85431, 111860, 114478, 238287, 156947, 2369, 29845, 3344
-        ];
-
-        const STEPHEN_KING_MOVIE_IDS = [
-            24147, 41639, 26359, 18617, 19385, 13940, 28109, 296238, 16353, 9777, 
-            1700, 1357597, 11822, 14297, 353491, 8769, 639, 10300, 295, 15852, 
-            38234, 865, 8912, 10214, 12170, 11501, 22588, 10866, 9280, 278, 
-            24673, 24151, 10014, 25076, 39893, 9471, 25077, 32148, 497, 12595, 
-            25078, 11026, 25079, 6171, 2255, 11874, 3021, 11423, 18606, 22971, 
-            68225, 86835, 253303, 244330, 334539, 346364, 401034, 471506, 503919, 
-            522681, 474350, 580047, 501170, 715039, 615658, 914201, 921636, 1151534
-        ];
-
-        // Combine into a strict task list so the API knows exactly what endpoint to hit
-        const STEPHEN_KING_TASKS = [
-            ...STEPHEN_KING_TV_IDS.map(id => ({ id, type: 'tv' })),
-            ...STEPHEN_KING_MOVIE_IDS.map(id => ({ id, type: 'movie' }))
+        // ---- CURATED HORROR-ONLY STEPHEN KING IMDB IDS ----
+        const STEPHEN_KING_IMDB_IDS = [
+            "tt0079844", "tt0099849", "tt0106156", "tt0108941", "tt0112040", 
+            "tt0118463", "tt0135659", "tt0259153", "tt0324864", "tt0347463", 
+            "tt0478056", "tt1954313", "tt6520336", "tt9310638", "tt8550800", 
+            "tt1831804", "tt11822704", "tt11737520", "tt29340643", "tt26656754", 
+            "tt0102960", "tt0119975", "tt0120382", "tt0319159", "tt0349334", 
+            "tt0446415", "tt1310343", "tt0292534", "tt0086822", "tt0094512", 
+            "tt0120612", "tt0100157", "tt34316130", "tt0088889", "tt0090021", 
+            "tt0085333", "tt0074285", "tt0088634", "tt0091499", "tt0092796", 
+            "tt0093843", "tt0098084", "tt0105417", "tt0105128", "tt0103964", 
+            "tt0106649", "tt0107665", "tt0112666", "tt0113762", "tt0117896", 
+            "tt0115875", "tt0119194", "tt0132953", "tt0144616", "tt0144814", 
+            "tt0191910", "tt0282420", "tt0295217", "tt0363988", "tt0355954", 
+            "tt0837194", "tt0884328", "tt1655078", "tt1930353", "tt2180994", 
+            "tt2557566", "tt0775447", "tt1396484", "tt3748172", "tt6214954", 
+            "tt6905626", "tt0837110", "tt7349950", "tt8427280", "tt5606664", 
+            "tt12750374", "tt1787321", "tt13150584", "tt3427252", "tt14197478",
+            // The Missing Masterpieces Added:
+            "tt0081505", "tt0085382", "tt0085407", "tt0083767", "tt0087262",
+            "tt0087050", "tt0100003", "tt0117692", "tt10245072"
         ];
 
         // ---- IMDb ID lists for Other Tabs ----
@@ -285,26 +285,27 @@
             return items.filter(Boolean);
         }
 
-        // ---- THE MASTER BATCH LOADER FOR EXACT TMDB IDS ----
-        async function fetchStephenKingBatched(tasks, idSet) {
+        // ---- THE MASTER BATCH LOADER FOR IMDB IDS ----
+        async function fetchStephenKingBatched(imdbIds, idSet) {
             const batchSize = 8;
-            for (let i = 0; i < tasks.length; i += batchSize) {
-                const batch = tasks.slice(i, i + batchSize);
+            for (let i = 0; i < imdbIds.length; i += batchSize) {
+                const batch = imdbIds.slice(i, i + batchSize);
                 
-                const promises = batch.map(async ({ id, type }) => {
-                    const uniqueKey = type + '_' + id;
-                    if (idSet.has(uniqueKey)) return null;
-                    
-                    try {
-                        const res = await fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}`);
-                        if (res.ok) {
-                            const data = await res.json();
-                            if (data && data.poster_path) {
-                                idSet.add(uniqueKey);
-                                return { ...data, media_type: type, id: id };
+                const promises = batch.map(async (imdbId) => {
+                    // First, convert IMDb ID to TMDB format using your existing helper
+                    const tmdb = await fetchTMDBFromIMDb(imdbId);
+                    if (tmdb && !idSet.has(tmdb.id)) {
+                        try {
+                            const res = await fetch(`https://api.themoviedb.org/3/${tmdb.type}/${tmdb.id}?api_key=${API_KEY}`);
+                            if (res.ok) {
+                                const data = await res.json();
+                                if (data && data.poster_path) {
+                                    idSet.add(tmdb.id);
+                                    return { ...data, media_type: tmdb.type, id: tmdb.id };
+                                }
                             }
-                        }
-                    } catch (e) {}
+                        } catch (e) {}
+                    }
                     return null;
                 });
 
@@ -353,8 +354,8 @@
                 window.loadedStephenKingIds.clear();
                 document.getElementById('stephen-king-section').innerHTML = '';
                 
-                // Launch the new, unbreakable progressive fetcher
-                await fetchStephenKingBatched(STEPHEN_KING_TASKS, window.loadedStephenKingIds);
+                // Launch the new, unbreakable progressive fetcher using our new IMDb Array
+                await fetchStephenKingBatched(STEPHEN_KING_IMDB_IDS, window.loadedStephenKingIds);
 
                 isLoading = false;
                 return;
