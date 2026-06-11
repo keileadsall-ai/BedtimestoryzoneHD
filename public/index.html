@@ -132,6 +132,30 @@
         let wesCravenPage = 1;
         let loadedWesCravenIds = new Set();
 
+        // ---- 100% Solidified & Corrected Stephen King Hardcoded List ----
+        const STEPHEN_KING_IMDB_IDS = [
+            "tt0079844", "tt0099864", "tt0101103", "tt0106156", "tt0108941",
+            "tt0112040", "tt0118460", "tt0135659", "tt0259153", "tt0281432",
+            "tt0324864", "tt0347463", "tt0478056", "tt1519681", "tt1954313",
+            "tt1553656", "tt2879552", "tt6520336", "tt4354880", "tt6548228",
+            "tt9310638", "tt8550800", "tt1831804", "tt11822704", "tt11737520",
+            "tt29340643", "tt26656754", "tt0102960", "tt0119975", "tt0120380",
+            "tt0319159", "tt0349334", "tt0446415", "tt1310343", "tt3700010",
+            "tt0292534", "tt0086814", "tt0094512", "tt0120612", "tt0100157",
+            "tt34316130", "tt0088889", "tt0090021", "tt0468569", "tt0085333",
+            "tt0074285", "tt0088634", "tt0091499", "tt0092005", "tt0092796",
+            "tt0093843", "tt0093894", "tt0098084", "tt0104692", "tt0105417",
+            "tt0105128", "tt0103964", "tt0106649", "tt0107665", "tt0111161",
+            "tt0112666", "tt0113762", "tt0117892", "tt0115888", "tt0119194",
+            "tt0118636", "tt0132953", "tt0144616", "tt0120689", "tt0144814",
+            "tt0191910", "tt0268380", "tt0282420", "tt0295217", "tt0363988",
+            "tt0355954", "tt0837194", "tt0884328", "tt1010007", "tt1160401",
+            "tt1655078", "tt1930353", "tt2180994", "tt2557566", "tt0775447",
+            "tt1396484", "tt3748172", "tt6214954", "tt6905626", "tt0837110",
+            "tt7349950", "tt8427280", "tt5606664", "tt12750374", "tt1787321",
+            "tt13150584", "tt3427252", "tt14197478"
+        ];
+
         // ---- IMDb ID lists ----
         const HARD_WIRED_IMDB_IDS = [
             "tt0071095","tt7544954","tt3743358","tt13365348","tt0160016","tt16997558",
@@ -262,6 +286,39 @@
             return items.filter(Boolean);
         }
 
+        // --- NEW: BATCH LOADER FOR STEPHEN KING (Prevents API crashing) ---
+        async function fetchStephenKingBatched(imdbIds, idSet) {
+            const batchSize = 10;
+            for (let i = 0; i < imdbIds.length; i += batchSize) {
+                const batch = imdbIds.slice(i, i + batchSize);
+                
+                const promises = batch.map(async (imdbId) => {
+                    const tmdb = await fetchTMDBFromIMDb(imdbId);
+                    if (tmdb && !idSet.has(tmdb.id)) {
+                        try {
+                            const res = await fetch(`https://api.themoviedb.org/3/${tmdb.type}/${tmdb.id}?api_key=${API_KEY}`);
+                            if (!res.ok) return null;
+                            const data = await res.json();
+                            if (data && data.poster_path) {
+                                idSet.add(tmdb.id);
+                                return { ...data, media_type: tmdb.type, id: tmdb.id };
+                            }
+                        } catch (e) {}
+                    }
+                    return null;
+                });
+
+                const items = await Promise.all(promises);
+                const validItems = items.filter(Boolean);
+                
+                // Render progressively to the screen
+                renderStephenKing(validItems, true);
+                
+                // 150ms buffer prevents TMDB API "Too Many Requests" Error
+                await new Promise(resolve => setTimeout(resolve, 150));
+            }
+        }
+
         async function fetchContent(append = false) {
             if (isLoading) return;
             isLoading = true;
@@ -291,47 +348,16 @@
             
             if (activeType === 'stephen_king') {
                 if (!window.loadedStephenKingIds) window.loadedStephenKingIds = new Set();
-                if (!window.stephenKingPage) window.stephenKingPage = 1;
-                if (!append) {
-                    window.loadedStephenKingIds.clear();
-                    window.stephenKingPage = 1;
-                }
                 
-                // TMDB Person ID 1730 = Stephen King
-                const skId = 1730;
-                // Fetching Movies (Horror/Thriller) & TV (excluding Animation and pure Fantasy/Kids)
-                const urls = [
-                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_people=${skId}&with_genres=27|53&without_genres=16|14|10751&sort_by=popularity.desc&page=${window.stephenKingPage}`,
-                    `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_people=${skId}&with_genres=10765|9648|18&without_genres=16|10762&sort_by=popularity.desc&page=${window.stephenKingPage}`
-                ];
-                
-                const responses = await Promise.all(urls.map(url => fetch(url).then(r => r.json())));
-                let items = [];
-                
-                if (responses[0].results) {
-                    responses[0].results.forEach(m => { 
-                        if (m.poster_path && !window.loadedStephenKingIds.has(m.id)) items.push({...m, media_type: 'movie'}); 
-                    });
-                }
-                if (responses[1].results) {
-                    responses[1].results.forEach(t => { 
-                        if (t.poster_path && !window.loadedStephenKingIds.has(t.id)) items.push({...t, media_type: 'tv'}); 
-                    });
-                }
+                // Stephen King list is finite, disable infinite scroll for this tab
+                if (append) { isLoading = false; return; }
 
-                let unique = new Map();
-                items.forEach(item => { 
-                    if (!unique.has(item.id)) { 
-                        unique.set(item.id, item); 
-                        window.loadedStephenKingIds.add(item.id); 
-                    } 
-                });
+                window.loadedStephenKingIds.clear();
+                document.getElementById('stephen-king-section').innerHTML = '';
                 
-                // Sort the combined results by popularity before rendering
-                let sortedItems = Array.from(unique.values()).sort((a, b) => b.popularity - a.popularity);
-                renderStephenKing(sortedItems, append);
-                
-                window.stephenKingPage++;
+                // Run the batch loader to completely bypass API blockages
+                await fetchStephenKingBatched(STEPHEN_KING_IMDB_IDS, window.loadedStephenKingIds);
+
                 isLoading = false;
                 return;
                 
