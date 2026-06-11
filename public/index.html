@@ -32,6 +32,10 @@
         .ep-play-icon { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); color: white; font-size: 1.2rem; }
         .movie-info { position: absolute; bottom: 0; background: rgba(0,0,0,0.85); width: 100%; padding: 8px; font-size: 0.75rem; opacity: 0; transition: 0.3s; }
         .movie-card:hover .movie-info { opacity: 1; }
+        
+        /* Smooth rendering for our new concurrent fetcher */
+        .fade-in { animation: fadeIn 0.4s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
 <body>
@@ -247,18 +251,38 @@
             12778, 12830, 12897, 12984, 13151, 13217, 13378, 13413, 13641
         ])];
 
+        // ---- BULLETPROOF RETRY FETCHER ----
+        // This function intercepts TMDB's "Too Many Requests" shadowbans and forces them to resolve.
+        async function fetchWithRetry(url, retries = 3) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const res = await fetch(url);
+                    if (res.ok) return await res.json();
+                    if (res.status === 429) {
+                        // If TMDB gets angry, wait 1 second and smash the door again
+                        await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1))); 
+                        continue;
+                    }
+                    break;
+                } catch(e) {
+                    if (i === retries - 1) return null;
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+            }
+            return null;
+        }
+
         // ---- Helper fetch for everything EXCEPT Stephen King ----
         const imdbCache = new Map();
         async function fetchTMDBFromIMDb(imdbId) {
             if (imdbCache.has(imdbId)) return imdbCache.get(imdbId);
             try {
-                const res = await fetch(`https://api.themoviedb.org/3/find/${imdbId}?api_key=${API_KEY}&external_source=imdb_id`);
-                const data = await res.json();
-                if (data.movie_results && data.movie_results.length > 0) {
+                const data = await fetchWithRetry(`https://api.themoviedb.org/3/find/${imdbId}?api_key=${API_KEY}&external_source=imdb_id`);
+                if (data && data.movie_results && data.movie_results.length > 0) {
                     const result = { id: data.movie_results[0].id, type: 'movie' };
                     imdbCache.set(imdbId, result);
                     return result;
-                } else if (data.tv_results && data.tv_results.length > 0) {
+                } else if (data && data.tv_results && data.tv_results.length > 0) {
                     const result = { id: data.tv_results[0].id, type: 'tv' };
                     imdbCache.set(imdbId, result);
                     return result;
@@ -272,8 +296,7 @@
                 const tmdb = await fetchTMDBFromIMDb(imdbId);
                 if (tmdb && !idSet.has(tmdb.id)) {
                     try {
-                        const res = await fetch(`https://api.themoviedb.org/3/${tmdb.type}/${tmdb.id}?api_key=${API_KEY}`);
-                        const data = await res.json();
+                        const data = await fetchWithRetry(`https://api.themoviedb.org/3/${tmdb.type}/${tmdb.id}?api_key=${API_KEY}`);
                         if (data && data.poster_path) {
                             idSet.add(tmdb.id);
                             return { ...data, media_type: tmdb.type, id: tmdb.id };
@@ -286,37 +309,49 @@
             return items.filter(Boolean);
         }
 
-        // ---- RATE-LIMIT SAFE BATCH LOADER ----
-        async function fetchStephenKingBatched(imdbIds, idSet) {
-            const batchSize = 2; // Process 2 movies at a time
-            for (let i = 0; i < imdbIds.length; i += batchSize) {
-                const batch = imdbIds.slice(i, i + batchSize);
-                
-                const promises = batch.map(async (imdbId) => {
-                    const tmdb = await fetchTMDBFromIMDb(imdbId);
-                    if (tmdb && !idSet.has(tmdb.id)) {
-                        try {
-                            const res = await fetch(`https://api.themoviedb.org/3/${tmdb.type}/${tmdb.id}?api_key=${API_KEY}`);
-                            if (res.ok) {
-                                const data = await res.json();
-                                if (data && data.poster_path) {
-                                    idSet.add(tmdb.id);
-                                    return { ...data, media_type: tmdb.type, id: tmdb.id };
-                                }
-                            }
-                        } catch (e) {}
-                    }
-                    return null;
-                });
+        // ---- THE ULTIMATE CONCURRENT LOADER (ZERO TRUNCATION) ----
+        async function loadStephenKingFlawlessly(imdbIds, container) {
+            // 1. Create invisible placeholders immediately so the array order is preserved perfectly
+            imdbIds.forEach(id => {
+                const placeholder = document.createElement('div');
+                placeholder.id = `sk-${id}`;
+                placeholder.className = 'hidden'; 
+                container.appendChild(placeholder);
+            });
 
-                const items = await Promise.all(promises);
-                const validItems = items.filter(Boolean);
-                
-                renderStephenKing(validItems, true);
-                
-                // 1000ms delay perfectly controls the API hits to safely populate the screen
-                await new Promise(resolve => setTimeout(resolve, 1000));
-            }
+            // 2. Dispatch exactly 6 parallel workers to fetch movies without destroying Chrome's network cap
+            let currentIndex = 0;
+            const workers = Array(6).fill(null).map(async () => {
+                while (currentIndex < imdbIds.length) {
+                    const i = currentIndex++;
+                    const imdbId = imdbIds[i];
+                    
+                    let data = await fetchWithRetry(`https://api.themoviedb.org/3/find/${imdbId}?api_key=${API_KEY}&external_source=imdb_id`);
+                    if (!data) continue;
+
+                    let tmdbId, type;
+                    if (data.movie_results?.length) { tmdbId = data.movie_results[0].id; type = 'movie'; }
+                    else if (data.tv_results?.length) { tmdbId = data.tv_results[0].id; type = 'tv'; }
+                    else continue;
+
+                    if (window.loadedStephenKingIds.has(tmdbId)) continue;
+
+                    let details = await fetchWithRetry(`https://api.themoviedb.org/3/${type}/${tmdbId}?api_key=${API_KEY}`);
+                    if (details && details.poster_path) {
+                        window.loadedStephenKingIds.add(tmdbId);
+                        
+                        // 3. The exact millisecond a poster downloads, swap it onto the screen
+                        const card = document.createElement('div');
+                        card.className = 'movie-card focusable fade-in'; card.tabIndex = 0;
+                        card.onclick = () => openDetails(details.id, type);
+                        card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${details.poster_path}" class="w-full h-full object-cover"><div class="movie-info horror-font"><h3 class="text-red-600 font-bold truncate">${details.title || details.name}</h3><p>${(details.release_date || details.first_air_date || '').split('-')[0]}</p></div>`;
+                        
+                        const slot = document.getElementById(`sk-${imdbId}`);
+                        if (slot) slot.replaceWith(card);
+                    }
+                }
+            });
+            await Promise.all(workers);
         }
 
         async function fetchContent(append = false) {
@@ -353,8 +388,8 @@
                 window.loadedStephenKingIds.clear();
                 document.getElementById('stephen-king-section').innerHTML = '';
                 
-                // Launch the new progressive fetcher 
-                await fetchStephenKingBatched(STEPHEN_KING_IMDB_IDS, window.loadedStephenKingIds);
+                // Launch the bulletproof concurrent fetcher
+                await loadStephenKingFlawlessly(STEPHEN_KING_IMDB_IDS, document.getElementById('stephen-king-section'));
 
                 isLoading = false;
                 return;
@@ -393,14 +428,14 @@
                     `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${horrorGenre}&with_origin_country=JP&sort_by=popularity.desc&page=${abroadPage}`,
                     `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_origin_country=JP&with_keywords=${tvHorrorKeywords}&sort_by=popularity.desc&page=${abroadPage}`
                 ];
-                const responses = await Promise.all(urls.map(url => fetch(url).then(r => r.json())));
+                const responses = await Promise.all(urls.map(url => fetchWithRetry(url)));
                 let items = [];
                 [responses[0], responses[1]].forEach(data => {
-                    (data.results || []).forEach(m => {
+                    (data?.results || []).forEach(m => {
                         if (m.poster_path && !loadedAbroadIds.has(m.id)) items.push({ ...m, media_type: 'movie' });
                     });
                 });
-                (responses[2].results || []).forEach(t => {
+                (responses[2]?.results || []).forEach(t => {
                     if (t.poster_path && !loadedAbroadIds.has(t.id)) items.push({ ...t, media_type: 'tv' });
                 });
                 let unique = new Map();
@@ -421,12 +456,12 @@
                         `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=233306&sort_by=popularity.desc&page=${blackHorrorPage}`,
                         `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=209825&sort_by=popularity.desc&page=${blackHorrorPage}`,
                     ];
-                    const responses = await Promise.all(urls.map(url => fetch(url).then(r => r.json())));
+                    const responses = await Promise.all(urls.map(url => fetchWithRetry(url)));
                     let items = [];
-                    responses[0].results && responses[0].results.forEach(m => { if (m.poster_path && !loadedBlackHorrorIds.has(m.id)) items.push({...m, media_type:'movie'}); });
-                    responses[1].results && responses[1].results.forEach(t => { if (t.poster_path && !loadedBlackHorrorIds.has(t.id)) items.push({...t, media_type:'tv'}); });
-                    responses[2].results && responses[2].results.forEach(m => { if (m.poster_path && !loadedBlackHorrorIds.has(m.id)) items.push({...m, media_type:'movie'}); });
-                    responses[3].results && responses[3].results.forEach(m => { if (m.poster_path && !loadedBlackHorrorIds.has(m.id)) items.push({...m, media_type:'movie'}); });
+                    responses[0]?.results && responses[0].results.forEach(m => { if (m.poster_path && !loadedBlackHorrorIds.has(m.id)) items.push({...m, media_type:'movie'}); });
+                    responses[1]?.results && responses[1].results.forEach(t => { if (t.poster_path && !loadedBlackHorrorIds.has(t.id)) items.push({...t, media_type:'tv'}); });
+                    responses[2]?.results && responses[2].results.forEach(m => { if (m.poster_path && !loadedBlackHorrorIds.has(m.id)) items.push({...m, media_type:'movie'}); });
+                    responses[3]?.results && responses[3].results.forEach(m => { if (m.poster_path && !loadedBlackHorrorIds.has(m.id)) items.push({...m, media_type:'movie'}); });
                     let unique = new Map();
                     items.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); loadedBlackHorrorIds.add(item.id); } });
                     renderBlackHorror(Array.from(unique.values()), true);
@@ -449,9 +484,8 @@
                     let targetUrl = isMoviePage ? 
                         `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&certification_country=US&certification.lte=PG-13&page=${pageTarget}` :
                         `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&certification_country=US&certification.lte=TV-14&page=${pageTarget}`;
-                    const res = await fetch(targetUrl);
-                    const data = await res.json();
-                    let fetched = (data.results || []).filter(item => 
+                    const data = await fetchWithRetry(targetUrl);
+                    let fetched = (data?.results || []).filter(item => 
                         item.poster_path && 
                         !loadedYouthHorrorIds.has(item.id) &&
                         ((item.genre_ids && (item.genre_ids.includes(27) || item.genre_ids.includes(10765))) || item.media_type)
@@ -496,10 +530,9 @@
                     ];
                     specifiedShows.forEach(title => {
                         promises.push(
-                            fetch(`https://api.themoviedb.org/3/search/tv?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
-                            .then(res => res.json())
+                            fetchWithRetry(`https://api.themoviedb.org/3/search/tv?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
                             .then(data => {
-                                if(data.results && data.results.length > 0) {
+                                if(data && data.results && data.results.length > 0) {
                                     return data.results.filter(show => show.genre_ids && show.genre_ids.includes(10765));
                                 }
                                 return [];
@@ -520,10 +553,9 @@
                 } else {
                     const horrorKeywords = '33507|6152|9653|193386|230113';
                     const url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_keywords=${horrorKeywords}&sort_by=popularity.desc&page=${horrorShowPageEn}`;
-                    const res = await fetch(url);
-                    const data = await res.json();
+                    const data = await fetchWithRetry(url);
                     let combined = [];
-                    if (data.results) {
+                    if (data?.results) {
                         combined = combined.concat(data.results.filter(item => 
                             item.poster_path && 
                             item.genre_ids && 
@@ -552,26 +584,12 @@
             } else {
                 let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}`;
                 if (activeType === 'search') url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${activeID}&page=${currentPage}`;
-                const res = await fetch(url);
-                const data = await res.json();
-                results = data.results;
+                const data = await fetchWithRetry(url);
+                results = data?.results || [];
             }
             renderGrid(results);
             if (!['horror_shows','youth','unrated','abroad','trending', 'stephen_king'].includes(activeType)) currentPage++;
             isLoading = false;
-        }
-
-        // ---- Stephen King rendering ----
-        function renderStephenKing(items, append) {
-            const container = document.getElementById('stephen-king-section');
-            if (!append) container.innerHTML = '';
-            items.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'movie-card focusable'; card.tabIndex = 0;
-                card.onclick = () => openDetails(item.id, item.media_type || (item.first_air_date ? 'tv' : 'movie'));
-                card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${item.poster_path}" class="w-full h-full object-cover"><div class="movie-info horror-font"><h3 class="text-red-600 font-bold truncate">${item.title || item.name}</h3><p>${(item.release_date || item.first_air_date || '').split('-')[0]}</p></div>`;
-                container.appendChild(card);
-            });
         }
 
         // ---- After Dark ----
@@ -584,8 +602,8 @@
                 "Captivity", "Offspring", "The Uninvited", "Slaughter", "The Dread", "The Covenant"
             ];
             const searchPromises = darkTitles.map(title => 
-                fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
-                .then(r => r.json()).then(data => data.results ? data.results[0] : null)
+                fetchWithRetry(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
+                .then(data => data && data.results ? data.results[0] : null)
             );
             const results = await Promise.all(searchPromises);
             renderGrid(results.filter(m => m && m.poster_path));
@@ -596,8 +614,8 @@
                 { q: 'Terrified', t: 'movie' },{ q: 'I Spit on Your Grave 3', t: 'movie' },{ q: 'Seed', t: 'movie' },{ q: 'Guinea Pig', t: 'movie' },{ q: 'Cannibal Holocaust', t: 'movie' },{ q: 'Grotesque', t: 'movie' },{ q: 'Ed Gein', t: 'movie' },{ q: '100 Years', t: 'movie' },{ q: 'Wrinkles the Clown', t: 'movie' },{ q: 'We Are the Flesh', t: 'movie' },{ q: 'The Burning Moon', t: 'movie' },{ q: "We're All Going to the World's Fair", t: 'movie' },{ q: 'The Ice Demon', t: 'movie' },{ q: 'Cold Fish', t: 'movie' },{ q: 'Housebound', t: 'movie' },{ q: 'The Bunny Game', t: 'movie' },{ q: 'Borgman', t: 'movie' },{ q: 'Dark Waters', t: 'movie' },{ q: 'Toolbox Murders 2: Coffin Baby', t: 'movie' },{ q: 'The Kindred', t: 'movie' },{ q: 'My House', t: 'movie' },{ q: 'Macabre', t: 'movie' },{ q: 'Taxidermia', t: 'movie' },{ q: 'Strange Circus', t: 'movie' },{ q: 'Devoured', t: 'movie' },{ q: 'The Hoarder', t: 'movie' }
             ];
             let promises = extremeTitles.map(target =>
-                fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(target.q)}`)
-                .then(res => res.json()).then(data => data.results ? data.results.filter(item => item.genre_ids && item.genre_ids.includes(27))[0] : null)
+                fetchWithRetry(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(target.q)}`)
+                .then(data => data && data.results ? data.results.filter(item => item.genre_ids && item.genre_ids.includes(27))[0] : null)
             );
             const results = await Promise.all(promises);
             let movies = results.filter(m => m && m.poster_path);
@@ -608,9 +626,8 @@
 
         async function fetchExtremeMoviesMore(page) {
             const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&certification_country=US&certification=NR|UR|NC-17&with_keywords=33507|6152|9653|193386|230113&sort_by=popularity.desc&page=${page}`;
-            const res = await fetch(url);
-            const data = await res.json();
-            let movies = (data.results || []).filter(m => m.poster_path && m.genre_ids && m.genre_ids.includes(27) && !loadedUnratedIds.has(m.id));
+            const data = await fetchWithRetry(url);
+            let movies = (data?.results || []).filter(m => m.poster_path && m.genre_ids && m.genre_ids.includes(27) && !loadedUnratedIds.has(m.id));
             let unique = new Map();
             movies.forEach(m => { if (!unique.has(m.id)) { unique.set(m.id, m); loadedUnratedIds.add(m.id); } });
             return Array.from(unique.values()).map(m => ({ ...m, media_type: 'movie' }));
@@ -643,8 +660,8 @@
         }
 
         async function openDetails(id, type) {
-            const res = await fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}`);
-            const data = await res.json();
+            const data = await fetchWithRetry(`https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}`);
+            if (!data) return;
             currentMedia = { id, type, s: 1, e: 1, title: data.name || data.title, poster: data.poster_path };
             document.getElementById('show-title').innerText = currentMedia.title;
             document.getElementById('show-desc').innerText = data.overview || "";
@@ -676,8 +693,8 @@
         }
 
         async function loadEpisodes(showId, seasonNum) {
-            const res = await fetch(`https://api.themoviedb.org/3/tv/${showId}/season/${seasonNum}?api_key=${API_KEY}`);
-            const data = await res.json();
+            const data = await fetchWithRetry(`https://api.themoviedb.org/3/tv/${showId}/season/${seasonNum}?api_key=${API_KEY}`);
+            if(!data) return;
             const grid = document.getElementById('episode-grid'); grid.innerHTML = '';
             data.episodes.forEach(e => {
                 const epRow = document.createElement('div');
