@@ -134,15 +134,15 @@
 
         // ---- CURATED HORROR-ONLY STEPHEN KING IMDB IDS ----
         const STEPHEN_KING_IMDB_IDS = [
-            "tt0079844", "tt0099849", "tt0106156", "tt0108941", "tt0112040", 
+            "tt0079844", "tt0099864", /* It 1990 CORRECTED */ "tt0106156", "tt0108941", "tt0112040", 
             "tt0118463", "tt0135659", "tt0259153", "tt0324864", "tt0347463", 
             "tt0478056", "tt1954313", "tt6520336", "tt9310638", "tt8550800", 
-            "tt1831804", "tt11822704", "tt11737520", "tt29340643", "tt26656754", 
+            "tt1831804", "tt3319460", /* Lisey's Story CORRECTED */ "tt11525188", /* Chapelwaite CORRECTED */ "tt29340643", "tt26656754", 
             "tt0102960", "tt0119975", "tt0120382", "tt0319159", "tt0349334", 
             "tt0446415", "tt1310343", "tt0292534", "tt0086822", "tt0094512", 
             "tt0120612", "tt0100157", "tt34316130", "tt0088889", "tt0090021", 
             "tt0085333", "tt0074285", "tt0088634", "tt0091499", "tt0092796", 
-            "tt0093843", "tt0098084", "tt0105417", "tt0105128", "tt0103964", 
+            "tt0093843", "tt0098084", "tt0105435", /* Sleepwalkers CORRECTED */ "tt0105128", "tt0103964", 
             "tt0106649", "tt0107665", "tt0112666", "tt0113762", "tt0117896", 
             "tt0115875", "tt0119194", "tt0132953", "tt0144616", "tt0144814", 
             "tt0191910", "tt0282420", "tt0295217", "tt0363988", "tt0355954", 
@@ -150,7 +150,6 @@
             "tt2557566", "tt0775447", "tt1396484", "tt3748172", "tt6214954", 
             "tt6905626", "tt0837110", "tt7349950", "tt8427280", "tt5606664", 
             "tt12750374", "tt1787321", "tt13150584", "tt3427252", "tt14197478",
-            // The Missing Masterpieces Added:
             "tt0081505", "tt0085382", "tt0085407", "tt0083767", "tt0087262",
             "tt0087050", "tt0100003", "tt0117692", "tt10245072"
         ];
@@ -285,14 +284,13 @@
             return items.filter(Boolean);
         }
 
-        // ---- THE MASTER BATCH LOADER FOR IMDB IDS ----
+        // ---- THE MASTER BATCH LOADER FOR IMDB IDS (RATE-LIMIT SAFE) ----
         async function fetchStephenKingBatched(imdbIds, idSet) {
-            const batchSize = 8;
+            const batchSize = 4; // Lowered to 4 items per batch to avoid TMDB rate limits
             for (let i = 0; i < imdbIds.length; i += batchSize) {
                 const batch = imdbIds.slice(i, i + batchSize);
                 
                 const promises = batch.map(async (imdbId) => {
-                    // First, convert IMDb ID to TMDB format using your existing helper
                     const tmdb = await fetchTMDBFromIMDb(imdbId);
                     if (tmdb && !idSet.has(tmdb.id)) {
                         try {
@@ -312,11 +310,10 @@
                 const items = await Promise.all(promises);
                 const validItems = items.filter(Boolean);
                 
-                // Render progressively to the screen exactly like the Black Horror tab does
                 renderStephenKing(validItems, true);
                 
-                // A rigid 250ms buffer to guarantee the API never drops a single title
-                await new Promise(resolve => setTimeout(resolve, 250));
+                // 1000ms delay ensures we never hit TMDB's "40 requests per 10 seconds" block
+                await new Promise(resolve => setTimeout(resolve, 1000));
             }
         }
 
@@ -354,7 +351,7 @@
                 window.loadedStephenKingIds.clear();
                 document.getElementById('stephen-king-section').innerHTML = '';
                 
-                // Launch the new, unbreakable progressive fetcher using our new IMDb Array
+                // Launch the new, unbreakable progressive fetcher using our new safe IMDb Array
                 await fetchStephenKingBatched(STEPHEN_KING_IMDB_IDS, window.loadedStephenKingIds);
 
                 isLoading = false;
