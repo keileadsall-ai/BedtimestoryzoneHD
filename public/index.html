@@ -132,31 +132,22 @@
         let wesCravenPage = 1;
         let loadedWesCravenIds = new Set();
 
-        // ---- 100% Solidified & Corrected Stephen King Hardcoded List ----
-        const STEPHEN_KING_IMDB_IDS = [
-            "tt0079844", "tt0099864", "tt0101138", "tt0106156", "tt0108941",
-            "tt0112040", "tt0118460", "tt0135659", "tt0259153", "tt0281432",
-            "tt0324864", "tt0347463", "tt0478056", "tt1519681", "tt1954313",
-            "tt1553656", "tt2879552", "tt6520336", "tt4354880", "tt6548228",
-            "tt9310638", "tt8550800", "tt1831804", "tt11822704", "tt11737520",
-            "tt29340643", "tt26656754", "tt0102960", "tt0119975", "tt0120380",
-            "tt0319159", "tt0349334", "tt0446415", "tt1310343", "tt3700010",
-            "tt0292534", "tt0086822", "tt0094512", "tt0120612", "tt0100157",
-            "tt34316130", "tt0088889", "tt0090021", "tt0468569", "tt0085333",
-            "tt0074285", "tt0088634", "tt0091499", "tt0092005", "tt0092796",
-            "tt0093843", "tt0093894", "tt0098084", "tt0104691", "tt0105417",
-            "tt0105128", "tt0103964", "tt0106649", "tt0107665", "tt0111161",
-            "tt0112666", "tt0113762", "tt0117892", "tt0115888", "tt0119194",
-            "tt0118636", "tt0132953", "tt0144616", "tt0120689", "tt0144814",
-            "tt0191910", "tt0268380", "tt0282420", "tt0295217", "tt0363988",
-            "tt0355954", "tt0837194", "tt0884328", "tt1010007", "tt1160401",
-            "tt1655078", "tt1930353", "tt2180994", "tt2557566", "tt0775447",
-            "tt1396484", "tt3748172", "tt6214954", "tt6905626", "tt0837110",
-            "tt7349950", "tt8427280", "tt5606664", "tt12750374", "tt1787321",
-            "tt13150584", "tt3427252", "tt14197478"
+        // ---- NEW: 100% Solidified TMDB IDs for Stephen King ----
+        const STEPHEN_KING_TMDB_IDS = [
+            11343, 11053, 32111, 11603, 9045, 27488, 27503, 10376, 27505, 194, 
+            4100, 40698, 2002, 32551, 44374, 46554, 64254, 69241, 71881, 72765, 
+            89456, 84661, 85431, 111860, 114478, 238287, 156947, 24147, 41639, 
+            26359, 18617, 19385, 13940, 28109, 296238, 16353, 2369, 29845, 9777, 
+            1700, 1357597, 11822, 14297, 353491, 8769, 639, 3344, 10300, 295, 
+            15852, 38234, 865, 8912, 10214, 12170, 11501, 22588, 10866, 9280, 
+            278, 24673, 24151, 10014, 25076, 39893, 9471, 25077, 32148, 497, 
+            12595, 25078, 11026, 25079, 6171, 2255, 11874, 3021, 11423, 18606, 
+            22971, 68225, 86835, 253303, 244330, 334539, 346364, 401034, 471506, 
+            503919, 522681, 474350, 580047, 501170, 715039, 615658, 914201, 921636, 
+            1151534
         ];
 
-        // ---- IMDb ID lists ----
+        // ---- IMDb ID lists for Other Tabs ----
         const HARD_WIRED_IMDB_IDS = [
             "tt0071095","tt7544954","tt3743358","tt13365348","tt0160016","tt16997558",
             "tt4798836","tt0120603","tt12298506","tt15475330","tt0193013","tt26453917",
@@ -286,6 +277,46 @@
             return items.filter(Boolean);
         }
 
+        // ---- NEW BATCHED LOADER TO PREVENT RATE LIMITING ----
+        async function fetchStephenKingBatched(tmdbIds, idSet) {
+            const batchSize = 6; 
+            for (let i = 0; i < tmdbIds.length; i += batchSize) {
+                const batch = tmdbIds.slice(i, i + batchSize);
+                
+                const promises = batch.map(async (tmdbId) => {
+                    if (idSet.has(tmdbId)) return null;
+                    
+                    try {
+                        let res = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${API_KEY}`);
+                        if (res.ok) {
+                            const data = await res.json();
+                            if (data && data.poster_path) {
+                                idSet.add(tmdbId);
+                                return { ...data, media_type: 'movie', id: tmdbId };
+                            }
+                        } else {
+                            let tvRes = await fetch(`https://api.themoviedb.org/3/tv/${tmdbId}?api_key=${API_KEY}`);
+                            if (tvRes.ok) {
+                                const data = await tvRes.json();
+                                if (data && data.poster_path) {
+                                    idSet.add(tmdbId);
+                                    return { ...data, media_type: 'tv', id: tmdbId };
+                                }
+                            }
+                        }
+                    } catch(e) {}
+                    return null;
+                });
+
+                const items = await Promise.all(promises);
+                const validItems = items.filter(Boolean);
+                
+                renderStephenKing(validItems, true); 
+                
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+        }
+
         async function fetchContent(append = false) {
             if (isLoading) return;
             isLoading = true;
@@ -320,16 +351,8 @@
                 window.loadedStephenKingIds.clear();
                 document.getElementById('stephen-king-section').innerHTML = '';
                 
-                // Process the hardcoded list in chunks to completely bypass TMDB's rate limit dropping titles
-                let accumulatedItems = [];
-                for (let i = 0; i < STEPHEN_KING_IMDB_IDS.length; i += 8) {
-                    const chunk = STEPHEN_KING_IMDB_IDS.slice(i, i + 8);
-                    const items = await resolveItemsFromImdbList(chunk, window.loadedStephenKingIds);
-                    accumulatedItems = accumulatedItems.concat(items);
-                    renderStephenKing(accumulatedItems, false);
-                    await new Promise(r => setTimeout(r, 250)); // The golden safety net
-                }
-                
+                await fetchStephenKingBatched(STEPHEN_KING_TMDB_IDS, window.loadedStephenKingIds);
+
                 isLoading = false;
                 return;
                 
