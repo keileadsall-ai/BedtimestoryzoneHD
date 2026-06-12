@@ -136,30 +136,6 @@
         let wesCravenPage = 1;
         let loadedWesCravenIds = new Set();
 
-        // ---- 100% VERIFIED HORROR-ONLY STEPHEN KING IMDB IDS ----
-        const STEPHEN_KING_IMDB_IDS = [
-            "tt0079844", "tt0099849", "tt0101206", "tt0106156", "tt0108941", 
-            "tt0112040", "tt0118463", "tt0135659", "tt0259153", "tt0281432", 
-            "tt0324864", "tt0347463", "tt0478056", "tt1519681", "tt1954313", 
-            "tt1553656", "tt2879552", "tt6520336", "tt4354880", "tt6548228", 
-            "tt9310638", "tt8550800", "tt1831804", "tt11822704", "tt11737520", 
-            "tt29340643", "tt26656754", "tt0102960", "tt0119975", "tt0120382", 
-            "tt0319159", "tt0349334", "tt0446415", "tt1310343", "tt3700010", 
-            "tt0292534", "tt0086822", "tt0094512", "tt0120612", "tt0100157", 
-            "tt34316130", "tt0088889", "tt0090021", "tt0468569", "tt0085333", 
-            "tt0074285", "tt0088634", "tt0091499", "tt0092005", "tt0092796", 
-            "tt0093843", "tt0093894", "tt0098084", "tt0104691", "tt0105417", 
-            "tt0105128", "tt0103964", "tt0106649", "tt0107665", "tt0111161", 
-            "tt0112666", "tt0113762", "tt0117896", "tt0115875", "tt0119194", 
-            "tt0118636", "tt0132953", "tt0144616", "tt0120684", "tt0144814", 
-            "tt0191910", "tt0234215", "tt0282420", "tt0295217", "tt0363988", 
-            "tt0355954", "tt0837194", "tt0884328", "tt1010007", "tt1160401", 
-            "tt1655078", "tt1930353", "tt2180994", "tt2557566", "tt0775447", 
-            "tt1396484", "tt3748172", "tt6214954", "tt6905626", "tt0837110", 
-            "tt7349950", "tt8427280", "tt5606664", "tt12750374", "tt1787321", 
-            "tt13150584", "tt3427252", "tt14197478"
-        ];
-
         // ---- IMDb ID lists for Other Tabs ----
         const HARD_WIRED_IMDB_IDS = [
             "tt0071095","tt7544954","tt3743358","tt13365348","tt0160016","tt16997558",
@@ -309,51 +285,6 @@
             return items.filter(Boolean);
         }
 
-        // ---- THE ULTIMATE CONCURRENT LOADER (ZERO TRUNCATION) ----
-        async function loadStephenKingFlawlessly(imdbIds, container) {
-            // 1. Create invisible placeholders immediately so the array order is preserved perfectly
-            imdbIds.forEach(id => {
-                const placeholder = document.createElement('div');
-                placeholder.id = `sk-${id}`;
-                placeholder.className = 'hidden'; 
-                container.appendChild(placeholder);
-            });
-
-            // 2. Dispatch exactly 6 parallel workers to fetch movies without destroying Chrome's network cap
-            let currentIndex = 0;
-            const workers = Array(6).fill(null).map(async () => {
-                while (currentIndex < imdbIds.length) {
-                    const i = currentIndex++;
-                    const imdbId = imdbIds[i];
-                    
-                    let data = await fetchWithRetry(`https://api.themoviedb.org/3/find/${imdbId}?api_key=${API_KEY}&external_source=imdb_id`);
-                    if (!data) continue;
-
-                    let tmdbId, type;
-                    if (data.movie_results?.length) { tmdbId = data.movie_results[0].id; type = 'movie'; }
-                    else if (data.tv_results?.length) { tmdbId = data.tv_results[0].id; type = 'tv'; }
-                    else continue;
-
-                    if (window.loadedStephenKingIds.has(tmdbId)) continue;
-
-                    let details = await fetchWithRetry(`https://api.themoviedb.org/3/${type}/${tmdbId}?api_key=${API_KEY}`);
-                    if (details && details.poster_path) {
-                        window.loadedStephenKingIds.add(tmdbId);
-                        
-                        // 3. The exact millisecond a poster downloads, swap it onto the screen
-                        const card = document.createElement('div');
-                        card.className = 'movie-card focusable fade-in'; card.tabIndex = 0;
-                        card.onclick = () => openDetails(details.id, type);
-                        card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${details.poster_path}" class="w-full h-full object-cover"><div class="movie-info horror-font"><h3 class="text-red-600 font-bold truncate">${details.title || details.name}</h3><p>${(details.release_date || details.first_air_date || '').split('-')[0]}</p></div>`;
-                        
-                        const slot = document.getElementById(`sk-${imdbId}`);
-                        if (slot) slot.replaceWith(card);
-                    }
-                }
-            });
-            await Promise.all(workers);
-        }
-
         async function fetchContent(append = false) {
             if (isLoading) return;
             isLoading = true;
@@ -383,13 +314,38 @@
             
             if (activeType === 'stephen_king') {
                 if (!window.loadedStephenKingIds) window.loadedStephenKingIds = new Set();
-                if (append) { isLoading = false; return; }
-
-                window.loadedStephenKingIds.clear();
-                document.getElementById('stephen-king-section').innerHTML = '';
                 
-                // Launch the bulletproof concurrent fetcher
-                await loadStephenKingFlawlessly(STEPHEN_KING_IMDB_IDS, document.getElementById('stephen-king-section'));
+                if (!append) {
+                    window.loadedStephenKingIds.clear();
+                    document.getElementById('stephen-king-section').innerHTML = '';
+                    window.stephenKingPage = 1;
+                    window.stephenKingTotalPages = 1;
+                } else {
+                    if (window.stephenKingPage >= window.stephenKingTotalPages) {
+                        isLoading = false; 
+                        return; 
+                    }
+                    window.stephenKingPage++;
+                }
+
+                const container = document.getElementById('stephen-king-section');
+                const data = await fetchWithRetry(`https://api.themoviedb.org/3/list/8661620?api_key=${API_KEY}&page=${window.stephenKingPage}`);
+                
+                if (data && data.items) {
+                    window.stephenKingTotalPages = data.total_pages || 1;
+                    data.items.forEach(item => {
+                        if (!item.poster_path || window.loadedStephenKingIds.has(item.id)) return;
+                        window.loadedStephenKingIds.add(item.id);
+                        
+                        const type = item.media_type || (item.first_air_date ? 'tv' : 'movie');
+                        const card = document.createElement('div');
+                        card.className = 'movie-card focusable fade-in'; card.tabIndex = 0;
+                        card.onclick = () => openDetails(item.id, type);
+                        card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${item.poster_path}" class="w-full h-full object-cover"><div class="movie-info horror-font"><h3 class="text-red-600 font-bold truncate">${item.title || item.name}</h3><p>${(item.release_date || item.first_air_date || '').split('-')[0]}</p></div>`;
+                        
+                        container.appendChild(card);
+                    });
+                }
 
                 isLoading = false;
                 return;
