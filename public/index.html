@@ -244,9 +244,11 @@
                 const data = await fetchWithRetry(url);
                 results = data?.results || [];
             } else if (activeType === 'cult_classic') {
-                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=10041|4344&sort_by=popularity.desc&page=${currentPage}`;
-                const data = await fetchWithRetry(url);
-                results = data?.results || [];
+                if (!append) {
+                    await fetchCultClassics();
+                }
+                isLoading = false; 
+                return;
             } else if (activeType === 'slasher') {
                 const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=12339&sort_by=popularity.desc&page=${currentPage}`;
                 const data = await fetchWithRetry(url);
@@ -333,6 +335,39 @@
             );
             const results = await Promise.all(searchPromises);
             renderGrid(results.filter(m => m && m.poster_path));
+        }
+
+        async function fetchCultClassics() {
+            const grid = document.getElementById('movie-grid');
+            grid.innerHTML = '';
+            const classicTitles = [
+                "Halloween", "A Nightmare on Elm Street", "Friday the 13th", "Candyman", "Carrie", 
+                "Final Destination", "Get Out", "Misery", "Scream", "The Texas Chain Saw Massacre", 
+                "Child's Play", "The Exorcist", "The Shining", "The Thing", "Poltergeist", 
+                "Hellraiser", "The Evil Dead", "Rosemary's Baby", "The Amityville Horror", 
+                "The Omen", "Night of the Living Dead", "Saw", "The Ring", "The Blair Witch Project",
+                "Psycho", "The Silence of the Lambs", "An American Werewolf in London", "Sleepaway Camp",
+                "My Bloody Valentine", "The Descent", "28 Days Later", "The Cabin in the Woods",
+                "Dawn of the Dead", "Day of the Dead", "Evil Dead II", "Army of Darkness",
+                "Pet Sematary", "Christine", "The Fly", "Phantasm", "The Return of the Living Dead", 
+                "Re-Animator", "Suspiria", "The Wicker Man"
+            ];
+            
+            const searchPromises = classicTitles.map(title => 
+                fetchWithRetry(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
+                .then(data => data && data.results ? data.results[0] : null)
+            );
+            
+            const results = await Promise.all(searchPromises);
+            
+            let unique = new Map();
+            results.forEach(m => {
+                if (m && m.poster_path && !unique.has(m.id)) {
+                    unique.set(m.id, m);
+                }
+            });
+            
+            renderGrid(Array.from(unique.values()));
         }
 
         async function fetchExtremeMoviesInitial() {
