@@ -128,15 +128,42 @@
         let activeType = 'trending_theaters', activeID = '', currentMedia = {};
         let currentPage = 1, isLoading = false;
         
-        // ZonHD scroll and focus tracking variables
         let savedScrollPosition = 0, lastFocusedElement = null;
 
-        // ---- Trackers for composite lists ----
         let loadedUnratedIds = new Set();
         let blackHorrorPage = 1;
         let loadedBlackHorrorIds = new Set();
         let youthHorrorPage = 1;
         let loadedYouthHorrorIds = new Set();
+
+        const HARD_WIRED_IMDB_IDS = [
+            "tt0071095","tt7544954","tt3743358","tt13365348","tt0160016","tt16997558",
+            "tt4798836","tt0120603","tt12298506","tt15475330","tt0193013","tt26453917",
+            "tt5184138","tt8520140","tt2274248","tt8110652","tt0103919","tt0165662",
+            "tt9347730","tt0119988","tt0285487","tt0090888","tt3104930","tt23648404",
+            "tt9331416","tt7631568","tt6803212","tt0074430","tt0119080","tt28088571",
+            "tt9088954","tt11057594","tt2583620","tt9813792","tt0068619","tt7475988",
+            "tt0338094","tt1695843","tt8508734","tt11668454","tt0372975","tt0449599",
+            "tt9567548","tt0130018","tt20859392","tt22496012","tt9742392","tt6131712",
+            "tt0209095","tt6905686","tt9472334","tt0365519","tt32916093","tt1289419",
+            "tt0475989","tt10931784","tt12308018","tt9289116","tt2011159","tt10954984",
+            "tt0361417","tt2579836","tt5505722","tt0265537","tt1395783","tt0238546",
+            "tt0183714","tt8656686","tt0427848","tt15726046","tt0397101","tt4411234",
+            "tt0499573","tt0033075","tt14961048","tt10638522","tt0114609","tt0277370",
+            "tt19896150","tt11703244","tt10772662","tt0112625","tt8559532","tt1449394",
+            "tt14074602","tt12921446","tt6133466","tt21905744","tt1457765","tt0264696",
+            "tt6722030","tt2221362","tt7928156","tt26569323","tt21365986","tt3862750",
+            "tt15507512","tt13358022","tt1678042","tt7320482","tt31022076","tt16437278",
+            "tt9064858","tt9873892","tt4991112","tt7671414","tt18394428","tt0100791",
+            "tt3859272","tt12545262","tt9177040","tt0285869","tt14191916","tt28239363",
+            "tt14349100","tt0188694","tt0415348","tt0428251","tt14921402","tt8417466",
+            "tt29275554","tt4287470","tt1389139","tt31314296","tt21821538","tt1342115",
+            "tt1112697","tt0099395","tt0074703","tt0114608","tt0196181","tt0430066",
+            "tt0089593","tt0119099","tt0078078","tt33049264","tt15146646","tt37543196",
+            "tt32560625","tt15532464","tt0220506","tt0070893","tt6535880","tt0133751",
+            "tt0462160","tt6133466","tt37521114","tt35684711","tt31777631","tt12776978",
+            "tt38090790","tt4065260","tt39094274"
+        ];
 
         const UNIQUE_BLACK_IDS = [...new Set([
             147, 20810, 2963, 16582, 134, 17259, 538, 78029, 521, 17697,
@@ -271,16 +298,27 @@
                 results = data?.results || [];
             } else if (activeType === 'black_horror') {
                 if (!append) {
-                    const hardwiredItems = await resolveItemsFromImdbList(UNIQUE_BLACK_IDS.slice(0, 5), loadedBlackHorrorIds);
-                    renderGrid(hardwiredItems);
+                    const hardwiredItems = await resolveItemsFromImdbList(HARD_WIRED_IMDB_IDS, loadedBlackHorrorIds);
+                    results = hardwiredItems;
+                } else {
+                    const actorIdsParam = UNIQUE_BLACK_IDS.join('|');
+                    const urls = [
+                        `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_people=${actorIdsParam}&with_keywords=233306|209825&sort_by=popularity.desc&page=${blackHorrorPage}`,
+                        `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_people=${actorIdsParam}&with_keywords=233306|209825&sort_by=popularity.desc&page=${blackHorrorPage}`,
+                        `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=233306&sort_by=popularity.desc&page=${blackHorrorPage}`,
+                        `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=209825&sort_by=popularity.desc&page=${blackHorrorPage}`,
+                    ];
+                    const responses = await Promise.all(urls.map(url => fetchWithRetry(url)));
+                    let items = [];
+                    responses[0]?.results && responses[0].results.forEach(m => { if (m.poster_path && !loadedBlackHorrorIds.has(m.id)) items.push({...m, media_type:'movie'}); });
+                    responses[1]?.results && responses[1].results.forEach(t => { if (t.poster_path && !loadedBlackHorrorIds.has(t.id)) items.push({...t, media_type:'tv'}); });
+                    responses[2]?.results && responses[2].results.forEach(m => { if (m.poster_path && !loadedBlackHorrorIds.has(m.id)) items.push({...m, media_type:'movie'}); });
+                    responses[3]?.results && responses[3].results.forEach(m => { if (m.poster_path && !loadedBlackHorrorIds.has(m.id)) items.push({...m, media_type:'movie'}); });
+                    let unique = new Map();
+                    items.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); loadedBlackHorrorIds.add(item.id); } });
+                    results = Array.from(unique.values());
+                    blackHorrorPage++;
                 }
-                const actorIdsParam = UNIQUE_BLACK_IDS.join('|');
-                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_people=${actorIdsParam}&sort_by=popularity.desc&page=${blackHorrorPage}`;
-                const data = await fetchWithRetry(url);
-                let movies = (data?.results || []).filter(m => m.poster_path && !loadedBlackHorrorIds.has(m.id));
-                movies.forEach(m => loadedBlackHorrorIds.add(m.id));
-                results = movies.map(m => ({ ...m, media_type: 'movie' }));
-                blackHorrorPage++;
             } else if (activeType === 'youth') {
                 if (!append) {
                     const hardwiredItems = await resolveItemsFromImdbList(YOUTH_IMDB_IDS, loadedYouthHorrorIds);
@@ -427,7 +465,6 @@
         }
 
         async function openDetails(id, type) {
-            // Memory tracking from ZonHD
             savedScrollPosition = window.scrollY || document.documentElement.scrollTop; 
             lastFocusedElement = document.activeElement; 
 
@@ -482,7 +519,6 @@
             });
         }
 
-        // Exact ZonHD Player logic 
         async function startLuxeStream() {
             const { type, id, s, e, isAnime, title } = currentMedia;
             const playerOverlay = document.getElementById('player-overlay');
@@ -509,7 +545,6 @@
         function toggleMenu() { document.getElementById('side-menu').classList.toggle('menu-open'); }
         
         function closeSelector() { 
-            // Restoring ZonHD scroll state
             document.getElementById('selector-overlay').classList.add('hidden'); 
             document.getElementById('main-app-wrapper').classList.remove('hidden'); 
             window.scrollTo(0, savedScrollPosition); 
@@ -535,7 +570,6 @@
             window.scrollTo(0,0);
         }
 
-        // Exact ZonHD Search Feature 
         function triggerSearch() {
             const input = document.getElementById('search-input');
             const query = input.value.trim();
