@@ -300,23 +300,20 @@
                 const data = await fetchWithRetry(url);
                 results = data?.results || [];
             } else if (activeType === 'african') {
-                const excludedGenres = "16,35,18,10749,9648,53,14";
-                const allowedCountries = "NG|GH|SN";
+                const excludedGenres = "16,35,18,10749,9648,14";
+                const movieUrl = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_origin_country=NG|GH|SN&with_genres=27|53&without_genres=${excludedGenres}&sort_by=popularity.desc&page=${currentPage}`;
+                const tvUrl = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_origin_country=NG|GH|SN&without_genres=${excludedGenres}&sort_by=popularity.desc&page=${currentPage}`;
                 
-                const urls = [
-                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&without_genres=${excludedGenres}&with_origin_country=${allowedCountries}&sort_by=popularity.desc&page=${currentPage}`,
-                    `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&without_genres=${excludedGenres}&with_origin_country=${allowedCountries}&sort_by=popularity.desc&page=${currentPage}`
-                ];
-                
-                const responses = await Promise.all(urls.map(url => fetchWithRetry(url)));
+                const [movieData, tvData] = await Promise.all([fetchWithRetry(movieUrl), fetchWithRetry(tvUrl)]);
                 let items = [];
-                if (responses[0] && responses[0].results) {
-                    responses[0].results.forEach(m => { if (m.poster_path) items.push({...m, media_type:'movie'}); });
-                }
-                if (responses[1] && responses[1].results) {
-                    responses[1].results.forEach(t => { if (t.poster_path) items.push({...t, media_type:'tv'}); });
-                }
-                results = items;
+                movieData?.results?.forEach(m => { if (m.poster_path) items.push({...m, media_type: 'movie'}); });
+                tvData?.results?.forEach(t => { if (t.poster_path) items.push({...t, media_type: 'tv'}); });
+                
+                results = items.filter(item => {
+                    const gIds = item.genre_ids || [];
+                    const hasForbidden = gIds.some(g => [16, 35, 18, 10749, 9648, 14].includes(g));
+                    return !hasForbidden;
+                });
             } else if (activeType === 'black_horror') {
                 if (!append) {
                     const hardwiredItems = await resolveItemsFromImdbList(HARD_WIRED_IMDB_IDS, loadedBlackHorrorIds);
@@ -380,7 +377,7 @@
             }
 
             renderGrid(results);
-            if (!['black_magic'].includes(activeType)) currentPage++;
+            currentPage++;
             isLoading = false;
         }
 
