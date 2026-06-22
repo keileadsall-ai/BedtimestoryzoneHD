@@ -131,11 +131,11 @@
         let savedScrollPosition = 0, lastFocusedElement = null;
 
         let loadedUnratedIds = new Set();
-        let loadedBlackMagicIds = new Set();
         let blackHorrorPage = 1;
         let loadedBlackHorrorIds = new Set();
         let youthHorrorPage = 1;
         let loadedYouthHorrorIds = new Set();
+        let loadedBlackMagicIds = new Set();
 
         const HARD_WIRED_IMDB_IDS = [
             "tt0071095","tt7544954","tt3743358","tt13365348","tt0160016","tt16997558",
@@ -253,9 +253,9 @@
                 loadedBlackHorrorIds.clear();
                 blackHorrorPage = 1;
                 loadedUnratedIds.clear();
-                loadedBlackMagicIds.clear();
                 loadedYouthHorrorIds.clear();
                 youthHorrorPage = 1;
+                loadedBlackMagicIds.clear();
             }
 
             let results = [];
@@ -288,6 +288,7 @@
                 results = data?.results || [];
             } else if (activeType === 'black_magic') {
                 if (!append) {
+                    loadedBlackMagicIds = new Set();
                     results = await fetchBlackMagicInitial();
                 } else {
                     results = await fetchBlackMagicMore(currentPage);
@@ -365,6 +366,55 @@
             renderGrid(results);
             currentPage++;
             isLoading = false;
+        }
+
+        async function fetchBlackMagicInitial() {
+            const magicTitles = [
+                { q: 'Criss Angel Mindfreak', t: 'tv' }, { q: 'David Blaine: Street Magic', t: 'tv' }, { q: 'David Blaine: Real or Magic', t: 'movie' },
+                { q: 'David Blaine: The Magic Way', t: 'movie' }, { q: 'The Conjuring', t: 'movie' }, { q: 'The Conjuring 2', t: 'movie' }, 
+                { q: 'The Conjuring: The Devil Made Me Do It', t: 'movie' }, { q: 'The Exorcist', t: 'movie' }, { q: 'The Exorcism of Emily Rose', t: 'movie' }, 
+                { q: 'The Possession', t: 'movie' }, { q: 'The Possession of Hannah Grace', t: 'movie' }, { q: 'The Possession of Michael King', t: 'movie' },
+                { q: 'The Haunting of Hill House', t: 'tv' }, { q: 'The Haunting of Bly Manor', t: 'tv' },
+                { q: 'Ouija', t: 'movie' }, { q: 'Ouija: Origin of Evil', t: 'movie' }, { q: 'The Serpent and the Rainbow', t: 'movie' },
+                { q: 'The Rite', t: 'movie' }, { q: 'Deliver Us from Evil', t: 'movie' }, { q: 'The Autopsy of Jane Doe', t: 'movie' },
+                { q: 'Incarnate', t: 'movie' }, { q: 'The Skeleton Key', t: 'movie' }
+            ];
+            let promises = magicTitles.map(target =>
+                fetchWithRetry(`https://api.themoviedb.org/3/search/${target.t}?api_key=${API_KEY}&query=${encodeURIComponent(target.q)}`)
+                .then(data => data && data.results ? data.results[0] : null)
+            );
+            const results = await Promise.all(promises);
+            let movies = results.filter(m => m && m.poster_path);
+            let unique = new Map();
+            movies.forEach(m => { 
+                if (!unique.has(m.id)) { 
+                    unique.set(m.id, m); 
+                    loadedBlackMagicIds.add(m.id); 
+                } 
+            });
+            return Array.from(unique.values()).map(m => ({ ...m, media_type: m.first_air_date ? 'tv' : 'movie' }));
+        }
+
+        async function fetchBlackMagicMore(page) {
+            const isMoviePage = page % 2 === 0;
+            const pageTarget = Math.floor(page / 2) + 1;
+            
+            const excludedGenres = "16,35,18,10749,28,53,9648,14"; 
+            const magicKeywords = "3365|11865|6152|15091|3254|10006"; 
+
+            let url = isMoviePage ? 
+                `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&without_genres=${excludedGenres}&with_keywords=${magicKeywords}&sort_by=popularity.desc&page=${pageTarget}` :
+                `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&without_genres=${excludedGenres}&with_keywords=${magicKeywords}&sort_by=popularity.desc&page=${pageTarget}`;
+            
+            const data = await fetchWithRetry(url);
+            let fetched = (data?.results || []).filter(item => 
+                item.poster_path && 
+                !loadedBlackMagicIds.has(item.id)
+            ).map(item => ({ ...item, media_type: item.media_type || (item.first_air_date ? 'tv' : 'movie') }));
+            
+            let unique = new Map();
+            fetched.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); loadedBlackMagicIds.add(item.id); } });
+            return Array.from(unique.values());
         }
 
         async function fetchAfterDark() {
@@ -454,57 +504,6 @@
             
             let unique = new Map();
             fetched.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); loadedUnratedIds.add(item.id); } });
-            return Array.from(unique.values());
-        }
-
-        async function fetchBlackMagicInitial() {
-            const magicTitles = [
-                { q: 'Criss Angel Mindfreak', t: 'tv' },
-                { q: 'David Blaine: Street Magic', t: 'movie' },
-                { q: 'David Blaine: Real or Magic', t: 'movie' },
-                { q: 'The Exorcist', t: 'movie' },
-                { q: 'The Conjuring', t: 'movie' },
-                { q: 'Ouija', t: 'movie', y: '2014' },
-                { q: 'The Skeleton Key', t: 'movie' },
-                { q: 'The Haunting', t: 'movie', y: '1999' },
-                { q: 'Paranormal Activity', t: 'movie' },
-                { q: 'The Possession', t: 'movie' },
-                { q: 'The Haunting in Connecticut', t: 'movie' },
-                { q: 'The Serpent and the Rainbow', t: 'movie' },
-                { q: 'Ouija: Origin of Evil', t: 'movie' },
-                { q: 'The Haunting of Hill House', t: 'tv' },
-                { q: 'The Haunting of Bly Manor', t: 'tv' }
-            ];
-            let promises = magicTitles.map(target =>
-                fetchWithRetry(`https://api.themoviedb.org/3/search/${target.t}?api_key=${API_KEY}&query=${encodeURIComponent(target.q)}${target.y ? (target.t==='movie'?'&primary_release_year='+target.y:'&first_air_date_year='+target.y) : ''}`)
-                .then(data => data && data.results ? data.results[0] : null)
-            );
-            const results = await Promise.all(promises);
-            let items = results.filter(m => m && m.poster_path).map(m => ({...m, media_type: m.name ? 'tv' : 'movie'}));
-            let unique = new Map();
-            items.forEach(m => { if (!unique.has(m.id)) { unique.set(m.id, m); loadedBlackMagicIds.add(m.id); } });
-            return Array.from(unique.values());
-        }
-
-        async function fetchBlackMagicMore(page) {
-            const isMoviePage = page % 2 === 0;
-            const pageTarget = Math.floor(page / 2) || 1; 
-            
-            const excludedGenres = "16,35,18,10749,53"; 
-            const magicKeywords = "3254|3365|11865|3373|2853|9713|100062"; 
-
-            let url = isMoviePage ? 
-                `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&without_genres=${excludedGenres}&with_keywords=${magicKeywords}&sort_by=popularity.desc&page=${pageTarget}` :
-                `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&without_genres=${excludedGenres}&with_keywords=${magicKeywords}&sort_by=popularity.desc&page=${pageTarget}`;
-            
-            const data = await fetchWithRetry(url);
-            let fetched = (data?.results || []).filter(item => 
-                item.poster_path && 
-                !loadedBlackMagicIds.has(item.id)
-            ).map(item => ({ ...item, media_type: item.media_type || (item.first_air_date ? 'tv' : 'movie') }));
-            
-            let unique = new Map();
-            fetched.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); loadedBlackMagicIds.add(item.id); } });
             return Array.from(unique.values());
         }
 
