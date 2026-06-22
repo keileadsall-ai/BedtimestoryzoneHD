@@ -137,6 +137,8 @@
         let loadedYouthHorrorIds = new Set();
         let blackMagicPage = 1;
         let loadedBlackMagicIds = new Set();
+        let africanPage = 1;
+        let loadedAfricanIds = new Set();
 
         const HARD_WIRED_IMDB_IDS = [
             "tt0071095","tt7544954","tt3743358","tt13365348","tt0160016","tt16997558",
@@ -258,6 +260,8 @@
                 youthHorrorPage = 1;
                 loadedBlackMagicIds.clear();
                 blackMagicPage = 1;
+                loadedAfricanIds.clear();
+                africanPage = 1;
             }
 
             let results = [];
@@ -300,19 +304,23 @@
                 const data = await fetchWithRetry(url);
                 results = data?.results || [];
             } else if (activeType === 'african') {
-                const excludedGenres = "16,35,18,10749,9648,14";
+                const excludedGenres = "16,35,18,10749,9648,14"; 
                 const urls = [
-                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27|53&with_origin_country=NG|GH&without_genres=${excludedGenres}&sort_by=popularity.desc&page=${currentPage}`,
-                    `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765|53&with_origin_country=NG|GH&without_genres=${excludedGenres}&sort_by=popularity.desc&page=${currentPage}`
+                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27|53&without_genres=${excludedGenres}&with_origin_country=NG|GH&sort_by=popularity.desc&page=${africanPage}`,
+                    `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&without_genres=${excludedGenres}&with_origin_country=NG|GH&sort_by=popularity.desc&page=${africanPage}`
                 ];
                 const responses = await Promise.all(urls.map(url => fetchWithRetry(url)));
                 let items = [];
-                responses[0]?.results && responses[0].results.forEach(m => { if (m.poster_path) items.push({...m, media_type:'movie'}); });
-                responses[1]?.results && responses[1].results.forEach(t => { if (t.poster_path) items.push({...t, media_type:'tv'}); });
+                responses[0]?.results && responses[0].results.forEach(m => { if (m.poster_path && !loadedAfricanIds.has(m.id)) items.push({...m, media_type:'movie'}); });
+                responses[1]?.results && responses[1].results.forEach(t => { if (t.poster_path && !loadedAfricanIds.has(t.id)) items.push({...t, media_type:'tv'}); });
                 
                 let unique = new Map();
-                items.forEach(item => { if (!unique.has(item.id)) unique.set(item.id, item); });
+                items.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); loadedAfricanIds.add(item.id); } });
                 results = Array.from(unique.values());
+                
+                if (results.length > 0 || (responses[0]?.total_pages > africanPage || responses[1]?.total_pages > africanPage)) {
+                    africanPage++;
+                }
             } else if (activeType === 'black_horror') {
                 if (!append) {
                     const hardwiredItems = await resolveItemsFromImdbList(HARD_WIRED_IMDB_IDS, loadedBlackHorrorIds);
@@ -376,7 +384,7 @@
             }
 
             renderGrid(results);
-            if (!['black_magic'].includes(activeType)) currentPage++;
+            if (!['black_magic', 'african'].includes(activeType)) currentPage++;
             isLoading = false;
         }
 
@@ -531,6 +539,7 @@
         }
 
         async function openDetails(id, type) {
+            // Memory tracking from ZonHD
             savedScrollPosition = window.scrollY || document.documentElement.scrollTop; 
             lastFocusedElement = document.activeElement; 
 
@@ -585,6 +594,7 @@
             });
         }
 
+        // Exact ZonHD Player logic 
         async function startLuxeStream() {
             const { type, id, s, e, isAnime, title } = currentMedia;
             const playerOverlay = document.getElementById('player-overlay');
