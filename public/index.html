@@ -137,8 +137,6 @@
         let loadedYouthHorrorIds = new Set();
         let blackMagicPage = 1;
         let loadedBlackMagicIds = new Set();
-        let africanPage = 1;
-        let loadedAfricanIds = new Set();
 
         const HARD_WIRED_IMDB_IDS = [
             "tt0071095","tt7544954","tt3743358","tt13365348","tt0160016","tt16997558",
@@ -260,8 +258,6 @@
                 youthHorrorPage = 1;
                 loadedBlackMagicIds.clear();
                 blackMagicPage = 1;
-                loadedAfricanIds.clear();
-                africanPage = 1;
             }
 
             let results = [];
@@ -304,12 +300,19 @@
                 const data = await fetchWithRetry(url);
                 results = data?.results || [];
             } else if (activeType === 'african') {
-                if (!append) {
-                    results = await fetchAfricanInitial();
-                } else {
-                    results = await fetchAfricanMore(africanPage);
-                }
-                if (results && results.length > 0) africanPage++;
+                const excludedGenres = "16,35,18,10749,9648,14";
+                const urls = [
+                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27|53&with_origin_country=NG|GH&without_genres=${excludedGenres}&sort_by=popularity.desc&page=${currentPage}`,
+                    `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765|53&with_origin_country=NG|GH&without_genres=${excludedGenres}&sort_by=popularity.desc&page=${currentPage}`
+                ];
+                const responses = await Promise.all(urls.map(url => fetchWithRetry(url)));
+                let items = [];
+                responses[0]?.results && responses[0].results.forEach(m => { if (m.poster_path) items.push({...m, media_type:'movie'}); });
+                responses[1]?.results && responses[1].results.forEach(t => { if (t.poster_path) items.push({...t, media_type:'tv'}); });
+                
+                let unique = new Map();
+                items.forEach(item => { if (!unique.has(item.id)) unique.set(item.id, item); });
+                results = Array.from(unique.values());
             } else if (activeType === 'black_horror') {
                 if (!append) {
                     const hardwiredItems = await resolveItemsFromImdbList(HARD_WIRED_IMDB_IDS, loadedBlackHorrorIds);
@@ -373,67 +376,8 @@
             }
 
             renderGrid(results);
-            if (!['black_magic', 'african'].includes(activeType)) currentPage++;
+            if (!['black_magic'].includes(activeType)) currentPage++;
             isLoading = false;
-        }
-
-        async function fetchAfricanInitial() {
-            const queries = ["Don't Kill It", "Don't Sleep", "The Quiet Village", "Juju Stories", "Living in Bondage", "Nneka the Pretty Serpent", "Mami Wata", "Karishika", "Blood Sisters", "Koto Aye"];
-            const forbiddenGenres = [16, 35, 18, 10749, 14, 9648];
-            const allowedCountries = ['NG', 'GH', 'SN'];
-            
-            let promises = queries.map(q => 
-                fetchWithRetry(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(q)}`)
-            );
-            const responses = await Promise.all(promises);
-            let items = [];
-            
-            for (let data of responses) {
-                if (data && data.results) {
-                    for (let item of data.results) {
-                        if (item.genre_ids && item.genre_ids.some(g => forbiddenGenres.includes(g))) continue;
-                        if (item.media_type === 'person') continue;
-                        
-                        let isAfrican = false;
-                        if (item.origin_country && item.origin_country.some(c => allowedCountries.includes(c))) {
-                            isAfrican = true;
-                        } else {
-                            const details = await fetchWithRetry(`https://api.themoviedb.org/3/${item.media_type || 'movie'}/${item.id}?api_key=${API_KEY}`);
-                            if (details) {
-                                if (details.production_countries && details.production_countries.some(c => allowedCountries.includes(c.iso_3166_1))) isAfrican = true;
-                                if (details.origin_country && details.origin_country.some(c => allowedCountries.includes(c))) isAfrican = true;
-                            }
-                        }
-                        
-                        if (isAfrican && item.poster_path) {
-                            items.push({...item, media_type: item.media_type || (item.first_air_date ? 'tv' : 'movie')});
-                        }
-                    }
-                }
-            }
-            
-            let unique = new Map();
-            items.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); loadedAfricanIds.add(item.id); } });
-            return Array.from(unique.values());
-        }
-
-        async function fetchAfricanMore(page) {
-            const excludedGenres = "16,35,18,10749,14,9648,10751";
-            const allowedCountries = "NG|GH|SN";
-            
-            const urls = [
-                `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_origin_country=${allowedCountries}&with_genres=27|53&without_genres=${excludedGenres}&sort_by=popularity.desc&page=${page}`,
-                `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_origin_country=${allowedCountries}&without_genres=${excludedGenres}&with_keywords=33507|6152|9653|193386|230113&sort_by=popularity.desc&page=${page}`
-            ];
-            
-            const responses = await Promise.all(urls.map(url => fetchWithRetry(url)));
-            let items = [];
-            responses[0]?.results && responses[0].results.forEach(m => { if (m.poster_path && !loadedAfricanIds.has(m.id)) items.push({...m, media_type:'movie'}); });
-            responses[1]?.results && responses[1].results.forEach(t => { if (t.poster_path && !loadedAfricanIds.has(t.id)) items.push({...t, media_type:'tv'}); });
-            
-            let unique = new Map();
-            items.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); loadedAfricanIds.add(item.id); } });
-            return Array.from(unique.values());
         }
 
         async function fetchBlackMagicInitial() {
@@ -587,7 +531,6 @@
         }
 
         async function openDetails(id, type) {
-            // Memory tracking from ZonHD
             savedScrollPosition = window.scrollY || document.documentElement.scrollTop; 
             lastFocusedElement = document.activeElement; 
 
@@ -642,7 +585,6 @@
             });
         }
 
-        // Exact ZonHD Player logic 
         async function startLuxeStream() {
             const { type, id, s, e, isAnime, title } = currentMedia;
             const playerOverlay = document.getElementById('player-overlay');
