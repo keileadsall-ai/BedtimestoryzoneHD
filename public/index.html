@@ -254,8 +254,8 @@
                 blackHorrorPage = 1;
                 loadedUnratedIds.clear();
                 loadedYouthHorrorIds.clear();
-                youthHorrorPage = 1;
                 loadedBlackMagicIds.clear();
+                youthHorrorPage = 1;
             }
 
             let results = [];
@@ -288,8 +288,8 @@
                 results = data?.results || [];
             } else if (activeType === 'black_magic') {
                 if (!append) {
-                    loadedBlackMagicIds = new Set();
                     results = await fetchBlackMagicInitial();
+                    currentPage = 2;
                 } else {
                     results = await fetchBlackMagicMore(currentPage);
                 }
@@ -369,42 +369,61 @@
         }
 
         async function fetchBlackMagicInitial() {
-            const magicTitles = [
-                { q: 'Criss Angel Mindfreak', t: 'tv' }, { q: 'David Blaine: Street Magic', t: 'tv' }, { q: 'David Blaine: Real or Magic', t: 'movie' },
-                { q: 'David Blaine: The Magic Way', t: 'movie' }, { q: 'The Conjuring', t: 'movie' }, { q: 'The Conjuring 2', t: 'movie' }, 
-                { q: 'The Conjuring: The Devil Made Me Do It', t: 'movie' }, { q: 'The Exorcist', t: 'movie' }, { q: 'The Exorcism of Emily Rose', t: 'movie' }, 
-                { q: 'The Possession', t: 'movie' }, { q: 'The Possession of Hannah Grace', t: 'movie' }, { q: 'The Possession of Michael King', t: 'movie' },
-                { q: 'The Haunting of Hill House', t: 'tv' }, { q: 'The Haunting of Bly Manor', t: 'tv' },
-                { q: 'Ouija', t: 'movie' }, { q: 'Ouija: Origin of Evil', t: 'movie' }, { q: 'The Serpent and the Rainbow', t: 'movie' },
-                { q: 'The Rite', t: 'movie' }, { q: 'Deliver Us from Evil', t: 'movie' }, { q: 'The Autopsy of Jane Doe', t: 'movie' },
-                { q: 'Incarnate', t: 'movie' }, { q: 'The Skeleton Key', t: 'movie' }
+            const specificTitles = [
+                { q: 'Criss Angel Mindfreak', t: 'tv' },
+                { q: 'David Blaine', t: 'multi' },
+                { q: 'The Exorcist', t: 'movie' },
+                { q: 'The Exorcism of Emily Rose', t: 'movie' },
+                { q: 'The Possession', t: 'movie' },
+                { q: 'The Haunting of Hill House', t: 'tv' },
+                { q: 'The Haunting of Bly Manor', t: 'tv' },
+                { q: 'The Conjuring', t: 'movie' },
+                { q: 'Ouija', t: 'movie' }
             ];
-            let promises = magicTitles.map(target =>
+
+            let promises = specificTitles.map(target =>
                 fetchWithRetry(`https://api.themoviedb.org/3/search/${target.t}?api_key=${API_KEY}&query=${encodeURIComponent(target.q)}`)
                 .then(data => data && data.results ? data.results[0] : null)
             );
-            const results = await Promise.all(promises);
-            let movies = results.filter(m => m && m.poster_path);
+            
+            // David Blaine (52627) & Criss Angel (70912)
+            promises.push(fetchWithRetry(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_people=52627|70912&sort_by=popularity.desc`).then(d => d ? d.results : []));
+            promises.push(fetchWithRetry(`https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_people=52627|70912&sort_by=popularity.desc`).then(d => d ? d.results : []));
+
+            const rawResults = await Promise.all(promises);
+            let items = [];
+            rawResults.forEach(res => {
+                if (Array.isArray(res)) items.push(...res);
+                else if (res) items.push(res);
+            });
+
+            const page1Items = await fetchBlackMagicMore(1);
+            items.push(...page1Items);
+
             let unique = new Map();
-            movies.forEach(m => { 
-                if (!unique.has(m.id)) { 
+            items.forEach(m => { 
+                if (m && m.poster_path && !unique.has(m.id)) { 
                     unique.set(m.id, m); 
                     loadedBlackMagicIds.add(m.id); 
                 } 
             });
-            return Array.from(unique.values()).map(m => ({ ...m, media_type: m.first_air_date ? 'tv' : 'movie' }));
+            return Array.from(unique.values()).map(m => ({ ...m, media_type: m.media_type || (m.first_air_date ? 'tv' : 'movie') }));
         }
 
         async function fetchBlackMagicMore(page) {
-            const isMoviePage = page % 2 === 0;
-            const pageTarget = Math.floor(page / 2) + 1;
+            // Exclude: Animation (16), Comedy (35), Drama (18), Romance (10749), Thriller (53), Mystery (9648), Fantasy (14)
+            const excludedGenresMovies = "16,35,18,10749,53,9648,14";
+            const excludedGenresTV = "16,35,18,10749,9648"; // Left Fantasy out of exclusions so it doesn't break TV Horror (10765)
             
-            const excludedGenres = "16,35,18,10749,28,53,9648,14"; 
-            const magicKeywords = "3365|11865|6152|15091|3254|10006"; 
+            // Included Keywords: Possession, Exorcism, Ouija, Ghost, Supernatural, Witchcraft, Conjuring, Voodoo
+            const magicKeywords = "3254|3365|234149|2626|3386|6158|234909|11865|10122|12554";
+
+            const isMoviePage = page % 2 === 0;
+            const pageTarget = Math.floor(page / 2) || 1;
 
             let url = isMoviePage ? 
-                `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&without_genres=${excludedGenres}&with_keywords=${magicKeywords}&sort_by=popularity.desc&page=${pageTarget}` :
-                `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&without_genres=${excludedGenres}&with_keywords=${magicKeywords}&sort_by=popularity.desc&page=${pageTarget}`;
+                `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&without_genres=${excludedGenresMovies}&with_keywords=${magicKeywords}&sort_by=popularity.desc&page=${pageTarget}` :
+                `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&without_genres=${excludedGenresTV}&with_keywords=${magicKeywords}&sort_by=popularity.desc&page=${pageTarget}`;
             
             const data = await fetchWithRetry(url);
             let fetched = (data?.results || []).filter(item => 
@@ -522,6 +541,7 @@
         }
 
         async function openDetails(id, type) {
+            // Memory tracking from ZonHD
             savedScrollPosition = window.scrollY || document.documentElement.scrollTop; 
             lastFocusedElement = document.activeElement; 
 
@@ -576,6 +596,7 @@
             });
         }
 
+        // Exact ZonHD Player logic 
         async function startLuxeStream() {
             const { type, id, s, e, isAnime, title } = currentMedia;
             const playerOverlay = document.getElementById('player-overlay');
@@ -602,6 +623,7 @@
         function toggleMenu() { document.getElementById('side-menu').classList.toggle('menu-open'); }
         
         function closeSelector() { 
+            // Restoring ZonHD scroll state
             document.getElementById('selector-overlay').classList.add('hidden'); 
             document.getElementById('main-app-wrapper').classList.remove('hidden'); 
             window.scrollTo(0, savedScrollPosition); 
@@ -627,6 +649,7 @@
             window.scrollTo(0,0);
         }
 
+        // Exact ZonHD Search Feature 
         function triggerSearch() {
             const input = document.getElementById('search-input');
             const query = input.value.trim();
