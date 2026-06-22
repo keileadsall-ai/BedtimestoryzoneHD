@@ -300,9 +300,18 @@
                 const data = await fetchWithRetry(url);
                 results = data?.results || [];
             } else if (activeType === 'african') {
-                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_origin_country=NG|ZA|GH|SN|KE|EG|MA|TZ|UG|CM|DZ|TN|RW|CD&sort_by=popularity.desc&page=${currentPage}`;
-                const data = await fetchWithRetry(url);
-                results = data?.results || [];
+                const countries = 'NG|GH|SN'; 
+                const urls = [
+                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_origin_country=${countries}&sort_by=popularity.desc&page=${currentPage}`,
+                    `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765,9648&with_origin_country=${countries}&sort_by=popularity.desc&page=${currentPage}`
+                ];
+                const responses = await Promise.all(urls.map(url => fetchWithRetry(url)));
+                let items = [];
+                responses[0]?.results && responses[0].results.forEach(m => items.push({...m, media_type: 'movie'}));
+                responses[1]?.results && responses[1].results.forEach(t => items.push({...t, media_type: 'tv'}));
+                let unique = new Map();
+                items.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); } });
+                results = Array.from(unique.values());
             } else if (activeType === 'black_horror') {
                 if (!append) {
                     const hardwiredItems = await resolveItemsFromImdbList(HARD_WIRED_IMDB_IDS, loadedBlackHorrorIds);
