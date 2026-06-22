@@ -413,12 +413,12 @@
                 { q: 'Terrifier' }, { q: 'Terrifier 2' }, { q: 'Terrifier 3' },
                 { q: 'Seed' }, { q: 'I Spit on Your Grave' }, { q: 'I Spit on Your Grave 2' },
                 { q: 'Inside', y: '2007' }, { q: 'Grotesque' }, { q: 'Martyrs', y: '2008' },
-                { q: 'Rohtenburg' },
-                { q: 'Guinea Pig' }, { q: 'Cannibal Holocaust' }, { q: 'High Tension' },
-                { q: 'Hostel' }, { q: 'Hostel: Part II' }, { q: 'The Green Inferno' },
-                { q: 'The Human Centipede' }, { q: 'The Human Centipede 2' },
+                { q: 'Rohtenburg' }, { q: 'Guinea Pig' }, { q: 'Cannibal Holocaust' },
+                { q: 'The Green Inferno' }, { q: 'The Human Centipede' }, { q: 'The Human Centipede 2' },
                 { q: 'Audition' }, { q: 'Tokyo Gore Police' }, { q: 'Frontier(s)' },
-                { q: 'The Sadness' }, { q: 'Baskin' }, { q: 'Raw' }, { q: 'Bone Tomahawk' }
+                { q: 'The Sadness' }, { q: 'Baskin' }, { q: 'Raw' }, { q: 'A Serbian Film' }, 
+                { q: 'Salò, or the 120 Days of Sodom' }, { q: 'Nekromantik' }, { q: 'August Underground' },
+                { q: 'Faces of Death' }
             ];
             let promises = extremeTitles.map(target =>
                 fetchWithRetry(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(target.q)}${target.y ? '&primary_release_year='+target.y : ''}`)
@@ -435,9 +435,12 @@
             const isMoviePage = page % 2 === 0;
             const pageTarget = Math.floor(page / 2);
             
+            const excludedGenres = "16,35,18,10749,28,53"; 
+            const extremeKeywords = "12377|33507|193386|230113|6152|14749|156322"; 
+
             let url = isMoviePage ? 
-                `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=12377|33507|193386|230113|6152&sort_by=popularity.desc&page=${pageTarget}` :
-                `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_keywords=12377|33507|193386|230113|6152&sort_by=popularity.desc&page=${pageTarget}`;
+                `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&without_genres=${excludedGenres}&with_keywords=${extremeKeywords}&sort_by=popularity.desc&page=${pageTarget}` :
+                `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&without_genres=${excludedGenres}&with_keywords=${extremeKeywords}&sort_by=popularity.desc&page=${pageTarget}`;
             
             const data = await fetchWithRetry(url);
             let fetched = (data?.results || []).filter(item => 
@@ -465,6 +468,7 @@
         }
 
         async function openDetails(id, type) {
+            // Memory tracking from ZonHD
             savedScrollPosition = window.scrollY || document.documentElement.scrollTop; 
             lastFocusedElement = document.activeElement; 
 
@@ -519,6 +523,7 @@
             });
         }
 
+        // Exact ZonHD Player logic 
         async function startLuxeStream() {
             const { type, id, s, e, isAnime, title } = currentMedia;
             const playerOverlay = document.getElementById('player-overlay');
