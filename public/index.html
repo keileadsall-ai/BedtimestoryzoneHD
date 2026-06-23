@@ -140,6 +140,23 @@
         let africanPage = 1;
         let loadedAfricanIds = new Set();
 
+        const JAPANESE_IMDB_IDS = [
+            "tt0178868", "tt0364385", "tt0308379", "tt0123948", "tt0235198", "tt0286751", "tt0930083", "tt0399713", "tt0096251", "tt0076162",
+            "tt0058279", "tt0058430", "tt0063804", "tt0266308", "tt0296042", "tt0418778", "tt0432571", "tt0456630", "tt0808506", "tt0434153",
+            "tt0312843", "tt1614410", "tt1590089", "tt4333154", "tt3806744", "tt3431158", "tt0361668", "tt0808365", "tt1183732", "tt1420102",
+            "tt1502200", "tt0239072", "tt0240119", "tt0277828", "tt0278711", "tt0243343", "tt0286161", "tt0903622", "tt0891461", "tt1407000",
+            "tt0284722", "tt0330501", "tt0200027", "tt0246878", "tt5309230", "tt10065968", "tt17805128", "tt0374775", "tt1452636", "tt1452638",
+            "tt3596480", "tt4680222", "tt10534440", "tt2428136", "tt4858022", "tt0480661", "tt0432021", "tt1108351", "tt0326094", "tt0808511",
+            "tt0475355", "tt0297004", "tt0302252", "tt0332826", "tt0407137", "tt0433986", "tt0451829", "tt0469050", "tt0471350", "tt0475330",
+            "tt0490214", "tt0490299", "tt0808419", "tt0809228", "tt0923668", "tt1029243", "tt1031238", "tt1050478", "tt1138507", "tt1314644",
+            "tt1422728", "tt1438515", "tt1456635", "tt1483321", "tt1515904", "tt1571217", "tt1653930", "tt1731114", "tt1756475", "tt1782255",
+            "tt1870315", "tt1870381", "tt1880946", "tt1880993", "tt1942995", "tt1974345", "tt2071391", "tt2106670", "tt2148465", "tt2229562",
+            "tt2251493", "tt2294473", "tt2299835", "tt2304677", "tt2304933", "tt2321453", "tt2330751", "tt2338304", "tt2359005", "tt2405021",
+            "tt2553192", "tt2599298", "tt2641042", "tt2801452", "tt2829036", "tt2929452", "tt3126046", "tt3130282", "tt3242096", "tt3460492",
+            "tt3688194", "tt3727658", "tt3741548", "tt3852030", "tt3908866", "tt3988628", "tt4030612", "tt4133480", "tt4302250", "tt4405526",
+            "tt4514332", "tt4561080", "tt4588806", "tt4667232", "tt4901972", "tt5029302", "tt5251666", "tt5592810", "tt5875222", "tt5885068"
+        ];
+
         const HARD_WIRED_IMDB_IDS = [
             "tt0071095","tt7544954","tt3743358","tt13365348","tt0160016","tt16997558",
             "tt4798836","tt0120603","tt12298506","tt15475330","tt0193013","tt26453917",
@@ -300,27 +317,21 @@
                 }
                 if (results && results.length > 0) blackMagicPage++;
             } else if (activeType === 'japanese') {
-                const jpExcludedGenres = "16,35,10749"; 
-                const jpToxicKeywords = "190374|158718|10037|9713|156322|10321|9820"; 
-                const urls = [
-                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_origin_country=JP&with_original_language=ja&without_genres=${jpExcludedGenres}&without_keywords=${jpToxicKeywords}&sort_by=popularity.desc&page=${currentPage}`,
-                    `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_origin_country=JP&with_original_language=ja&without_genres=${jpExcludedGenres}&without_keywords=${jpToxicKeywords}&sort_by=popularity.desc&page=${currentPage}`
-                ];
-                const responses = await Promise.all(urls.map(url => fetchWithRetry(url)));
-                let items = [];
-                responses[0]?.results && responses[0].results.forEach(m => { if (m.poster_path) items.push({...m, media_type:'movie'}); });
-                responses[1]?.results && responses[1].results.forEach(t => { if (t.poster_path) items.push({...t, media_type:'tv'}); });
-                
-                let unique = new Map();
-                items.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); } });
-                results = Array.from(unique.values());
+                const perPage = 24;
+                const start = (currentPage - 1) * perPage;
+                const pageIds = JAPANESE_IMDB_IDS.slice(start, start + perPage);
+                if (pageIds.length > 0) {
+                    results = await resolveItemsFromImdbList(pageIds, new Set());
+                } else {
+                    results = [];
+                }
             } else if (activeType === 'african') {
                 const africanExcludedGenres = "16,35,10749"; 
                 const africanKeywords = "3254|3365|11865|10466|15001";
                 const urls = [
-                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_origin_country=NG&with_genres=27|53&without_genres=${africanExcludedGenres}&sort_by=popularity.desc&page=${africanPage}`,
-                    `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_origin_country=NG&with_genres=10765&without_genres=${africanExcludedGenres}&sort_by=popularity.desc&page=${africanPage}`,
-                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_origin_country=NG&with_keywords=${africanKeywords}&without_genres=${africanExcludedGenres}&sort_by=popularity.desc&page=${africanPage}`
+                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_origin_country=NG|GH&with_genres=27|53&without_genres=${africanExcludedGenres}&sort_by=popularity.desc&page=${africanPage}`,
+                    `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_origin_country=NG|GH&with_genres=10765&without_genres=${africanExcludedGenres}&sort_by=popularity.desc&page=${africanPage}`,
+                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_origin_country=NG|GH&with_keywords=${africanKeywords}&without_genres=${africanExcludedGenres}&sort_by=popularity.desc&page=${africanPage}`
                 ];
                 const responses = await Promise.all(urls.map(url => fetchWithRetry(url)));
                 let items = [];
