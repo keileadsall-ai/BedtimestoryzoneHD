@@ -304,21 +304,24 @@
                 const data = await fetchWithRetry(url);
                 results = data?.results || [];
             } else if (activeType === 'african') {
-                const excludedGenres = "16,35,18,10749,9648,14"; 
+                const africanExcludedGenres = "16,35,10749"; 
+                const africanKeywords = "3254|3365|11865|10466|15001";
                 const urls = [
-                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27|53&without_genres=${excludedGenres}&with_origin_country=NG&sort_by=popularity.desc&page=${africanPage}`,
-                    `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&without_genres=${excludedGenres}&with_origin_country=NG&sort_by=popularity.desc&page=${africanPage}`
+                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_origin_country=NG&with_genres=27|53&without_genres=${africanExcludedGenres}&sort_by=popularity.desc&page=${africanPage}`,
+                    `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_origin_country=NG&with_genres=10765&without_genres=${africanExcludedGenres}&sort_by=popularity.desc&page=${africanPage}`,
+                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_origin_country=NG&with_keywords=${africanKeywords}&without_genres=${africanExcludedGenres}&sort_by=popularity.desc&page=${africanPage}`
                 ];
                 const responses = await Promise.all(urls.map(url => fetchWithRetry(url)));
                 let items = [];
                 responses[0]?.results && responses[0].results.forEach(m => { if (m.poster_path && !loadedAfricanIds.has(m.id)) items.push({...m, media_type:'movie'}); });
                 responses[1]?.results && responses[1].results.forEach(t => { if (t.poster_path && !loadedAfricanIds.has(t.id)) items.push({...t, media_type:'tv'}); });
+                responses[2]?.results && responses[2].results.forEach(m => { if (m.poster_path && !loadedAfricanIds.has(m.id)) items.push({...m, media_type:'movie'}); });
                 
                 let unique = new Map();
                 items.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); loadedAfricanIds.add(item.id); } });
                 results = Array.from(unique.values());
                 
-                if (results.length > 0 || (responses[0]?.total_pages > africanPage || responses[1]?.total_pages > africanPage)) {
+                if (results.length > 0 || (responses[0]?.total_pages > africanPage || responses[1]?.total_pages > africanPage || responses[2]?.total_pages > africanPage)) {
                     africanPage++;
                 }
             } else if (activeType === 'black_horror') {
