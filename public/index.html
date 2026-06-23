@@ -7,7 +7,7 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Metal+Mania&family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2family=Creepster&family=Nosifer&family=Metal+Mania&family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
 
     <style>
         :root { --blood: #e50914; --void: #000; --ash: #1a1a1a; }
@@ -306,8 +306,8 @@
             } else if (activeType === 'african') {
                 const excludedGenres = "16,35,18,10749,9648,14"; 
                 const urls = [
-                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27|53&without_genres=${excludedGenres}&with_origin_country=NG|GH&sort_by=popularity.desc&page=${africanPage}`,
-                    `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&without_genres=${excludedGenres}&with_origin_country=NG|GH&sort_by=popularity.desc&page=${africanPage}`
+                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27|53&without_genres=${excludedGenres}&with_origin_country=NG&sort_by=popularity.desc&page=${africanPage}`,
+                    `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&without_genres=${excludedGenres}&with_origin_country=NG&sort_by=popularity.desc&page=${africanPage}`
                 ];
                 const responses = await Promise.all(urls.map(url => fetchWithRetry(url)));
                 let items = [];
@@ -539,7 +539,6 @@
         }
 
         async function openDetails(id, type) {
-            // Memory tracking from ZonHD
             savedScrollPosition = window.scrollY || document.documentElement.scrollTop; 
             lastFocusedElement = document.activeElement; 
 
@@ -594,7 +593,6 @@
             });
         }
 
-        // Exact ZonHD Player logic 
         async function startLuxeStream() {
             const { type, id, s, e, isAnime, title } = currentMedia;
             const playerOverlay = document.getElementById('player-overlay');
