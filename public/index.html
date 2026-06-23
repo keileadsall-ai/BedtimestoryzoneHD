@@ -300,16 +300,27 @@
                 }
                 if (results && results.length > 0) blackMagicPage++;
             } else if (activeType === 'japanese') {
-                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_origin_country=JP&with_original_language=ja&sort_by=popularity.desc&page=${currentPage}`;
-                const data = await fetchWithRetry(url);
-                results = data?.results || [];
+                const jpExcludedGenres = "16,35,10749"; 
+                const jpToxicKeywords = "190374|158718|10037|9713|156322|10321|9820"; 
+                const urls = [
+                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_origin_country=JP&with_original_language=ja&without_genres=${jpExcludedGenres}&without_keywords=${jpToxicKeywords}&sort_by=popularity.desc&page=${currentPage}`,
+                    `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_origin_country=JP&with_original_language=ja&without_genres=${jpExcludedGenres}&without_keywords=${jpToxicKeywords}&sort_by=popularity.desc&page=${currentPage}`
+                ];
+                const responses = await Promise.all(urls.map(url => fetchWithRetry(url)));
+                let items = [];
+                responses[0]?.results && responses[0].results.forEach(m => { if (m.poster_path) items.push({...m, media_type:'movie'}); });
+                responses[1]?.results && responses[1].results.forEach(t => { if (t.poster_path) items.push({...t, media_type:'tv'}); });
+                
+                let unique = new Map();
+                items.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); } });
+                results = Array.from(unique.values());
             } else if (activeType === 'african') {
                 const africanExcludedGenres = "16,35,10749"; 
                 const africanKeywords = "3254|3365|11865|10466|15001";
                 const urls = [
-                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_origin_country=NG|GH&with_genres=27|53&without_genres=${africanExcludedGenres}&sort_by=popularity.desc&page=${africanPage}`,
-                    `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_origin_country=NG|GH&with_genres=10765&without_genres=${africanExcludedGenres}&sort_by=popularity.desc&page=${africanPage}`,
-                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_origin_country=NG|GH&with_keywords=${africanKeywords}&without_genres=${africanExcludedGenres}&sort_by=popularity.desc&page=${africanPage}`
+                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_origin_country=NG&with_genres=27|53&without_genres=${africanExcludedGenres}&sort_by=popularity.desc&page=${africanPage}`,
+                    `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_origin_country=NG&with_genres=10765&without_genres=${africanExcludedGenres}&sort_by=popularity.desc&page=${africanPage}`,
+                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_origin_country=NG&with_keywords=${africanKeywords}&without_genres=${africanExcludedGenres}&sort_by=popularity.desc&page=${africanPage}`
                 ];
                 const responses = await Promise.all(urls.map(url => fetchWithRetry(url)));
                 let items = [];
