@@ -253,38 +253,23 @@
             5443, 16307, 822, 6949, 10860, 291, 17838, 141251
         ])];
 
-        // --- SUPERVISOR ANCHOR: YOUTH HORROR (Gateway / Spooky Vibe / Kids) ---
+        // --- SUPERVISOR ANCHOR: YOUTH HORROR (Safe, Nostalgic, Gateway) ---
         const YOUTH_IMDB_IDS = [
-            "tt0327597", // Coraline
-            "tt0385880", // Monster House
-            "tt0111987", "tt1051904", "tt5664636", "tt17351588", // Goosebumps Franchise
-            "tt0100944", "tt1086522", // The Witches
-            "tt0094721", "tt2049403", // Beetlejuice
-            "tt0107120", "tt11909878", // Hocus Pocus
-            "tt0103352", "tt10473306", // Are You Afraid of the Dark
-            "tt0101272", // The Addams Family (1991)
-            "tt0112642", // Casper
-            "tt1142977", // Frankenweenie
-            "tt1990314", // ParaNorman
-            "tt0120102", // Scooby-Doo on Zombie Island
-            "tt0332378", "tt1431045" // Haunted Mansion
+            "tt0436354", "tt0859622", "tt0107120", "tt11909878", "tt0101272", 
+            "tt13443470", "tt0283300", "tt0337193", "tt0111987", "tt1051904", 
+            "tt17351588", "tt0173886", "tt0204130", "tt0094721", "tt2049403", 
+            "tt0220880", "tt0103352", "tt10473306", "tt0385880", "tt0091419", 
+            "tt0332378", "tt1431045", "tt0087332", "tt0097428", "tt0327597", 
+            "tt0100944", "tt1086522", "tt0112642"
         ];
 
-        // --- SUPERVISOR ANCHOR: TEEN HORROR (Slasher / High School / Survival) ---
+        // --- SUPERVISOR ANCHOR: TEEN HORROR (Mature, Survival, Slasher) ---
         const TEEN_IMDB_IDS = [
-            "tt0117500", // Scream
-            "tt0119345", // I Know What You Did Last Summer
-            "tt0115967", // The Craft
-            "tt0195685", // Final Destination
-            "tt5308322", // Happy Death Day
-            "tt9701942", "tt9701944", "tt9701940", // Fear Street Trilogy
-            "tt1139797", // Jennifer's Body
-            "tt0133751", // The Faculty
-            "tt3235888", // It Follows
-            "tt8760708", // M3GAN
-            "tt16277242", // Five Nights at Freddy's
-            "tt6644200", // A Quiet Place
-            "tt2250912"  // Talk to Me
+            "tt1396484", "tt7349950", "tt0084523", "tt1074658", "tt6061498", 
+            "tt0119345", "tt7781432", "tt9701942", "tt9701944", "tt9701940", 
+            "tt0116287", "tt0133751", "tt5308322", "tt8155288", "tt27650074", 
+            "tt1139797", "tt6535880", "tt3685512", "tt0117500", "tt0120082", 
+            "tt0133189", "tt0195685", "tt0115967", "tt3235888", "tt5050608"
         ];
 
         async function fetchWithRetry(url, retries = 3) {
@@ -482,11 +467,12 @@
                     const isMoviePage = youthHorrorPage % 2 !== 0;
                     const pageTarget = Math.floor((youthHorrorPage + 1) / 2);
                     
-                    // SUPERVISOR YOUTH LOGIC: Atmosphere, Magic, Fun. No heavy gore. Capped at PG/TV-PG. English only.
-                    const youthKeywords = "3328|612|3098|3250|10466|236689"; // witch, magic, haunted house, ghost
+                    // ANTI-SUPERHERO/ANTI-ROMANCE YOUTH PROTOCOL
+                    // MUST be Horror (27). CANNOT be Action (28), Sci-Fi (878), Romance (10749), or War (10752).
+                    const youthKeywords = "3328|612|3098|3250|10466|236689"; 
                     let targetUrl = isMoviePage ? 
-                        `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=14|9648|27&with_keywords=${youthKeywords}&with_original_language=en&certification_country=US&certification.lte=PG&sort_by=popularity.desc&page=${pageTarget}` :
-                        `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765|10751|9648&with_keywords=${youthKeywords}&with_original_language=en&certification_country=US&certification.lte=TV-PG&sort_by=popularity.desc&page=${pageTarget}`;
+                        `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&without_genres=28,878,10749,10752&with_keywords=${youthKeywords}&with_original_language=en&certification_country=US&certification.lte=PG-13&sort_by=popularity.desc&page=${pageTarget}` :
+                        `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765|10751|9648&without_genres=28,878,10749&with_keywords=${youthKeywords}&with_original_language=en&certification_country=US&certification.lte=TV-14&sort_by=popularity.desc&page=${pageTarget}`;
                     
                     const data = await fetchWithRetry(targetUrl);
                     let fetched = (data?.results || []).filter(item => 
@@ -511,12 +497,13 @@
                     const isMoviePage = teenHorrorPage % 2 !== 0; 
                     const pageTarget = Math.floor((teenHorrorPage + 1) / 2);
                     
-                    // SUPERVISOR TEEN LOGIC: Slasher, Survival, Thriller. PG-13 & Up. NO CARTOONS (16) NO FAMILY (10751).
-                    const teenKeywords = "9673|9826|6152|11130|12339"; // slasher, high school, teen, teenager
+                    // ANTI-CARTOON/ANTI-SUPERHERO TEEN PROTOCOL
+                    // MUST be Horror (27). CANNOT be Animation (16), Family (10751), Action (28), or Sci-Fi (878).
+                    const teenKeywords = "9673|9826|6152|11130|12339"; 
                     
                     let targetUrl = isMoviePage ? 
-                        `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27,53&without_genres=16,10751&with_keywords=${teenKeywords}&with_original_language=en&certification_country=US&certification.gte=PG-13&sort_by=popularity.desc&page=${pageTarget}` :
-                        `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&without_genres=16,10762&with_keywords=${teenKeywords}&with_original_language=en&certification_country=US&certification.gte=TV-14&sort_by=popularity.desc&page=${pageTarget}`;
+                        `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&without_genres=16,10751,28,878&with_keywords=${teenKeywords}&with_original_language=en&certification_country=US&certification.gte=PG-13&sort_by=popularity.desc&page=${pageTarget}` :
+                        `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&without_genres=16,10762,28,878&with_keywords=${teenKeywords}&with_original_language=en&certification_country=US&certification.gte=TV-14&sort_by=popularity.desc&page=${pageTarget}`;
                     
                     const data = await fetchWithRetry(targetUrl);
                     let fetched = (data?.results || []).filter(item => 
