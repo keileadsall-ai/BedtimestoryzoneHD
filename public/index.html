@@ -261,18 +261,16 @@
         ])];
 
         const YOUTH_IMDB_IDS = [
-            "tt0432349", "tt0995034", "tt0224671", "tt0142688", "tt10857176", "tt0103340", 
-            "tt10543666", "tt0111987", "tt1051904", "tt0285408", "tt0280231", "tt0398130", 
-            "tt0805548", "tt0175142", "tt0257106", "tt0306047", "tt0362120", "tt0795461", 
-            "tt32093575", "tt0094862", "tt0099253", "tt0101535", "tt0144120", "tt0387575", 
-            "tt2230358", "tt3280262", "tt8663516", "tt0467421", "tt1017465", "tt0173886", 
-            "tt0274761", "tt0414078", "tt0816520", "tt0117571", "tt0120082", "tt0134084", 
-            "tt1262416", "tt11245972", "tt17663992", "tt27047903", "tt0075005", "tt0077394", 
-            "tt0102585", "tt0466909", "tt0195714", "tt0309593", "tt0452608", "tt1144884", 
-            "tt1570928", "tt9619824", "tt0100944", "tt0805647", "tt0064098", "tt0068091", 
-            "tt0081896", "tt0078729", "tt0088531", "tt0094528", "tt0321289", "tt1691230", 
-            "tt0283011", "tt0331632", "tt0220880", "tt0094721", "tt2049403", "tt0096543", 
-            "tt0057729"
+            "tt0436354", "tt0220880", "tt0094721", "tt0142688", "tt0103352", "tt0111987", "tt0275862", "tt0173886",
+            "tt0175142","tt0257106","tt0306047","tt0362120","tt0795461","tt32093575",
+            "tt0094862","tt0099253","tt0101535","tt0144120","tt0387575","tt2230358",
+            "tt3280262","tt8663516","tt0467421","tt1017465","tt0274761",
+            "tt0414078","tt0816520","tt0117571","tt0120082","tt0134084","tt1262416",
+            "tt11245972","tt17663992","tt27047903","tt0075005","tt0077394","tt0102585",
+            "tt0466909","tt0195714","tt0309593","tt0452608","tt1144884","tt1570928",
+            "tt9619824","tt0100944","tt0805647","tt0064098","tt0068091","tt0081896",
+            "tt0078729","tt0088531","tt0094528","tt0321289","tt1691230","tt0283011",
+            "tt0331632","tt2049403","tt0096543","tt0057729"
         ];
 
         async function fetchWithRetry(url, retries = 3) {
@@ -465,14 +463,14 @@
                     let unique = new Map();
                     hardwiredItems.forEach(item => unique.set(item.id, item));
                     results = Array.from(unique.values());
-                    youthHorrorPage = 2; 
+                    youthHorrorPage = 2;
                 } else {
                     const isMoviePage = youthHorrorPage % 2 === 0;
-                    const pageTarget = Math.floor(youthHorrorPage / 2);
-                    const gatewayKeywords = "3328|612|3335|3133|12988"; 
+                    const pageTarget = Math.floor(youthHorrorPage / 2) + 1;
+                    const keywords = "3328|612|3098|3250|10466|12377";
                     let targetUrl = isMoviePage ? 
-                        `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=10751,14,16&with_keywords=${gatewayKeywords}&certification_country=US&certification.lte=PG&page=${pageTarget}` :
-                        `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10762,10751,16&with_keywords=${gatewayKeywords}&certification_country=US&certification.lte=TV-PG&page=${pageTarget}`;
+                        `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_keywords=${keywords}&certification_country=US&certification.lte=PG&sort_by=popularity.desc&page=${pageTarget}` :
+                        `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_keywords=${keywords}&certification_country=US&certification.lte=TV-PG&sort_by=popularity.desc&page=${pageTarget}`;
                     const data = await fetchWithRetry(targetUrl);
                     let fetched = (data?.results || []).filter(item => 
                         item.poster_path && !loadedYouthHorrorIds.has(item.id)
@@ -483,16 +481,20 @@
                     youthHorrorPage++;
                 }
             } else if (activeType === 'teen') {
-                const isMoviePage = teenHorrorPage % 2 !== 0;
+                const isMoviePage = teenHorrorPage % 2 !== 0; 
                 const pageTarget = Math.floor((teenHorrorPage + 1) / 2);
-                const teenKeywords = "12339|9826|12564"; 
+                const keywords = "12339|9826|6152|9673";
                 let targetUrl = isMoviePage ? 
-                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=${teenKeywords}&certification_country=US&certification=PG-13&page=${pageTarget}` :
-                    `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765,9648&certification_country=US&certification=TV-14&page=${pageTarget}`;
+                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&without_genres=16,10751&certification_country=US&certification=PG-13&sort_by=popularity.desc&page=${pageTarget}` :
+                    `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&without_genres=16,10762&certification_country=US&certification=TV-14&sort_by=popularity.desc&page=${pageTarget}`;
+                
                 const data = await fetchWithRetry(targetUrl);
                 let fetched = (data?.results || []).filter(item => 
-                    item.poster_path && !loadedTeenHorrorIds.has(item.id)
+                    item.poster_path && 
+                    !loadedTeenHorrorIds.has(item.id) && 
+                    !(item.genre_ids && item.genre_ids.includes(16))
                 ).map(item => ({ ...item, media_type: item.media_type || (item.first_air_date ? 'tv' : 'movie') }));
+                
                 let unique = new Map();
                 fetched.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); loadedTeenHorrorIds.add(item.id); } });
                 results = Array.from(unique.values());
@@ -536,7 +538,7 @@
             }
 
             renderGrid(results);
-            if (!['black_magic', 'african', 'japanese', 'unrated', 'youth', 'teen'].includes(activeType)) currentPage++;
+            if (!['black_magic', 'african', 'japanese', 'unrated'].includes(activeType)) currentPage++;
             isLoading = false;
         }
 
