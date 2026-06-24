@@ -131,125 +131,686 @@
         
         let savedScrollPosition = 0, lastFocusedElement = null;
 
-        let unratedPage = 1, loadedUnratedIds = new Set();
-        let blackHorrorPage = 1, loadedBlackHorrorIds = new Set();
-        let youthHorrorPage = 1, loadedYouthHorrorIds = new Set();
-        let teenHorrorPage = 1, loadedTeenHorrorIds = new Set();
-        let blackMagicPage = 1, loadedBlackMagicIds = new Set();
-        let africanPage = 1, loadedAfricanIds = new Set();
-        let japanesePage = 1, loadedJapaneseIds = new Set();
+        let unratedPage = 1;
+        let loadedUnratedIds = new Set();
+        let blackHorrorPage = 1;
+        let loadedBlackHorrorIds = new Set();
+        let youthHorrorPage = 1;
+        let loadedYouthHorrorIds = new Set();
+        let teenHorrorPage = 1;
+        let loadedTeenHorrorIds = new Set();
+        let blackMagicPage = 1;
+        let loadedBlackMagicIds = new Set();
+        let africanPage = 1;
+        let loadedAfricanIds = new Set();
+        let japanesePage = 1;
+        let loadedJapaneseIds = new Set();
 
-        const EXTREME_UNRATED_TITLES = ["Terrifier", "Terrifier 2", "Terrifier 3", "All Hallows' Eve", "Seed", "Inside", "Martyrs", "Grotesque", "Rohtenburg", "High Tension", "Frontier(s)", "The Sadness", "Baskin", "Raw", "Bone Tomahawk", "The Green Inferno", "Cannibal Holocaust", "Cannibal Ferox", "Eaten Alive!", "Jungle Holocaust", "The Human Centipede", "The Human Centipede 2", "The Human Centipede 3", "A Serbian Film", "Salò, or the 120 Days of Sodom", "Nekromantik", "Nekromantik 2", "Schramm", "Der Todesking", "August Underground", "August Underground's Mordum", "August Underground's Penance", "Faces of Death", "Faces of Death II", "Faces of Death III", "Traces of Death", "Traces of Death II", "Traces of Death III", "Orozco the Embalmer", "Shocking Asia", "Africa Addio", "Mondo Cane", "Slaughtered Vomit Dolls", "ReGOREgitated Sacrifice", "Slow Torture Puke Chamber", "Black Metal Veins", "The Bunny Game", "Snuff 102", "Men Behind the Sun", "Men Behind the Sun 2", "Men Behind the Sun 3", "Philosophy of a Knife", "American Guinea Pig: Bouquet of Guts and Gore", "American Guinea Pig: Bloodshock", "American Guinea Pig: The Song of Solomon", "American Guinea Pig: Sacrifice", "Guinea Pig: Devil's Experiment", "Guinea Pig: Flower of Flesh and Blood", "Guinea Pig: He Never Dies", "Guinea Pig: Mermaid in a Manhole", "Guinea Pig: Android of Notre Dame", "Guinea Pig: Devil Woman Doctor", "Tumbling Doll of Flesh", "Naked Blood", "Splatter: Naked Blood", "Evil Dead Trap", "Evil Dead Trap 2", "Ichi the Killer", "Audition", "Visitor Q", "Imprint", "Tokyo Gore Police", "Meatball Machine", "The Machine Girl", "Dead Sushi", "Mutant Girls Squad", "Adam Chaplin", "Taeter City", "Hotel Inferno", "Atroz", "Thanatomorphose", "Contracted", "Contracted: Phase II", "The Poughkeepsie Tapes", "Megan Is Missing", "The Girl Next Door", "Snowtown", "The Golden Glove", "Angst", "Henry: Portrait of a Serial Killer", "Maniac", "The House That Jack Built", "Antichrist", "Irréversible", "Baise-moi", "Trouble Every Day", "Sombre", "Calvaire", "Vinyan", "Sheitan", "Mutants", "Macabre", "The Devil's Rejects", "House of 1000 Corpses", "31", "100 Tears", "Headless", "Gutterballs", "Hanger", "Porkchop", "The Gateway Meat", "Hate Crime", "Torched", "Carcinoma", "Voyage to Agatis", "Melancholie der Engel", "Cannibal", "Debris Documentar", "Scrapbook", "The Great American Snuff Film", "Fetus", "Where the Dead Go to Die", "When Black Birds Fly", "Subconscious Cruelty", "Aftermath", "Genesis", "The Strange Thing About the Johnsons", "Murder Set Pieces", "Chaos", "The Last House on the Left", "The Texas Chain Saw Massacre", "The Texas Chainsaw Massacre 2", "I Spit on Your Grave", "I Spit on Your Grave 2", "I Spit on Your Grave III", "Thriller: A Cruel Picture", "Ilsa: She Wolf of the SS", "Ilsa: Harem Keeper of the Oil Sheiks", "Blood Feast", "Two Thousand Maniacs!", "Color Me Blood Red", "The Wizard of Gore", "The Gore Gore Girls", "Bloodsucking Freaks", "Pieces", "The New York Ripper", "Anthropophagous", "Zombie Holocaust", "Make Them Die Slowly", "Cut and Run", "Night of the Zombies", "Burial Ground", "Absurd", "Beyond the Darkness", "Giallo in Venice", "The Beyond", "City of the Living Dead", "The House by the Cemetery", "Tenebrae", "Zombie Flesh Eaters", "Demons", "Demons 2", "Opera", "Deep Red", "Inferno", "The Bird with the Crystal Plumage", "A Blade in the Dark", "Torso", "StageFright", "The Wax Mask", "The Stendhal Syndrome", "Sleepless", "Trauma", "The Card Player", "Blood and Black Lace", "Hatchet", "Hatchet II", "Hatchet III", "Victor Crowley", "Laid to Rest", "Chromeskull: Laid to Rest 2", "The Orphan Killer", "Found", "Mask Maker", "The Town That Dreaded Sundown", "Slumber Party Massacre", "The Mutilator", "The Driller Killer", "Don't Go in the Woods", "The Burning", "My Bloody Valentine", "Maniac Cop", "Intruder", "The Prowler", "Blood Rage", "The Zero Boys", "Slaughter High", "Happy Birthday to Me", "Edge of the Axe", "Sleepaway Camp", "Sleepaway Camp II", "Sleepaway Camp III", "The Hills Have Eyes", "In My Skin", "Demonlover", "Excision", "Bite", "The Ruins", "Starry Eyes", "Cabin Fever", "The Descent", "Hostel", "Hostel: Part II"];
-        const JAPANESE_HORROR_TITLES = ["Ju-on: The Grudge", "Ringu", "Dark Water", "Pulse", "Cure", "Noroi: The Curse", "Audition", "One Missed Call", "Ju-on: The Grudge 2", "Ringu 2", "Ringu 0: Birthday", "Sadako vs. Kayako", "Ju-on: The Curse", "Ju-on: White Ghost", "Ju-on: Black Ghost", "Retribution", "Creepy", "Charisma", "Seance", "Doppelganger", "Occult", "A Record of Sweet Murder", "Cult", "Shirome", "Ichi the Killer", "Gozu", "Visitor Q", "As the Gods Will", "Over Your Dead Body", "Lesson of the Evil", "Suicide Club", "Noriko's Dinner Table", "Strange Circus", "Cold Fish", "Guilty of Romance", "Tag", "Exte: Hair Extensions", "Infection", "Premonition", "Reincarnation", "Howling Village", "Suicide Forest Village", "Ox-Head Village", "Marebito", "Uzumaki", "Tomie", "Tomie: Replay", "Tomie: Re-birth", "Tomie: Forbidden Fruit", "Battle Royale", "Confessions", "Liverleaf", "The Forest of Love", "Tokyo Gore Police", "Meatball Machine", "The Machine Girl", "Vampire Girl vs. Frankenstein Girl", "Mutant Girls Squad", "RoboGeisha", "Helldriver", "Dead Sushi", "Gothic & Lolita Psycho", "Grotesque", "Evil Dead Trap", "Evil Dead Trap 2", "Entrails of a Virgin", "Entrails of a Beautiful Woman", "Naked Blood", "Tetsuo: The Iron Man", "Tetsuo II: Body Hammer", "Tetsuo: The Bullet Man", "Hiruko the Goblin", "Kotoko", "Gemini", "Nightmare Detective", "Nightmare Detective 2", "Vital", "Wild Zero", "Versus", "Junk", "Bio Zombie", "Stacy", "Hellevator", "The Complex", "Kuime", "It Comes", "Sweet Home", "Matango", "Goke, Body Snatcher from Hell", "The Ghost of Yotsuya", "Jigoku", "A Page of Madness", "The Face of Another", "Woman in the Dunes", "Vampire Doll", "Lake of Dracula", "Evil of Dracula", "Kuroneko", "Onibaba", "Kwaidan", "Hausu", "Blind Beast", "Horrors of Malformed Men", "School of the Holy Beast", "Flower and Snake", "Flower and Snake 2", "Female Prisoner #701: Scorpion", "Female Convict Scorpion: Jailhouse 41", "Female Convict Scorpion: Beast Cell", "Lady Snowblood", "Lady Snowblood: Love Song of Vengeance", "Sex & Fury", "Hanzo the Razor", "Bohachi Bushido", "Inferno of Torture", "Orgies of Edo", "The Discarnates", "Living Skeleton", "Snake Girl and the Silver-Haired Demon", "St. John's Wort", "Another Heaven", "Isola: Multiple Personality Girl", "Pyrokinesis", "Parasite Eve", "The Inerasable", "Siren", "Kakashi", "Shikoku", "Eko Eko Azarak: Wizard of Darkness", "Eko Eko Azarak II", "Eko Eko Azarak III", "Eko Eko Azarak IV", "Death Tube", "The Booth", "The Slit-Mouthed Woman", "Carved: The Slit-Mouthed Woman", "Teketeke", "TekeTeke 2", "Hanako of the Toilet", "Kokkuri-san", "Gakko no Kaidan", "Haunted School", "Shibuya Kaidan", "Ju-Rei: The Uncanny", "Apartment 1303", "Ju-on: The Final Curse", "Sadako", "Sadako DX", "The Room", "Corpse Party", "Ao Oni", "Zombie Ass", "Rape Zombie: Lust of the Dead", "Bloody Muscle Body Builder in Hell", "Deadball", "Museum", "The Snow White Murder Case", "Monsterz", "Chronicle of My Mother", "Killers", "Real Onigokko", "Kisaragi Station", "Homunculus", "Haze", "Bullet Ballet", "Tokyo Fist", "Tetsuo"];
-        const HARD_WIRED_IMDB_IDS = ["tt0071095","tt7544954","tt3743358","tt13365348","tt0160016","tt16997558","tt4798836","tt0120603","tt12298506","tt15475330","tt0193013","tt26453917","tt5184138","tt8520140","tt2274248","tt8110652","tt0103919","tt0165662","tt9347730","tt0119988","tt0285487","tt0090888","tt3104930","tt23648404","tt9331416","tt7631568","tt6803212","tt0074430","tt0119080","tt28088571","tt9088954","tt11057594","tt2583620","tt9813792","tt0068619","tt7475988","tt0338094","tt1695843","tt8508734","tt11668454","tt0372975","tt0449599","tt9567548","tt0130018","tt20859392","tt22496012","tt9742392","tt6131712","tt0209095","tt6905686","tt9472334","tt0365519","tt32916093","tt1289419","tt0475989","tt10931784","tt12308018","tt9289116","tt2011159","tt10954984","tt0361417","tt2579836","tt5505722","tt0265537","tt1395783","tt0238546","tt0183714","tt8656686","tt0427848","tt15726046","tt0397101","tt4411234","tt0499573","tt0033075","tt14961048","tt10638522","tt0114609","tt0277370","tt19896150","tt11703244","tt10772662","tt0112625","tt8559532","tt1449394","tt14074602","tt12921446","tt6133466","tt21905744","tt1457765","tt0264696","tt6722030","tt2221362","tt7928156","tt26569323","tt21365986","tt3862750","tt15507512","tt13358022","tt1678042","tt7320482","tt31022076","tt16437278","tt9064858","tt9873892","tt4991112","tt7671414","tt18394428","tt0100791","tt3859272","tt12545262","tt9177040","tt0285869","tt14191916","tt28239363","tt14349100","tt0188694","tt0415348","tt0428251","tt14921402","tt8417466","tt29275554","tt4287470","tt1389139","tt31314296","tt21821538","tt1342115","tt1112697","tt0099395","tt0074703","tt0114608","tt0196181","tt0430066","tt0089593","tt0119099","tt0078078","tt33049264","tt15146646","tt37543196","tt32560625","tt15532464","tt0220506","tt0070893","tt6535880","tt0133751","tt0462160","tt6133466","tt37521114","tt35684711","tt31777631","tt12776978","tt38090790","tt4065260","tt39094274"];
-        const UNIQUE_BLACK_IDS = [...new Set([147, 20810, 2963, 16582, 134, 17259, 538, 78029, 521, 17697, 76748, 97169, 25619, 2372, 64235, 34503, 15313, 856, 16214, 68812, 586, 2178, 3497, 6807, 52039, 17522, 537, 13021, 1245, 8691, 1813, 714, 1264, 5049, 15860, 335, 5463, 36196, 65731, 15001, 10205, 9281, 56159, 1103, 77801, 16484, 4247, 12138, 12000, 9775, 1566, 438, 10750, 5921, 11109, 3547, 15090, 14344, 5443, 16307, 822, 6949, 10860, 291, 17838, 141251])];
-        const YOUTH_IMDB_IDS = ["tt0175142","tt0257106","tt0306047","tt0362120","tt0795461","tt32093575","tt0094862","tt0099253","tt0101535","tt0144120","tt0387575","tt2230358","tt3280262","tt8663516","tt0467421","tt1017465","tt0173886","tt0274761","tt0414078","tt0816520","tt0117571","tt0120082","tt0134084","tt1262416","tt11245972","tt17663992","tt27047903","tt0075005","tt0077394","tt0102585","tt0466909","tt0195714","tt0309593","tt0452608","tt1144884","tt1570928","tt9619824","tt0100791","tt0805647","tt0064098","tt0068091","tt0081896","tt0078729","tt0088531","tt0094528","tt0321289","tt1691230","tt0283011","tt0331632","tt0220880","tt0094721","tt2049403","tt0096543","tt0057729"];
+        const EXTREME_UNRATED_TITLES = [
+            "Terrifier", "Terrifier 2", "Terrifier 3", "All Hallows' Eve", "Seed", "Inside", "Martyrs", "Grotesque", 
+            "Rohtenburg", "High Tension", "Frontier(s)", "The Sadness", "Baskin", "Raw", "Bone Tomahawk", "The Green Inferno", 
+            "Cannibal Holocaust", "Cannibal Ferox", "Eaten Alive!", "Jungle Holocaust", "The Human Centipede", 
+            "The Human Centipede 2", "The Human Centipede 3", "A Serbian Film", "Salò, or the 120 Days of Sodom", 
+            "Nekromantik", "Nekromantik 2", "Schramm", "Der Todesking", "August Underground", "August Underground's Mordum", 
+            "August Underground's Penance", "Faces of Death", "Faces of Death II", "Faces of Death III", "Traces of Death", 
+            "Traces of Death II", "Traces of Death III", "Orozco the Embalmer", "Shocking Asia", "Africa Addio", "Mondo Cane", 
+            "Slaughtered Vomit Dolls", "ReGOREgitated Sacrifice", "Slow Torture Puke Chamber", "Black Metal Veins", 
+            "The Bunny Game", "Snuff 102", "Men Behind the Sun", "Men Behind the Sun 2", "Men Behind the Sun 3", 
+            "Philosophy of a Knife", "American Guinea Pig: Bouquet of Guts and Gore", "American Guinea Pig: Bloodshock", 
+            "American Guinea Pig: The Song of Solomon", "American Guinea Pig: Sacrifice", "Guinea Pig: Devil's Experiment", 
+            "Guinea Pig: Flower of Flesh and Blood", "Guinea Pig: He Never Dies", "Guinea Pig: Mermaid in a Manhole", 
+            "Guinea Pig: Android of Notre Dame", "Guinea Pig: Devil Woman Doctor", "Tumbling Doll of Flesh", "Naked Blood", 
+            "Splatter: Naked Blood", "Evil Dead Trap", "Evil Dead Trap 2", "Ichi the Killer", "Audition", "Visitor Q", "Imprint", 
+            "Tokyo Gore Police", "Meatball Machine", "The Machine Girl", "Dead Sushi", "Mutant Girls Squad", "Adam Chaplin", 
+            "Taeter City", "Hotel Inferno", "Atroz", "Thanatomorphose", "Contracted", "Contracted: Phase II", "The Poughkeepsie Tapes", 
+            "Megan Is Missing", "The Girl Next Door", "Snowtown", "The Golden Glove", "Angst", "Henry: Portrait of a Serial Killer", 
+            "Maniac", "The House That Jack Built", "Antichrist", "Irréversible", "Baise-moi", "Trouble Every Day", "Sombre", 
+            "Calvaire", "Vinyan", "Sheitan", "Mutants", "Macabre", "The Devil's Rejects", "House of 1000 Corpses", "31", 
+            "100 Tears", "Headless", "Gutterballs", "Hanger", "Porkchop", "The Gateway Meat", "Hate Crime", "Torched", 
+            "Carcinoma", "Voyage to Agatis", "Melancholie der Engel", "Cannibal", "Debris Documentar", "Scrapbook", 
+            "The Great American Snuff Film", "Fetus", "Where the Dead Go to Die", "When Black Birds Fly", "Subconscious Cruelty", 
+            "Aftermath", "Genesis", "The Strange Thing About the Johnsons", "Murder Set Pieces", "Chaos", "The Last House on the Left", 
+            "The Texas Chain Saw Massacre", "The Texas Chainsaw Massacre 2", "I Spit on Your Grave", "I Spit on Your Grave 2", 
+            "I Spit on Your Grave III", "Thriller: A Cruel Picture", "Ilsa: She Wolf of the SS", "Ilsa: Harem Keeper of the Oil Sheiks", 
+            "Blood Feast", "Two Thousand Maniacs!", "Color Me Blood Red", "The Wizard of Gore", "The Gore Gore Girls", "Bloodsucking Freaks", 
+            "Pieces", "The New York Ripper", "Anthropophagous", "Zombie Holocaust", "Make Them Die Slowly", "Cut and Run", 
+            "Night of the Zombies", "Burial Ground", "Absurd", "Beyond the Darkness", "Giallo in Venice", "The Beyond", 
+            "City of the Living Dead", "The House by the Cemetery", "Tenebrae", "Zombie Flesh Eaters", "Demons", "Demons 2", 
+            "Opera", "Deep Red", "Inferno", "The Bird with the Crystal Plumage", "A Blade in the Dark", "Torso", "StageFright", 
+            "The Wax Mask", "The Stendhal Syndrome", "Sleepless", "Trauma", "The Card Player", "Blood and Black Lace", 
+            "Hatchet", "Hatchet II", "Hatchet III", "Victor Crowley", "Laid to Rest", "Chromeskull: Laid to Rest 2", "The Orphan Killer", 
+            "Found", "Mask Maker", "The Town That Dreaded Sundown", "Slumber Party Massacre", "The Mutilator", "The Driller Killer", 
+            "Don't Go in the Woods", "The Burning", "My Bloody Valentine", "Maniac Cop", "Intruder", "The Prowler", "Blood Rage", 
+            "The Zero Boys", "Slaughter High", "Happy Birthday to Me", "Edge of the Axe", "Sleepaway Camp", "Sleepaway Camp II", 
+            "Sleepaway Camp III", "The Hills Have Eyes", "In My Skin", "Demonlover", "Excision", "Bite", "The Ruins", "Starry Eyes", 
+            "Cabin Fever", "The Descent", "Hostel", "Hostel: Part II"
+        ];
+
+        const JAPANESE_HORROR_TITLES = [
+            "Ju-on: The Grudge", "Ringu", "Dark Water", "Pulse", "Cure", "Noroi: The Curse", "Audition", 
+            "One Missed Call", "Ju-on: The Grudge 2", "Ringu 2", "Ringu 0: Birthday", "Sadako vs. Kayako",
+            "Ju-on: The Curse", "Ju-on: White Ghost", "Ju-on: Black Ghost", "Retribution", "Creepy", 
+            "Charisma", "Seance", "Doppelganger", "Occult", "A Record of Sweet Murder", "Cult", "Shirome",
+            "Ichi the Killer", "Gozu", "Visitor Q", "As the Gods Will", "Over Your Dead Body", "Lesson of the Evil",
+            "Suicide Club", "Noriko's Dinner Table", "Strange Circus", "Cold Fish", "Guilty of Romance", "Tag", 
+            "Exte: Hair Extensions", "Infection", "Premonition", "Reincarnation", "Howling Village", 
+            "Suicide Forest Village", "Ox-Head Village", "Marebito", "Uzumaki", "Tomie", "Tomie: Replay", 
+            "Tomie: Re-birth", "Tomie: Forbidden Fruit", "Battle Royale", "Confessions", "Liverleaf", 
+            "The Forest of Love", "Tokyo Gore Police", "Meatball Machine", "The Machine Girl", 
+            "Vampire Girl vs. Frankenstein Girl", "Mutant Girls Squad", "RoboGeisha", "Helldriver", "Dead Sushi", 
+            "Gothic & Lolita Psycho", "Grotesque", "Evil Dead Trap", "Evil Dead Trap 2", "Entrails of a Virgin", 
+            "Entrails of a Beautiful Woman", "Naked Blood", "Tetsuo: The Iron Man", "Tetsuo II: Body Hammer", 
+            "Tetsuo: The Bullet Man", "Hiruko the Goblin", "Kotoko", "Gemini", "Nightmare Detective", 
+            "Nightmare Detective 2", "Vital", "Wild Zero", "Versus", "Junk", "Bio Zombie", "Stacy", 
+            "Hellevator", "The Complex", "Kuime", "It Comes", "Sweet Home", "Matango", "Goke, Body Snatcher from Hell", 
+            "The Ghost of Yotsuya", "Jigoku", "A Page of Madness", "The Face of Another", "Woman in the Dunes", 
+            "Vampire Doll", "Lake of Dracula", "Evil of Dracula", "Kuroneko", "Onibaba", "Kwaidan", 
+            "Hausu", "Blind Beast", "Horrors of Malformed Men", "School of the Holy Beast", "Flower and Snake", 
+            "Flower and Snake 2", "Female Prisoner #701: Scorpion", "Female Convict Scorpion: Jailhouse 41", 
+            "Female Convict Scorpion: Beast Cell", "Lady Snowblood", "Lady Snowblood: Love Song of Vengeance", 
+            "Sex & Fury", "Hanzo the Razor", "Bohachi Bushido", "Inferno of Torture", "Orgies of Edo", 
+            "The Discarnates", "Living Skeleton", "Snake Girl and the Silver-Haired Demon", "St. John's Wort", 
+            "Another Heaven", "Isola: Multiple Personality Girl", "Pyrokinesis", "Parasite Eve", "The Inerasable", 
+            "Siren", "Kakashi", "Shikoku", "Eko Eko Azarak: Wizard of Darkness", "Eko Eko Azarak II", 
+            "Eko Eko Azarak III", "Eko Eko Azarak IV", "Death Tube", "The Booth", "The Slit-Mouthed Woman", 
+            "Carved: The Slit-Mouthed Woman", "Teketeke", "TekeTeke 2", "Hanako of the Toilet", "Kokkuri-san", 
+            "Gakko no Kaidan", "Haunted School", "Shibuya Kaidan", "Ju-Rei: The Uncanny", "Apartment 1303", 
+            "Ju-on: The Final Curse", "Sadako", "Sadako DX", "The Room", "Corpse Party", "Ao Oni", 
+            "Zombie Ass", "Rape Zombie: Lust of the Dead", "Bloody Muscle Body Builder in Hell", "Deadball", 
+            "Museum", "The Snow White Murder Case", "Monsterz", "Chronicle of My Mother", "Killers", 
+            "Real Onigokko", "Kisaragi Station", "Homunculus", "Haze", "Bullet Ballet", "Tokyo Fist", "Tetsuo"
+        ];
+
+        const HARD_WIRED_IMDB_IDS = [
+            "tt0071095","tt7544954","tt3743358","tt13365348","tt0160016","tt16997558",
+            "tt4798836","tt0120603","tt12298506","tt15475330","tt0193013","tt26453917",
+            "tt5184138","tt8520140","tt2274248","tt8110652","tt0103919","tt0165662",
+            "tt9347730","tt0119988","tt0285487","tt0090888","tt3104930","tt23648404",
+            "tt9331416","tt7631568","tt6803212","tt0074430","tt0119080","tt28088571",
+            "tt9088954","tt11057594","tt2583620","tt9813792","tt0068619","tt7475988",
+            "tt0338094","tt1695843","tt8508734","tt11668454","tt0372975","tt0449599",
+            "tt9567548","tt0130018","tt20859392","tt22496012","tt9742392","tt6131712",
+            "tt0209095","tt6905686","tt9472334","tt0365519","tt32916093","tt1289419",
+            "tt0475989","tt10931784","tt12308018","tt9289116","tt2011159","tt10954984",
+            "tt0361417","tt2579836","tt5505722","tt0265537","tt1395783","tt0238546",
+            "tt0183714","tt8656686","tt0427848","tt15726046","tt0397101","tt4411234",
+            "tt0499573","tt0033075","tt14961048","tt10638522","tt0114609","tt0277370",
+            "tt19896150","tt11703244","tt10772662","tt0112625","tt8559532","tt1449394",
+            "tt14074602","tt12921446","tt6133466","tt21905744","tt1457765","tt0264696",
+            "tt6722030","tt2221362","tt7928156","tt26569323","tt21365986","tt3862750",
+            "tt15507512","tt13358022","tt1678042","tt7320482","tt31022076","tt16437278",
+            "tt9064858","tt9873892","tt4991112","tt7671414","tt18394428","tt0100791",
+            "tt3859272","tt12545262","tt9177040","tt0285869","tt14191916","tt28239363",
+            "tt14349100","tt0188694","tt0415348","tt0428251","tt14921402","tt8417466",
+            "tt29275554","tt4287470","tt1389139","tt31314296","tt21821538","tt1342115",
+            "tt1112697","tt0099395","tt0074703","tt0114608","tt0196181","tt0430066",
+            "tt0089593","tt0119099","tt0078078","tt33049264","tt15146646","tt37543196",
+            "tt32560625","tt15532464","tt0220506","tt0070893","tt6535880","tt0133751",
+            "tt0462160","tt6133466","tt37521114","tt35684711","tt31777631","tt12776978",
+            "tt38090790","tt4065260","tt39094274"
+        ];
+
+        const UNIQUE_BLACK_IDS = [...new Set([
+            147, 20810, 2963, 16582, 134, 17259, 538, 78029, 521, 17697,
+            76748, 97169, 25619, 2372, 64235, 34503, 15313, 856, 16214,
+            68812, 586, 2178, 3497, 6807, 52039, 17522, 537, 13021, 1245,
+            8691, 1813, 714, 1264, 5049, 15860, 335, 5463, 36196, 65731,
+            15001, 10205, 9281, 56159, 1103, 77801, 16484, 4247, 12138,
+            12000, 9775, 1566, 438, 10750, 5921, 11109, 3547, 15090, 14344,
+            5443, 16307, 822, 6949, 10860, 291, 17838, 141251
+        ])];
+
+        const YOUTH_IMDB_IDS = [
+            "tt0175142","tt0257106","tt0306047","tt0362120","tt0795461","tt32093575",
+            "tt0094862","tt0099253","tt0101535","tt0144120","tt0387575","tt2230358",
+            "tt3280262","tt8663516","tt0467421","tt1017465","tt0173886","tt0274761",
+            "tt0414078","tt0816520","tt0117571","tt0120082","tt0134084","tt1262416",
+            "tt11245972","tt17663992","tt27047903","tt0075005","tt0077394","tt0102585",
+            "tt0466909","tt0195714","tt0309593","tt0452608","tt1144884","tt1570928",
+            "tt9619824","tt0100944","tt0805647","tt0064098","tt0068091","tt0081896",
+            "tt0078729","tt0088531","tt0094528","tt0321289","tt1691230","tt0283011",
+            "tt0331632","tt0220880","tt0094721","tt2049403","tt0096543","tt0057729"
+        ];
 
         async function fetchWithRetry(url, retries = 3) {
             for (let i = 0; i < retries; i++) {
                 try {
                     const res = await fetch(url);
                     if (res.ok) return await res.json();
-                    if (res.status === 429) { await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1))); continue; }
+                    if (res.status === 429) {
+                        await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1))); 
+                        continue;
+                    }
                     break;
-                } catch(e) { if (i === retries - 1) return null; await new Promise(resolve => setTimeout(resolve, 500)); }
+                } catch(e) {
+                    if (i === retries - 1) return null;
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
             }
             return null;
         }
 
+        const imdbCache = new Map();
         async function fetchTMDBFromIMDb(imdbId) {
+            if (imdbCache.has(imdbId)) return imdbCache.get(imdbId);
             try {
                 const data = await fetchWithRetry(`https://api.themoviedb.org/3/find/${imdbId}?api_key=${API_KEY}&external_source=imdb_id`);
-                if (data?.movie_results?.length > 0) return { id: data.movie_results[0].id, type: 'movie' };
-                else if (data?.tv_results?.length > 0) return { id: data.tv_results[0].id, type: 'tv' };
-            } catch (e) {} return null;
+                if (data && data.movie_results && data.movie_results.length > 0) {
+                    const result = { id: data.movie_results[0].id, type: 'movie' };
+                    imdbCache.set(imdbId, result);
+                    return result;
+                } else if (data && data.tv_results && data.tv_results.length > 0) {
+                    const result = { id: data.tv_results[0].id, type: 'tv' };
+                    imdbCache.set(imdbId, result);
+                    return result;
+                }
+            } catch (e) {}
+            return null;
         }
 
         async function resolveItemsFromImdbList(imdbIds, idSet) {
             const promises = imdbIds.map(async (imdbId) => {
                 const tmdb = await fetchTMDBFromIMDb(imdbId);
                 if (tmdb && !idSet.has(tmdb.id)) {
-                    const data = await fetchWithRetry(`https://api.themoviedb.org/3/${tmdb.type}/${tmdb.id}?api_key=${API_KEY}`);
-                    if (data?.poster_path) { idSet.add(tmdb.id); return { ...data, media_type: tmdb.type, id: tmdb.id }; }
-                } return null;
+                    try {
+                        const data = await fetchWithRetry(`https://api.themoviedb.org/3/${tmdb.type}/${tmdb.id}?api_key=${API_KEY}`);
+                        if (data && data.poster_path) {
+                            idSet.add(tmdb.id);
+                            return { ...data, media_type: tmdb.type, id: tmdb.id };
+                        }
+                    } catch (e) {}
+                }
+                return null;
             });
-            return (await Promise.all(promises)).filter(Boolean);
+            const items = await Promise.all(promises);
+            return items.filter(Boolean);
         }
 
         async function fetchContent(append = false) {
             if (isLoading) return;
             isLoading = true;
+            const grid = document.getElementById('movie-grid');
+            
             if (!append) { 
-                currentPage = 1; document.getElementById('movie-grid').innerHTML = ''; 
-                loadedBlackHorrorIds.clear(); loadedUnratedIds.clear(); loadedYouthHorrorIds.clear(); 
-                loadedTeenHorrorIds.clear(); loadedBlackMagicIds.clear(); loadedAfricanIds.clear(); loadedJapaneseIds.clear();
+                currentPage = 1; 
+                grid.innerHTML = ''; 
+                loadedBlackHorrorIds.clear();
+                blackHorrorPage = 1;
+                loadedUnratedIds.clear();
+                unratedPage = 1;
+                loadedYouthHorrorIds.clear();
+                youthHorrorPage = 1;
+                loadedTeenHorrorIds.clear();
+                teenHorrorPage = 1;
+                loadedBlackMagicIds.clear();
+                blackMagicPage = 1;
+                loadedAfricanIds.clear();
+                africanPage = 1;
+                loadedJapaneseIds.clear();
+                japanesePage = 1;
             }
 
             let results = [];
-            if (activeType === 'youth') {
-                if (!append) results = await resolveItemsFromImdbList(YOUTH_IMDB_IDS, loadedYouthHorrorIds);
-                else {
-                    const data = await fetchWithRetry(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&certification_country=US&certification.lte=PG-13&page=${youthHorrorPage}`);
-                    results = data?.results?.filter(i => i.poster_path && !loadedYouthHorrorIds.has(i.id)) || [];
-                    results.forEach(i => loadedYouthHorrorIds.add(i.id)); youthHorrorPage++;
+            
+            if (activeType === 'list') {
+                const url = `https://api.themoviedb.org/3/list/${activeID}?api_key=${API_KEY}&page=${currentPage}`;
+                const data = await fetchWithRetry(url);
+                const listItems = data?.items || data?.results || [];
+                renderGrid(listItems);
+                currentPage++;
+                isLoading = false;
+                return;
+            } else if (activeType === 'trending_theaters') {
+                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&primary_release_date.gte=2024-01-01&with_release_type=2|3&sort_by=popularity.desc&page=${currentPage}`;
+                const data = await fetchWithRetry(url);
+                results = data?.results || [];
+            } else if (activeType === 'cult_classic') {
+                if (!append) {
+                    await fetchCultClassics();
+                }
+                isLoading = false; 
+                return;
+            } else if (activeType === 'slasher') {
+                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=12339&sort_by=popularity.desc&page=${currentPage}`;
+                const data = await fetchWithRetry(url);
+                results = data?.results || [];
+            } else if (activeType === 'psychological') {
+                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27,53&sort_by=popularity.desc&page=${currentPage}`;
+                const data = await fetchWithRetry(url);
+                results = data?.results || [];
+            } else if (activeType === 'black_magic') {
+                if (!append) {
+                    results = await fetchBlackMagicInitial();
+                } else {
+                    results = await fetchBlackMagicMore(blackMagicPage);
+                }
+                if (results && results.length > 0) blackMagicPage++;
+            } else if (activeType === 'japanese') {
+                const itemsPerPage = 16;
+                const start = (japanesePage - 1) * itemsPerPage;
+                const end = start + itemsPerPage;
+                const pageTitles = JAPANESE_HORROR_TITLES.slice(start, end);
+                
+                if (pageTitles.length > 0) {
+                    const searchPromises = pageTitles.map(title => 
+                        fetchWithRetry(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
+                        .then(data => {
+                            if (data && data.results) {
+                                return data.results.find(m => m.original_language === 'ja' && m.poster_path && m.genre_ids && !m.genre_ids.includes(16) && !m.genre_ids.includes(10749));
+                            }
+                            return null;
+                        })
+                    );
+                    const fetchedResults = await Promise.all(searchPromises);
+                    let unique = new Map();
+                    fetchedResults.forEach(m => {
+                        if (m && !loadedJapaneseIds.has(m.id)) {
+                            unique.set(m.id, { ...m, media_type: 'movie' });
+                            loadedJapaneseIds.add(m.id);
+                        }
+                    });
+                    results = Array.from(unique.values());
+                    japanesePage++;
+                }
+            } else if (activeType === 'african') {
+                const africanExcludedGenres = "16,35,10749"; 
+                const africanKeywords = "3254|3365|11865|10466|15001";
+                const urls = [
+                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_origin_country=NG|GH&with_genres=27|53&without_genres=${africanExcludedGenres}&sort_by=popularity.desc&page=${africanPage}`,
+                    `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_origin_country=NG|GH&with_genres=10765&without_genres=${africanExcludedGenres}&sort_by=popularity.desc&page=${africanPage}`,
+                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_origin_country=NG|GH&with_keywords=${africanKeywords}&without_genres=${africanExcludedGenres}&sort_by=popularity.desc&page=${africanPage}`
+                ];
+                const responses = await Promise.all(urls.map(url => fetchWithRetry(url)));
+                let items = [];
+                responses[0]?.results && responses[0].results.forEach(m => { if (m.poster_path && !loadedAfricanIds.has(m.id)) items.push({...m, media_type:'movie'}); });
+                responses[1]?.results && responses[1].results.forEach(t => { if (t.poster_path && !loadedAfricanIds.has(t.id)) items.push({...t, media_type:'tv'}); });
+                responses[2]?.results && responses[2].results.forEach(m => { if (m.poster_path && !loadedAfricanIds.has(m.id)) items.push({...m, media_type:'movie'}); });
+                
+                let unique = new Map();
+                items.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); loadedAfricanIds.add(item.id); } });
+                results = Array.from(unique.values());
+                
+                if (results.length > 0 || (responses[0]?.total_pages > africanPage || responses[1]?.total_pages > africanPage || responses[2]?.total_pages > africanPage)) {
+                    africanPage++;
+                }
+            } else if (activeType === 'black_horror') {
+                if (!append) {
+                    const hardwiredItems = await resolveItemsFromImdbList(HARD_WIRED_IMDB_IDS, loadedBlackHorrorIds);
+                    results = hardwiredItems;
+                } else {
+                    const actorIdsParam = UNIQUE_BLACK_IDS.join('|');
+                    const urls = [
+                        `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_people=${actorIdsParam}&with_keywords=233306|209825&sort_by=popularity.desc&page=${blackHorrorPage}`,
+                        `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&with_people=${actorIdsParam}&with_keywords=233306|209825&sort_by=popularity.desc&page=${blackHorrorPage}`,
+                        `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=233306&sort_by=popularity.desc&page=${blackHorrorPage}`,
+                        `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=209825&sort_by=popularity.desc&page=${blackHorrorPage}`,
+                    ];
+                    const responses = await Promise.all(urls.map(url => fetchWithRetry(url)));
+                    let items = [];
+                    responses[0]?.results && responses[0].results.forEach(m => { if (m.poster_path && !loadedBlackHorrorIds.has(m.id)) items.push({...m, media_type:'movie'}); });
+                    responses[1]?.results && responses[1].results.forEach(t => { if (t.poster_path && !loadedBlackHorrorIds.has(t.id)) items.push({...t, media_type:'tv'}); });
+                    responses[2]?.results && responses[2].results.forEach(m => { if (m.poster_path && !loadedBlackHorrorIds.has(m.id)) items.push({...m, media_type:'movie'}); });
+                    responses[3]?.results && responses[3].results.forEach(m => { if (m.poster_path && !loadedBlackHorrorIds.has(m.id)) items.push({...m, media_type:'movie'}); });
+                    let unique = new Map();
+                    items.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); loadedBlackHorrorIds.add(item.id); } });
+                    results = Array.from(unique.values());
+                    blackHorrorPage++;
+                }
+            } else if (activeType === 'youth') {
+                if (!append) {
+                    const hardwiredItems = await resolveItemsFromImdbList(YOUTH_IMDB_IDS, loadedYouthHorrorIds);
+                    let unique = new Map();
+                    hardwiredItems.forEach(item => unique.set(item.id, item));
+                    results = Array.from(unique.values());
+                    currentPage = 2;
+                } else {
+                    const isMoviePage = youthHorrorPage % 2 === 0;
+                    const pageTarget = Math.floor(youthHorrorPage / 2) + 1;
+                    let targetUrl = isMoviePage ? 
+                        `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&certification_country=US&certification.lte=PG-13&page=${pageTarget}` :
+                        `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&certification_country=US&certification.lte=TV-14&page=${pageTarget}`;
+                    const data = await fetchWithRetry(targetUrl);
+                    let fetched = (data?.results || []).filter(item => 
+                        item.poster_path && !loadedYouthHorrorIds.has(item.id)
+                    ).map(item => ({ ...item, media_type: item.media_type || (item.first_air_date ? 'tv' : 'movie') }));
+                    let unique = new Map();
+                    fetched.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); loadedYouthHorrorIds.add(item.id); } });
+                    results = Array.from(unique.values());
+                    youthHorrorPage++;
                 }
             } else if (activeType === 'teen') {
-                const data = await fetchWithRetry(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=12339|9826&certification_country=US&certification.gte=PG-13&page=${teenHorrorPage}`);
-                results = data?.results?.filter(i => i.poster_path && !loadedTeenHorrorIds.has(i.id)) || [];
-                results.forEach(i => loadedTeenHorrorIds.add(i.id)); teenHorrorPage++;
+                if (!append) {
+                    const data = await fetchWithRetry(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=12339|9826&certification_country=US&certification.gte=PG-13&page=1`);
+                    results = data?.results || [];
+                    results.forEach(i => loadedTeenHorrorIds.add(i.id));
+                    teenHorrorPage = 2;
+                } else {
+                    const data = await fetchWithRetry(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=12339|9826&certification_country=US&certification.gte=PG-13&page=${teenHorrorPage}`);
+                    results = (data?.results || []).filter(i => i.poster_path && !loadedTeenHorrorIds.has(i.id));
+                    results.forEach(i => loadedTeenHorrorIds.add(i.id));
+                    teenHorrorPage++;
+                }
+            } else if (activeType === 'after_dark') {
+                await fetchAfterDark();
+                isLoading = false; return;
+            } else if (activeType === 'unrated') {
+                const itemsPerPage = 16;
+                const start = (unratedPage - 1) * itemsPerPage;
+                const end = start + itemsPerPage;
+                const pageTitles = EXTREME_UNRATED_TITLES.slice(start, end);
+                
+                if (pageTitles.length > 0) {
+                    const searchPromises = pageTitles.map(title => 
+                        fetchWithRetry(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
+                        .then(data => {
+                            if (data && data.results) {
+                                return data.results.find(m => m.poster_path && m.genre_ids && !m.genre_ids.includes(16) && !m.genre_ids.includes(35) && !m.genre_ids.includes(10749));
+                            }
+                            return null;
+                        })
+                    );
+                    const fetchedResults = await Promise.all(searchPromises);
+                    let unique = new Map();
+                    fetchedResults.forEach(m => {
+                        if (m && !loadedUnratedIds.has(m.id)) {
+                            unique.set(m.id, { ...m, media_type: 'movie' });
+                            loadedUnratedIds.add(m.id);
+                        }
+                    });
+                    results = Array.from(unique.values());
+                    unratedPage++;
+                }
             } else {
-                const url = activeType === 'list' ? `https://api.themoviedb.org/3/list/${activeID}?api_key=${API_KEY}&page=${currentPage}` : `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&page=${currentPage}`;
+                let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${HORROR_ID}&page=${currentPage}`;
+                if (activeType === 'search') url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${activeID}&page=${currentPage}`;
                 const data = await fetchWithRetry(url);
-                results = data?.results || data?.items || [];
-                currentPage++;
+                results = data?.results || [];
             }
+
             renderGrid(results);
+            if (!['black_magic', 'african', 'japanese', 'unrated', 'youth', 'teen'].includes(activeType)) currentPage++;
             isLoading = false;
+        }
+
+        async function fetchBlackMagicInitial() {
+            const queries = [
+                "The Haunting of", "The Possession of", "The Exorcism of",
+                "David Blaine", "Criss Angel", "Ouija", "The Conjuring"
+            ];
+            const forbiddenGenres = [16, 35, 18, 10749, 9648, 53, 14];
+            let promises = queries.map(q => 
+                fetchWithRetry(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(q)}`)
+            );
+            const responses = await Promise.all(promises);
+            let items = [];
+            
+            responses.forEach(data => {
+                if (data && data.results) {
+                    data.results.forEach(item => {
+                        if (item.genre_ids && item.genre_ids.some(g => forbiddenGenres.includes(g))) return;
+                        if (item.media_type === 'person') return;
+                        if (item.poster_path) items.push({...item, media_type: item.media_type || (item.first_air_date ? 'tv' : 'movie')});
+                    });
+                }
+            });
+            
+            let unique = new Map();
+            items.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); loadedBlackMagicIds.add(item.id); } });
+            return Array.from(unique.values());
+        }
+
+        async function fetchBlackMagicMore(page) {
+            const excludedGenres = "16,35,18,10749,9648,53,14";
+            const magicKeywords = "11865|3254|3365|6152|10466"; 
+            
+            const urls = [
+                `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&without_genres=${excludedGenres}&with_keywords=${magicKeywords}&sort_by=popularity.desc&page=${page}`,
+                `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&without_genres=${excludedGenres}&with_keywords=${magicKeywords}&sort_by=popularity.desc&page=${page}`
+            ];
+            
+            const responses = await Promise.all(urls.map(url => fetchWithRetry(url)));
+            let items = [];
+            responses[0]?.results && responses[0].results.forEach(m => { if (m.poster_path && !loadedBlackMagicIds.has(m.id)) items.push({...m, media_type:'movie'}); });
+            responses[1]?.results && responses[1].results.forEach(t => { if (t.poster_path && !loadedBlackMagicIds.has(t.id)) items.push({...t, media_type:'tv'}); });
+            
+            let unique = new Map();
+            items.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); loadedBlackMagicIds.add(item.id); } });
+            return Array.from(unique.values());
+        }
+
+        async function fetchAfterDark() {
+            const grid = document.getElementById('movie-grid');
+            grid.innerHTML = '';
+            const darkTitles = ["House on Haunted Hill", "Thir13en Ghosts", "Ghost Ship", "Gothika", "House of Wax", "The Reaping", "The Invasion", "The Haunting", "The Unborn", "Orphan", "Whiteout", "The Hills Have Eyes"];
+            const searchPromises = darkTitles.map(title => 
+                fetchWithRetry(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
+                .then(data => data && data.results ? data.results[0] : null)
+            );
+            const results = await Promise.all(searchPromises);
+            renderGrid(results.filter(m => m && m.poster_path));
+        }
+
+        async function fetchCultClassics() {
+            const grid = document.getElementById('movie-grid');
+            grid.innerHTML = '';
+            const classicTitles = [
+                "Halloween", "A Nightmare on Elm Street", "Friday the 13th", "Candyman", "Carrie", 
+                "Final Destination", "Get Out", "Misery", "Scream", "The Texas Chain Saw Massacre", 
+                "Child's Play", "The Exorcist", "The Shining", "The Thing", "Poltergeist", 
+                "Hellraiser", "The Evil Dead", "Rosemary's Baby", "The Amityville Horror", 
+                "The Omen", "Night of the Living Dead", "Saw", "The Ring", "The Blair Witch Project",
+                "Psycho", "The Silence of the Lambs", "An American Werewolf in London", "Sleepaway Camp",
+                "My Bloody Valentine", "The Descent", "28 Days Later", "The Cabin in the Woods",
+                "Dawn of the Dead", "Day of the Dead", "Evil Dead II", "Army of Darkness",
+                "Pet Sematary", "Christine", "The Fly", "Phantasm", "The Return of the Living Dead", 
+                "Re-Animator", "Suspiria", "The Wicker Man"
+            ];
+            
+            const searchPromises = classicTitles.map(title => 
+                fetchWithRetry(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
+                .then(data => data && data.results ? data.results[0] : null)
+            );
+            
+            const results = await Promise.all(searchPromises);
+            
+            let unique = new Map();
+            results.forEach(m => {
+                if (m && m.poster_path && !unique.has(m.id)) {
+                    unique.set(m.id, m);
+                }
+            });
+            
+            renderGrid(Array.from(unique.values()));
         }
 
         function renderGrid(results) {
             const grid = document.getElementById('movie-grid');
+            if (!results) return;
             results.forEach(m => {
                 if (!m.poster_path) return;
                 const card = document.createElement('div');
                 card.className = "movie-card focusable fade-in"; card.tabIndex = 0;
-                card.onclick = () => openDetails(m.id, m.media_type || 'movie');
+                const type = m.media_type || (m.first_air_date ? 'tv' : 'movie');
+                card.onclick = () => openDetails(m.id, type);
                 card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${m.poster_path}" class="w-full h-full object-cover"><div class="movie-info horror-font"><h3 class="text-red-600 font-bold truncate">${m.title || m.name}</h3><p>${(m.release_date || m.first_air_date || '').split('-')[0]}</p></div>`;
                 grid.appendChild(card);
             });
         }
 
-        function openDetails(id, type) {
-            window.location.hash = `details/${type}/${id}`;
-            fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}`).then(r => r.json()).then(data => {
-                currentMedia = { id, type, title: data.name || data.title };
-                document.getElementById('show-title').innerText = currentMedia.title;
-                document.getElementById('show-desc').innerText = data.overview;
-                document.getElementById('details-poster').src = `https://image.tmdb.org/t/p/w500${data.poster_path}`;
-                document.getElementById('selector-overlay').classList.remove('hidden');
-                document.getElementById('main-app-wrapper').classList.add('hidden');
+        async function openDetails(id, type) {
+            savedScrollPosition = window.scrollY || document.documentElement.scrollTop; 
+            lastFocusedElement = document.activeElement; 
+
+            const data = await fetchWithRetry(`https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}`);
+            if (!data) return;
+            
+            const isAnime = data.original_language === 'ja' && data.genres && data.genres.some(g => g.name === 'Animation');
+
+            currentMedia = { id, type, s: 1, e: 1, title: data.name || data.title, poster: data.poster_path, isAnime };
+            document.getElementById('show-title').innerText = currentMedia.title;
+            document.getElementById('show-desc').innerText = data.overview || "";
+            document.getElementById('show-year').innerText = (data.release_date || data.first_air_date || '').split('-')[0];
+            document.getElementById('show-rating').innerText = data.vote_average ? data.vote_average.toFixed(1) : '★';
+            document.getElementById('details-poster').src = `https://image.tmdb.org/t/p/w500${data.poster_path}`;
+            document.getElementById('details-backdrop').style.backgroundImage = `url(https://image.tmdb.org/t/p/original${data.backdrop_path})`;
+            document.getElementById('media-type-tag').innerText = type.toUpperCase();
+            
+            const tvArea = document.getElementById('tv-controls');
+            if (type === 'tv') { tvArea.classList.remove('hidden'); renderSeasons(data); } else { tvArea.classList.add('hidden'); }
+            
+            document.getElementById('main-app-wrapper').classList.add('hidden');
+            document.getElementById('selector-overlay').classList.remove('hidden');
+            window.scrollTo(0, 0);
+            setTimeout(() => document.getElementById('main-play-trigger').focus(), 300);
+        }
+
+        function renderSeasons(data) {
+            const container = document.getElementById('season-buttons'); container.innerHTML = '';
+            if(!data.seasons) return;
+            data.seasons.forEach(s => {
+                if (s.season_number === 0) return;
+                const btn = document.createElement('button');
+                btn.className = "focusable px-6 py-2 bg-zinc-900 rounded horror-font text-lg border border-zinc-800 whitespace-nowrap";
+                btn.innerText = `Season ${s.season_number}`;
+                btn.onclick = () => loadEpisodes(data.id, s.season_number);
+                container.appendChild(btn);
+            });
+            if(container.firstChild) container.firstChild.click();
+        }
+
+        async function loadEpisodes(showId, seasonNum) {
+            const data = await fetchWithRetry(`https://api.themoviedb.org/3/tv/${showId}/season/${seasonNum}?api_key=${API_KEY}`);
+            if(!data) return;
+            const grid = document.getElementById('episode-grid'); grid.innerHTML = '';
+            data.episodes.forEach(e => {
+                const epRow = document.createElement('div');
+                epRow.className = "episode-row focusable"; epRow.tabIndex = 0;
+                epRow.onclick = () => { currentMedia.s = seasonNum; currentMedia.e = e.episode_number; startLuxeStream(); };
+                const thumb = e.still_path ? `https://image.tmdb.org/t/p/w300${e.still_path}` : '';
+                epRow.innerHTML = `<div class="ep-thumbnail" style="background-image:url(${thumb})"><div class="ep-play-icon">▶</div></div><div class="flex-1"><div class="text-white font-bold">E${e.episode_number} ${e.name}</div><div class="text-zinc-500 text-xs line-clamp-1">${e.overview}</div></div>`;
+                grid.appendChild(epRow);
             });
         }
 
-        function startLuxeStream() {
-            const { type, id } = currentMedia;
-            document.getElementById('player-overlay').style.display = 'block';
-            document.getElementById('luxe-player').src = `https://vidsrc.pm/embed/${type}/${id}`;
+        async function startLuxeStream() {
+            const { type, id, s, e, isAnime, title } = currentMedia;
+            const playerOverlay = document.getElementById('player-overlay');
+            const iframe = document.getElementById('luxe-player');
+            playerOverlay.style.display = 'block';
+            
+            const vidsrcUrl = (type === 'movie' ? `https://vidsrc.pm/embed/movie/${id}` : `https://vidsrc.pm/embed/tv/${id}/${s}/${e}`);
+            const consumetUrl = `https://consumet-api-fawn.vercel.app/anime/gogoanime/watch/${encodeURIComponent(title.toLowerCase().replace(/ /g, '-'))}-episode-${e}`;
+
+            iframe.src = "about:blank"; 
+            if (isAnime) {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 1200); 
+                    const response = await fetch(consumetUrl, { method: 'HEAD', signal: controller.signal });
+                    clearTimeout(timeoutId);
+                    iframe.src = response.ok ? consumetUrl : vidsrcUrl;
+                } catch (err) { iframe.src = vidsrcUrl; }
+            } else { iframe.src = vidsrcUrl; }
+
+            setTimeout(() => { if(document.getElementById('close-player-btn')) document.getElementById('close-player-btn').focus(); }, 400);
         }
 
         function toggleMenu() { document.getElementById('side-menu').classList.toggle('menu-open'); }
-        function closeSelector() { document.getElementById('selector-overlay').classList.add('hidden'); document.getElementById('main-app-wrapper').classList.remove('hidden'); }
-        function closePlayer() { document.getElementById('luxe-player').src = "about:blank"; document.getElementById('player-overlay').style.display = 'none'; }
+        
+        function closeSelector() { 
+            document.getElementById('selector-overlay').classList.add('hidden'); 
+            document.getElementById('main-app-wrapper').classList.remove('hidden'); 
+            window.scrollTo(0, savedScrollPosition); 
+            if (lastFocusedElement) {
+                lastFocusedElement.focus();
+            } else {
+                document.getElementById('btn-trending').focus(); 
+            }
+        }
+        
+        function closePlayer() { 
+            document.getElementById('luxe-player').src = "about:blank"; 
+            document.getElementById('player-overlay').style.display = 'none'; 
+            document.getElementById('main-play-trigger').focus();
+        }
         
         function setFilter(type, id = '') {
             activeType = type; activeID = id;
             document.querySelectorAll('nav button').forEach(b => b.classList.remove('nav-active'));
-            fetchContent(); document.getElementById('side-menu').classList.remove('menu-open');
+            if(event && event.target && event.target.tagName === 'BUTTON') event.target.classList.add('nav-active');
+            fetchContent();
+            document.getElementById('side-menu').classList.remove('menu-open');
+            window.scrollTo(0,0);
+        }
+
+        function triggerSearch() {
+            const input = document.getElementById('search-input');
+            const query = input.value.trim();
+            if(query) {
+                setFilter('search', query);
+                input.blur();
+                setTimeout(() => {
+                    const firstResult = document.querySelector('#movie-grid .focusable');
+                    if(firstResult) firstResult.focus();
+                }, 800);
+            } else {
+                input.blur();
+                setFilter('trending_theaters');
+                document.getElementById('btn-trending').classList.add('nav-active');
+            }
+        }
+
+        function handleSearch(e) { if (e.key === 'Enter') triggerSearch(); }
+
+        document.addEventListener('keydown', function(e) {
+            const current = document.activeElement;
+            const focusables = Array.from(document.querySelectorAll('.focusable')).filter(el => el.offsetParent !== null);
+            
+            if (e.key === 'Backspace' || e.keyCode === 8 || e.keyCode === 10009) {
+                if (current && current.id === 'search-input') return; 
+                e.preventDefault();
+                if (document.getElementById('player-overlay').style.display === 'block') closePlayer();
+                else if (!document.getElementById('selector-overlay').classList.contains('hidden')) closeSelector();
+                else if (document.getElementById('side-menu').classList.contains('menu-open')) toggleMenu();
+                return;
+            }
+
+            if (e.key === 'Enter' || e.keyCode === 13) { 
+                if (current && current.id === 'search-input') { triggerSearch(); return; }
+                if (current && current.classList.contains('focusable')) { current.click(); return; }
+            }
+
+            let dir = '';
+            if (e.key === 'ArrowUp') dir = 'up'; if (e.key === 'ArrowDown') dir = 'down'; if (e.key === 'ArrowLeft') dir = 'left'; if (e.key === 'ArrowRight') dir = 'right';
+            if (dir) {
+                e.preventDefault();
+                const next = findNext(current, focusables, dir);
+                if (next) { next.focus(); next.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+            }
+        });
+
+        function findNext(cur, targets, dir) {
+            if (!cur || cur === document.body) return targets[0];
+            const r1 = cur.getBoundingClientRect(), c1 = { x: r1.left + r1.width/2, y: r1.top + r1.height/2 };
+            let best = null, min = Infinity;
+            targets.forEach(t => {
+                if (t === cur) return;
+                const r2 = t.getBoundingClientRect(), c2 = { x: r2.left + r2.width/2, y: r2.top + r2.height/2 };
+                if (dir === 'up' && c2.y >= c1.y) return; if (dir === 'down' && c2.y <= c1.y) return;
+                if (dir === 'left' && c2.x >= c1.x) return; if (dir === 'right' && c2.x <= c1.x) return;
+                const d = Math.sqrt(Math.pow(c2.x - c1.x, 2) + Math.pow(c2.y - c1.y, 2));
+                if (d < min) { min = d; best = t; }
+            });
+            return best;
         }
 
         window.onload = () => {
             fetchContent();
-            const obs = new IntersectionObserver(e => { if(e[0].isIntersecting) fetchContent(true); });
+            setTimeout(() => { 
+                const loader = document.getElementById('loader');
+                if(loader) { loader.style.opacity = '0'; setTimeout(()=>loader.remove(), 800); }
+            }, 1200);
+            const obs = new IntersectionObserver(e => { if(e[0].isIntersecting && activeType !== 'after_dark') fetchContent(true); });
             obs.observe(document.getElementById('sentinel'));
         };
     </script>
