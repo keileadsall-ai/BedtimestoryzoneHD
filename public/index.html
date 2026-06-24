@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Fear+ | The Final Ritual</title>
+    <title>After Dark | The Final Ritual</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
@@ -49,7 +49,7 @@
         <div class="flex flex-col gap-2 horror-font text-xl">
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('list', '8661620')">STEPHEN KING</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('list', '8663550')">WES CRAVEN</button>
-            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('after_dark')">DARK CASTLE</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('after_dark')">AFTER DARK</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('black_horror')">BLACK HORROR</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('youth')">YOUTH HORROR</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('teen')">TEEN HORROR</button>
@@ -370,7 +370,6 @@
             "Slender Man", "Bye Bye Man", "Boogeyman", "Lights Out", "Oculus", "Apparition", "Mirrors"
         ];
 
-        // --- SUPERVISOR MASTER ARRAY: GHASTLY SERIES (200+ Hand-Curated Western Horror/Supernatural Series) ---
         const GHASTLY_SERIES_TITLES = [
             "American Horror Story", "The Haunting of Hill House", "The Haunting of Bly Manor", "Midnight Mass", "The Fall of the House of Usher",
             "The Walking Dead", "Fear the Walking Dead", "The Walking Dead: Dead City", "The Walking Dead: Daryl Dixon", "The Walking Dead: The Ones Who Live",
@@ -657,7 +656,6 @@
                     teenHorrorPage++;
                 }
             } else if (activeType === 'ghastly_series') {
-                // --- SUPERVISOR MASTER CURATION STRATEGY FOR PARENT TAB ---
                 const itemsPerPage = 16;
                 const start = (ghastlyPage - 1) * itemsPerPage;
                 const end = start + itemsPerPage;
@@ -668,7 +666,6 @@
                         fetchWithRetry(`https://api.themoviedb.org/3/search/tv?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
                         .then(data => {
                             if (data && data.results) {
-                                // Pin down exact western/English match structures, ignoring generic unscripted variables
                                 return data.results.find(t => t.poster_path && t.original_language === 'en');
                             }
                             return null;
@@ -777,13 +774,43 @@
         async function fetchAfterDark() {
             const grid = document.getElementById('movie-grid');
             grid.innerHTML = '';
-            const darkTitles = ["House on Haunted Hill", "Thir13en Ghosts", "Ghost Ship", "Gothika", "House of Wax", "The Reaping", "The Invasion", "The Haunting", "The Unborn", "Orphan", "Whiteout", "The Hills Have Eyes"];
+            
+            const darkTitles = [
+                "The Abandoned", "The Gravedancers", "Hood of Horror", "The Hamiltons", "Penny Dreadful", "Unrest", "Dark Ride", "Snoop Dogg's Hood of Horror",
+                "Borderland", "Crazy Eights", "The Deaths of Ian Stone", "Lake Dead", "Mulberry Street", "Nightmare Man", "Unearthed", "Wicked Little Things",
+                "Dying Breed", "Autopsy", "From Within", "The Broken", "Butterfly Effect 3", "Perkins 14", "Home Movie", "Bad Biology",
+                "The Burrowers", "Offspring", "Dread", "The Children", "Zombies of Mass Destruction", "Hidden", "Kill Theory", "Grace",
+                "The Graves", "Dread", "Scream of the Banshee", "The Task", "Chop", "Fertile Ground", "Seconds Apart", "Acolytes",
+                "The Devil's Chair", "Room 205", "The Butcher", "Reincarnation", "13 Eerie", "American Mary", "The Barrens", "The Tall Man",
+                "Sinister", "No One Lives", "The Bay", "V/H/S", "The Collection", "Stitches", "Aftershock", "Big Ass Spider!",
+                "Beneath", "Found", "Odd Thomas", "Willow Creek", "Proxy", "Stage Fright", "Almost Human", "Dead Snow 2",
+                "Contracted", "Late Phases", "Proxy", "Afflicted", "The Sacrament", "Cheap Thrills", "Starry Eyes", "Oculus",
+                "Babadook", "It Follows", "The Guest", "Coherence", "Resolution", "Spring", "The Void", "Honeymoon",
+                "Tusk", "Clown", "Green Room", "The Witch", "Don't Breathe", "Hush", "Train to Busan", "Under the Shadow",
+                "Raw", "The Neon Demon", "Baskin", "The Alchemist Cookbook", "Patchwork", "They Look Like People", "Darling", "Sun Choke",
+                "The Eyes of My Mother", "Always Shine", "I Am Not a Serial Killer", "The Autopsy of Jane Doe", "A Dark Song", "Better Watch Out",
+                "Revenge", "Terrifier", "Mandy", "The Ritual", "Hell House LLC", "Pyewacket", "Possum", "Ghost Stories",
+                "The Endless", "Upgrade", "Overlord", "Hereditary", "Suspiria", "A Quiet Place", "Bird Box", "Cam",
+                "Apostle", "The House That Jack Built", "Climax", "Border", "Tigers Are Not Afraid", "The Perfection", "Crawl",
+                "Ready or Not", "Midsommar", "The Lighthouse", "Color Out of Space", "The Lodge", "Relic", "Host",
+                "Possessor", "His House", "Rent-A-Pal", "Vicious Fun", "The Empty Man", "Come True", "The Night",
+                "Seance", "Censor", "The Amusement Park", "The Night House", "Mad God", "X", "Pearl",
+                "Speak No Evil", "Barbarian", "Smile", "Terrifier 2", "The Menu", "Skinamarink", "Infinity Pool",
+                "Evil Dead Rise", "Talk to Me", "When Evil Lurks", "Thanksgiving", "Suitable Flesh", "Stopmotion",
+                "Late Night with the Devil", "Oddity", "Immaculate", "The First Omen", "Longlegs", "Trap",
+                "The Substance", "Heretic", "Nosferatu", "Alien: Romulus", "MaXXXine", "Presence", "Azrael",
+                "The Strangers: Chapter 1", "Baghead", "Night Swim", "Imaginary", "Abigail", "Tarot", "Watcher",
+                "Speak No Evil (2024)", "Afraid", "Never Let Go", "Hold Your Breath", "Don't Move", "Smile 2"
+            ];
+            
             const searchPromises = darkTitles.map(title => 
                 fetchWithRetry(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
                 .then(data => data && data.results ? data.results[0] : null)
             );
+            
             const results = await Promise.all(searchPromises);
             renderGrid(results.filter(m => m && m.poster_path));
+            isLoading = false;
         }
 
         async function fetchCultClassics() {
