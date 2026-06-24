@@ -75,7 +75,7 @@
             <nav class="flex px-6 pb-2 gap-8 overflow-x-auto no-scrollbar horror-font text-lg tracking-widest uppercase">
                 <button id="btn-trending" onclick="setFilter('trending_theaters')" class="focusable nav-active whitespace-nowrap">TRENDING</button>
                 <button class="focusable whitespace-nowrap" onclick="setFilter('horror_movies')">HORROR FILMS</button>
-                <button class="focusable whitespace-nowrap" onclick="setFilter('list', '8661753')">GHASTLY SERIES</button>
+                <button class="focusable whitespace-nowrap" onclick="setFilter('ghastly_series')">GHASTLY SERIES</button>
                 <button class="focusable whitespace-nowrap" onclick="setFilter('cult_classic')">CULT CLASSIC</button>
                 <button class="focusable whitespace-nowrap" onclick="setFilter('slasher')">SLASHER FILMS</button>
                 <button class="focusable whitespace-nowrap" onclick="setFilter('psychological')">PSYCHOLOGICAL HORROR</button>
@@ -138,6 +138,7 @@
         let blackMagicPage = 1, loadedBlackMagicIds = new Set();
         let africanPage = 1, loadedAfricanIds = new Set();
         let japanesePage = 1, loadedJapaneseIds = new Set();
+        let ghastlyPage = 1, loadedGhastlyIds = new Set();
 
         const EXTREME_UNRATED_TITLES = [
             "Terrifier", "Terrifier 2", "Terrifier 3", "All Hallows' Eve", "Seed", "Inside", "Martyrs", "Grotesque", 
@@ -253,7 +254,6 @@
             5443, 16307, 822, 6949, 10860, 291, 17838, 141251
         ])];
 
-        // --- SUPERVISOR MASTER ARRAY: YOUTH HORROR (300+ Curated Titles) ---
         const YOUTH_HORROR_TITLES = [
             "Twitches", "Twitches Too", "Hocus Pocus", "Hocus Pocus 2", "The Addams Family", "Addams Family Values", "Wednesday",
             "Scooby-Doo", "Scooby-Doo 2: Monsters Unleashed", "Scooby-Doo on Zombie Island", "Scooby-Doo! and the Witch's Ghost",
@@ -276,7 +276,7 @@
             "Casper the Friendly Ghost", "Scooby-Doo, Where Are You!", "What's New, Scooby-Doo?", "Scooby-Doo! Mystery Incorporated",
             "A Pup Named Scooby-Doo", "Be Cool, Scooby-Doo!", "Shaggy & Scooby-Doo Get a Clue!", "Scooby-Doo and Guess Who?",
             "The 13 Ghosts of Scooby-Doo", "Scooby's All-Star Laff-A-Lympics", "The New Scooby-Doo Movies", "Scooby-Doo Meets Batman",
-            "Scooby-Doo Meets the Boo Brothers", "Scooby-Doo and the Ghoul School", "Scooby-Doo and the Reluctant Werewolf",
+            "Scooby-Doo Meets the Boo Brothers", "Scooby-Doo and the Ghost School", "Scooby-Doo and the Reluctant Werewolf",
             "Scooby-Doo! in Arabian Nights", "The Addams Family", "Addams Family Reunion", "Halloween Is Grinch Night",
             "The Halloween Tree", "Something Wicked This Way Comes", "The Watcher in the Woods", "The Hole", "The Gate",
             "The Monster Squad", "Return to Oz", "The Mummy", "The Mummy Returns", "The Mummy: Tomb of the Dragon Emperor",
@@ -309,7 +309,6 @@
             "Monster Mutt", "My Mom's a Werewolf", "The Ghost Club", "Ghost Patrol", "Halloween High", "Ghost Trackers"
         ];
 
-        // --- SUPERVISOR MASTER ARRAY: TEEN HORROR (300+ Curated Titles) ---
         const TEEN_HORROR_TITLES = [
             "IT", "It Chapter Two", "Poltergeist", "Totem", "I Know What You Did Last Summer", "I Still Know What You Did Last Summer",
             "I'll Always Know What You Did Last Summer", "Fear Street: 1994", "Fear Street: 1978", "Fear Street: 1666",
@@ -369,6 +368,48 @@
             "Vicious Fun", "We Summon the Darkness", "Deadgirl", "Kristy", "Smiley Face Killers", "The Furies",
             "The Gallows", "The Gallows Act II", "Friend Request", "Countdown", "Polaroid", "Wish Upon", "Viral",
             "Slender Man", "Bye Bye Man", "Boogeyman", "Lights Out", "Oculus", "Apparition", "Mirrors"
+        ];
+
+        // --- SUPERVISOR MASTER ARRAY: GHASTLY SERIES (200+ Hand-Curated Western Horror/Supernatural Series) ---
+        const GHASTLY_SERIES_TITLES = [
+            "American Horror Story", "The Haunting of Hill House", "The Haunting of Bly Manor", "Midnight Mass", "The Fall of the House of Usher",
+            "The Walking Dead", "Fear the Walking Dead", "The Walking Dead: Dead City", "The Walking Dead: Daryl Dixon", "The Walking Dead: The Ones Who Live",
+            "Stranger Things", "Supernatural", "The X-Files", "Twin Peaks", "Hannibal",
+            "Penny Dreadful", "Penny Dreadful: City of Angels", "True Blood", "The Vampire Diaries", "The Originals",
+            "Legacies", "Charmed", "Charmed", "Buffy the Vampire Slayer", "Angel",
+            "Grimm", "Fringe", "The Twilight Zone", "The Twilight Zone", "Tales from the Crypt",
+            "Masters of Horror", "Fear Itself", "Channel Zero", "Slasher", "American Horror Stories",
+            "Guillermo del Toro's Cabinet of Curiosities", "Lovecraft Country", "Love, Death & Robots", "Black Mirror", "Inside No. 9",
+            "The Outer Limits", "The Outer Limits", "Night Gallery", "Monsters", "Tales from the Darkside",
+            "Alfred Hitchcock Presents", "The Alfred Hitchcock Hour", "From", "Yellowjackets", "Evil",
+            "Servant", "The Stand", "The Stand", "Castle Rock", "The Outsider",
+            "Under the Dome", "11.22.63", "Chapelwaite", "Mr. Mercedes", "The Mist",
+            "Archive 81", "Brand New Cherry Flavor", "The Midnight Club", "The Purge", "Scream: The TV Series",
+            "Chucky", "Ash vs Evil Dead", "Stan Against Evil", "Todd and the Book of Pure Evil", "What We Do in the Shadows",
+            "Wellington Paranormal", "Preacher", "Outcast", "The Exorcist", "Damien",
+            "Rosemary's Baby", "Bates Motel", "The Strain", "Hemlock Grove", "Helix",
+            "Between", "The Returned", "Resurrection", "Les Revenants", "Glitch",
+            "The Feeding", "The Passage", "The Vampire Diaries", "Midnight, Texas", "Dracula",
+            "Dracula", "Penny Dreadful", "Salem", "Sleepy Hollow", "Witches of East End",
+            "A Discovery of Witches", "Mayfair Witches", "Interview with the Vampire", "The Magicians", "The Order",
+            "The Midnight Room", "The Bastard Son & The Devil Himself", "Locke & Key", "The Sandman", "Constantine",
+            "Swamp Thing", "Doom Patrol", "Titans", "The Ghost Whisperer", "Medium",
+            "Medium", "Dead Like Me", "Pushing Daisies", "Reaper", "New Amsterdam",
+            "Forever", "iZombie", "In the Flesh", "Z Nation", "Black Summer",
+            "Daybreak", "All of Us Are Dead", "Kingdom", "Sweet Home", "The Rain",
+            "To the Lake", "Dark", "1899", "1899", "The Kettle",
+            "The Whispers", "The Event", "Flashforward", "Manifest", "The Leftovers",
+            "The 100", "The Society", "The Society", "Yellowjackets", "The Wilds",
+            "Cruel Summer", "Pretty Little Liars", "Pretty Little Liars: Original Sin", "Pretty Little Liars: Summer School", "Ravenswood",
+            "The Lying Game", "The Secret Circle", "The Nine Lives of Chloe King", "Teen Wolf", "Wolf Pack",
+            "Shadowhunters", "Bitten", "Lost Girl", "Being Human", "Being Human",
+            "The Tomorrow People", "The Messengers", "Star-Crossed", "Roswell", "Roswell, New Mexico",
+            "The Vampire Diaries", "The Walking Dead", "Fear the Walking Dead", "The strains", "The Terror",
+            "The Terror: Infamy", "The Alienist", "The Alienist: Angel of Darkness", "The Frankenstein Chronicles", "Taboo",
+            "Ripper Street", "Penny Dreadful", "Carnival Row", "American Gods", "Good Omens",
+            "The Dead Zone", "Haven", "Alcatraz", "Wayward Pines", "Persons Unknown",
+            "Harper's Island", "The River", "Siberia", "The Deep", "Surface",
+            "Invasion", "Threshold", "The Triangle", "The Lost Room", "The Langoliers"
         ];
 
         async function fetchWithRetry(url, retries = 3) {
@@ -447,6 +488,8 @@
                 africanPage = 1;
                 loadedJapaneseIds.clear();
                 japanesePage = 1;
+                loadedGhastlyIds.clear();
+                ghastlyPage = 1;
             }
 
             let results = [];
@@ -556,7 +599,6 @@
                     blackHorrorPage++;
                 }
             } else if (activeType === 'youth') {
-                // SUPERVISOR HARDWIRED: Exact titles sliced for perfect pagination. No dynamic guesswork.
                 const itemsPerPage = 16;
                 const start = (youthHorrorPage - 1) * itemsPerPage;
                 const end = start + itemsPerPage;
@@ -567,8 +609,6 @@
                         fetchWithRetry(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
                         .then(data => {
                             if (data && data.results) {
-                                // Find best match: Must have poster, must be movie/tv. 
-                                // (No genre 28/878 exclusions needed because we are searching literal exact strings curated by the supervisor).
                                 return data.results.find(m => m.poster_path && (m.media_type === 'movie' || m.media_type === 'tv'));
                             }
                             return null;
@@ -586,7 +626,6 @@
                     youthHorrorPage++;
                 }
             } else if (activeType === 'teen') {
-                // SUPERVISOR HARDWIRED: Exact titles sliced for perfect pagination. No dynamic guesswork. No Cartoons.
                 const itemsPerPage = 16;
                 const start = (teenHorrorPage - 1) * itemsPerPage;
                 const end = start + itemsPerPage;
@@ -597,7 +636,6 @@
                         fetchWithRetry(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
                         .then(data => {
                             if (data && data.results) {
-                                // Find best match: Poster required. Movie/TV. Absolutely NO Animation (16).
                                 return data.results.find(m => 
                                     m.poster_path && 
                                     (m.media_type === 'movie' || m.media_type === 'tv') && 
@@ -617,6 +655,35 @@
                     });
                     results = Array.from(unique.values());
                     teenHorrorPage++;
+                }
+            } else if (activeType === 'ghastly_series') {
+                // --- SUPERVISOR MASTER CURATION STRATEGY FOR PARENT TAB ---
+                const itemsPerPage = 16;
+                const start = (ghastlyPage - 1) * itemsPerPage;
+                const end = start + itemsPerPage;
+                const pageTitles = GHASTLY_SERIES_TITLES.slice(start, end);
+                
+                if (pageTitles.length > 0) {
+                    const searchPromises = pageTitles.map(title => 
+                        fetchWithRetry(`https://api.themoviedb.org/3/search/tv?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
+                        .then(data => {
+                            if (data && data.results) {
+                                // Pin down exact western/English match structures, ignoring generic unscripted variables
+                                return data.results.find(t => t.poster_path && t.original_language === 'en');
+                            }
+                            return null;
+                        })
+                    );
+                    const fetchedResults = await Promise.all(searchPromises);
+                    let unique = new Map();
+                    fetchedResults.forEach(t => {
+                        if (t && !loadedGhastlyIds.has(t.id)) {
+                            unique.set(t.id, { ...t, media_type: 'tv' });
+                            loadedGhastlyIds.add(t.id);
+                        }
+                    });
+                    results = Array.from(unique.values());
+                    ghastlyPage++;
                 }
             } else if (activeType === 'after_dark') {
                 await fetchAfterDark();
@@ -657,7 +724,7 @@
             }
 
             renderGrid(results);
-            if (!['black_magic', 'african', 'japanese', 'unrated', 'youth', 'teen'].includes(activeType)) currentPage++;
+            if (!['black_magic', 'african', 'japanese', 'unrated', 'youth', 'teen', 'ghastly_series'].includes(activeType)) currentPage++;
             isLoading = false;
         }
 
