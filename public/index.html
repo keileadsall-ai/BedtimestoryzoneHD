@@ -131,6 +131,10 @@
         
         let savedScrollPosition = 0, lastFocusedElement = null;
 
+        // --- NEW VAULT KEYWORDS ---
+        const YOUTH_KEYWORDS = "233306|3254|3365|6152|10466|236689|236690|236691";
+        const TEEN_KEYWORDS = "12339|209825|228221|228222|228223";
+
         let unratedPage = 1;
         let loadedUnratedIds = new Set();
         let blackHorrorPage = 1;
@@ -221,57 +225,6 @@
             "Real Onigokko", "Kisaragi Station", "Homunculus", "Haze", "Bullet Ballet", "Tokyo Fist", "Tetsuo"
         ];
 
-        const HARD_WIRED_IMDB_IDS = [
-            "tt0071095","tt7544954","tt3743358","tt13365348","tt0160016","tt16997558",
-            "tt4798836","tt0120603","tt12298506","tt15475330","tt0193013","tt26453917",
-            "tt5184138","tt8520140","tt2274248","tt8110652","tt0103919","tt0165662",
-            "tt9347730","tt0119988","tt0285487","tt0090888","tt3104930","tt23648404",
-            "tt9331416","tt7631568","tt6803212","tt0074430","tt0119080","tt28088571",
-            "tt9088954","tt11057594","tt2583620","tt9813792","tt0068619","tt7475988",
-            "tt0338094","tt1695843","tt8508734","tt11668454","tt0372975","tt0449599",
-            "tt9567548","tt0130018","tt20859392","tt22496012","tt9742392","tt6131712",
-            "tt0209095","tt6905686","tt9472334","tt0365519","tt32916093","tt1289419",
-            "tt0475989","tt10931784","tt12308018","tt9289116","tt2011159","tt10954984",
-            "tt0361417","tt2579836","tt5505722","tt0265537","tt1395783","tt0238546",
-            "tt0183714","tt8656686","tt0427848","tt15726046","tt0397101","tt4411234",
-            "tt0499573","tt0033075","tt14961048","tt10638522","tt0114609","tt0277370",
-            "tt19896150","tt11703244","tt10772662","tt0112625","tt8559532","tt1449394",
-            "tt14074602","tt12921446","tt6133466","tt21905744","tt1457765","tt0264696",
-            "tt6722030","tt2221362","tt7928156","tt26569323","tt21365986","tt3862750",
-            "tt15507512","tt13358022","tt1678042","tt7320482","tt31022076","tt16437278",
-            "tt9064858","tt9873892","tt4991112","tt7671414","tt18394428","tt0100791",
-            "tt3859272","tt12545262","tt9177040","tt0285869","tt14191916","tt28239363",
-            "tt14349100","tt0188694","tt0415348","tt0428251","tt14921402","tt8417466",
-            "tt29275554","tt4287470","tt1389139","tt31314296","tt21821538","tt1342115",
-            "tt1112697","tt0099395","tt0074703","tt0114608","tt0196181","tt0430066",
-            "tt0089593","tt0119099","tt0078078","tt33049264","tt15146646","tt37543196",
-            "tt32560625","tt15532464","tt0220506","tt0070893","tt6535880","tt0133751",
-            "tt0462160","tt6133466","tt37521114","tt35684711","tt31777631","tt12776978",
-            "tt38090790","tt4065260","tt39094274"
-        ];
-
-        const UNIQUE_BLACK_IDS = [...new Set([
-            147, 20810, 2963, 16582, 134, 17259, 538, 78029, 521, 17697,
-            76748, 97169, 25619, 2372, 64235, 34503, 15313, 856, 16214,
-            68812, 586, 2178, 3497, 6807, 52039, 17522, 537, 13021, 1245,
-            8691, 1813, 714, 1264, 5049, 15860, 335, 5463, 36196, 65731,
-            15001, 10205, 9281, 56159, 1103, 77801, 16484, 4247, 12138,
-            12000, 9775, 1566, 438, 10750, 5921, 11109, 3547, 15090, 14344,
-            5443, 16307, 822, 6949, 10860, 291, 17838, 141251
-        ])];
-
-        const YOUTH_IMDB_IDS = [
-            "tt0175142","tt0257106","tt0306047","tt0362120","tt0795461","tt32093575",
-            "tt0094862","tt0099253","tt0101535","tt0144120","tt0387575","tt2230358",
-            "tt3280262","tt8663516","tt0467421","tt1017465","tt0173886","tt0274761",
-            "tt0414078","tt0816520","tt0117571","tt0120082","tt0134084","tt1262416",
-            "tt11245972","tt17663992","tt27047903","tt0075005","tt0077394","tt0102585",
-            "tt0466909","tt0195714","tt0309593","tt0452608","tt1144884","tt1570928",
-            "tt9619824","tt0100944","tt0805647","tt0064098","tt0068091","tt0081896",
-            "tt0078729","tt0088531","tt0094528","tt0321289","tt1691230","tt0283011",
-            "tt0331632","tt0220880","tt0094721","tt2049403","tt0096543","tt0057729"
-        ];
-
         async function fetchWithRetry(url, retries = 3) {
             for (let i = 0; i < retries; i++) {
                 try {
@@ -288,42 +241,6 @@
                 }
             }
             return null;
-        }
-
-        const imdbCache = new Map();
-        async function fetchTMDBFromIMDb(imdbId) {
-            if (imdbCache.has(imdbId)) return imdbCache.get(imdbId);
-            try {
-                const data = await fetchWithRetry(`https://api.themoviedb.org/3/find/${imdbId}?api_key=${API_KEY}&external_source=imdb_id`);
-                if (data && data.movie_results && data.movie_results.length > 0) {
-                    const result = { id: data.movie_results[0].id, type: 'movie' };
-                    imdbCache.set(imdbId, result);
-                    return result;
-                } else if (data && data.tv_results && data.tv_results.length > 0) {
-                    const result = { id: data.tv_results[0].id, type: 'tv' };
-                    imdbCache.set(imdbId, result);
-                    return result;
-                }
-            } catch (e) {}
-            return null;
-        }
-
-        async function resolveItemsFromImdbList(imdbIds, idSet) {
-            const promises = imdbIds.map(async (imdbId) => {
-                const tmdb = await fetchTMDBFromIMDb(imdbId);
-                if (tmdb && !idSet.has(tmdb.id)) {
-                    try {
-                        const data = await fetchWithRetry(`https://api.themoviedb.org/3/${tmdb.type}/${tmdb.id}?api_key=${API_KEY}`);
-                        if (data && data.poster_path) {
-                            idSet.add(tmdb.id);
-                            return { ...data, media_type: tmdb.type, id: tmdb.id };
-                        }
-                    } catch (e) {}
-                }
-                return null;
-            });
-            const items = await Promise.all(promises);
-            return items.filter(Boolean);
         }
 
         async function fetchContent(append = false) {
@@ -352,7 +269,21 @@
 
             let results = [];
             
-            if (activeType === 'list') {
+            // --- NEW VAULT LOGIC ---
+            if (activeType === 'youth') {
+                const data = await fetchWithRetry(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=${YOUTH_KEYWORDS}&certification_country=US&certification.lte=PG-13&page=${youthHorrorPage}`);
+                results = (data?.results || []).filter(m => m.poster_path && !loadedYouthHorrorIds.has(m.id));
+                results.forEach(m => loadedYouthHorrorIds.add(m.id));
+                youthHorrorPage++;
+            } else if (activeType === 'teen') {
+                const data = await fetchWithRetry(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27,53&with_keywords=${TEEN_KEYWORDS}&certification_country=US&certification.gte=PG-13&page=${teenHorrorPage}`);
+                results = (data?.results || []).filter(m => m.poster_path && !loadedTeenHorrorIds.has(m.id));
+                results.forEach(m => loadedTeenHorrorIds.add(m.id));
+                teenHorrorPage++;
+            }
+            // --- END NEW VAULT LOGIC ---
+            
+            else if (activeType === 'list') {
                 const url = `https://api.themoviedb.org/3/list/${activeID}?api_key=${API_KEY}&page=${currentPage}`;
                 const data = await fetchWithRetry(url);
                 const listItems = data?.items || data?.results || [];
@@ -456,40 +387,6 @@
                     results = Array.from(unique.values());
                     blackHorrorPage++;
                 }
-            } else if (activeType === 'youth') {
-                if (!append) {
-                    const hardwiredItems = await resolveItemsFromImdbList(YOUTH_IMDB_IDS, loadedYouthHorrorIds);
-                    let unique = new Map();
-                    hardwiredItems.forEach(item => unique.set(item.id, item));
-                    results = Array.from(unique.values());
-                    currentPage = 2;
-                } else {
-                    const isMoviePage = youthHorrorPage % 2 === 0;
-                    const pageTarget = Math.floor(youthHorrorPage / 2) + 1;
-                    let targetUrl = isMoviePage ? 
-                        `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&certification_country=US&certification.lte=PG-13&page=${pageTarget}` :
-                        `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&with_genres=10765&certification_country=US&certification.lte=TV-14&page=${pageTarget}`;
-                    const data = await fetchWithRetry(targetUrl);
-                    let fetched = (data?.results || []).filter(item => 
-                        item.poster_path && !loadedYouthHorrorIds.has(item.id)
-                    ).map(item => ({ ...item, media_type: item.media_type || (item.first_air_date ? 'tv' : 'movie') }));
-                    let unique = new Map();
-                    fetched.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); loadedYouthHorrorIds.add(item.id); } });
-                    results = Array.from(unique.values());
-                    youthHorrorPage++;
-                }
-            } else if (activeType === 'teen') {
-                if (!append) {
-                    const data = await fetchWithRetry(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=12339|9826&certification_country=US&certification.gte=PG-13&page=1`);
-                    results = data?.results || [];
-                    results.forEach(i => loadedTeenHorrorIds.add(i.id));
-                    teenHorrorPage = 2;
-                } else {
-                    const data = await fetchWithRetry(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&with_keywords=12339|9826&certification_country=US&certification.gte=PG-13&page=${teenHorrorPage}`);
-                    results = (data?.results || []).filter(i => i.poster_path && !loadedTeenHorrorIds.has(i.id));
-                    results.forEach(i => loadedTeenHorrorIds.add(i.id));
-                    teenHorrorPage++;
-                }
             } else if (activeType === 'after_dark') {
                 await fetchAfterDark();
                 isLoading = false; return;
@@ -525,6 +422,7 @@
                 if (activeType === 'search') url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${activeID}&page=${currentPage}`;
                 const data = await fetchWithRetry(url);
                 results = data?.results || [];
+                currentPage++;
             }
 
             renderGrid(results);
@@ -640,7 +538,6 @@
         async function openDetails(id, type) {
             savedScrollPosition = window.scrollY || document.documentElement.scrollTop; 
             lastFocusedElement = document.activeElement; 
-
             const data = await fetchWithRetry(`https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}`);
             if (!data) return;
             
@@ -810,7 +707,7 @@
                 const loader = document.getElementById('loader');
                 if(loader) { loader.style.opacity = '0'; setTimeout(()=>loader.remove(), 800); }
             }, 1200);
-            const obs = new IntersectionObserver(e => { if(e[0].isIntersecting && activeType !== 'after_dark') fetchContent(true); });
+            const obs = new IntersectionObserver(e => { if(e[0].isIntersecting) fetchContent(true); });
             obs.observe(document.getElementById('sentinel'));
         };
     </script>
