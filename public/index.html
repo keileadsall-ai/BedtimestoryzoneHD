@@ -253,21 +253,52 @@
             5443, 16307, 822, 6949, 10860, 291, 17838, 141251
         ])];
 
-        // NEW SUPERVISOR ANCHOR: YOUTH HORROR (No foreign, strict child protagonist focus)
+        // --- SUPERVISOR ANCHOR: YOUTH HORROR (Child Protagonists Only) ---
         const YOUTH_IMDB_IDS = [
-            "tt0094862", "tt0087800", "tt0220880", "tt0103352", "tt0091419", 
-            "tt0111987", "tt1051904", "tt0100944", "tt0332378", "tt0094721", 
-            "tt0107120", "tt0327597", "tt6644200", "tt1396484", "tt0084523", 
-            "tt0087363", "tt3567288", "tt1652243", "tt0083791", "tt0385880", 
-            "tt0275862"
+            "tt0094862", "tt0099253", "tt0101535", "tt0144120", "tt0387575", "tt2230358", "tt3280262", // Child's Play 1-7
+            "tt0087800", "tt0089686", "tt0093629", "tt0095742", // Nightmare on Elm Street
+            "tt0220880", // Courage the Cowardly Dog
+            "tt0103352", "tt10473306", // Are You Afraid of the Dark
+            "tt0091419", // Little Shop of Horrors
+            "tt0111987", "tt1051904", "tt5664636", "tt17351588", // Goosebumps Franchise
+            "tt0100944", "tt1086522", // The Witches
+            "tt0332378", "tt1431045", // Haunted Mansion
+            "tt0094721", "tt2049403", // Beetlejuice
+            "tt0107120", "tt11909878", // Hocus Pocus
+            "tt0327597", // Coraline
+            "tt6644200", "tt8332922", // A Quiet Place
+            "tt0099864", "tt1396484", "tt7349950", // IT
+            "tt0084523", "tt0091778", "tt0095889", // Poltergeist
+            "tt0087363", "tt0099699", // Gremlins
+            "tt3567288", // The Visit
+            "tt1652243", // The Haunting Hour
+            "tt0083791", // The Dark Crystal
+            "tt0385880", // Monster House
+            "tt0275862"  // The Nightmare Room
         ];
 
-        // NEW SUPERVISOR ANCHOR: TEEN HORROR (No foreign, strict teen/high school focus, no cartoons)
+        // --- SUPERVISOR ANCHOR: TEEN HORROR (High School/College Only, No Cartoons) ---
         const TEEN_IMDB_IDS = [
-            "tt6061498", "tt0119345", "tt7781432", "tt0103873", "tt5322012", 
-            "tt4798606", "tt0116287", "tt9701942", "tt0133751", "tt5308322", 
-            "tt0115967", "tt7455054", "tt11508216", "tt27650074", "tt1139797", 
-            "tt0210070", "tt3387520", "tt8110652", "tt6535880", "tt3685512"
+            "tt5249504", // Totem
+            "tt0119345", "tt7781432", // I Know What You Did Last Summer
+            "tt9271672", // The Wretched (2019)
+            "tt0103873", // Braindead
+            "tt5322012", // Wish Upon
+            "tt4798606", // Satanic
+            "tt0116287", // Fear
+            "tt9701942", "tt9701944", "tt9701940", // Fear Street
+            "tt0133751", // The Faculty
+            "tt5308322", // Happy Death Day
+            "tt0115967", "tt10833274", // The Craft
+            "tt7455054", // Chilling Adventures of Sabrina
+            "tt11508216", // Freaky
+            "tt27650074", // Totally Killer
+            "tt1139797", // Jennifer's Body
+            "tt0210070", // Ginger Snaps
+            "tt3387520", // Scary Stories to Tell in the Dark
+            "tt8110652", // Bodies Bodies Bodies
+            "tt6535880", // Haunt
+            "tt3685512"  // The Midnight Man
         ];
 
         async function fetchWithRetry(url, retries = 3) {
@@ -460,13 +491,13 @@
                     let unique = new Map();
                     hardwiredItems.forEach(item => unique.set(item.id, item));
                     results = Array.from(unique.values());
-                    youthHorrorPage = 2;
+                    youthHorrorPage = 1;
                 } else {
-                    const isMoviePage = youthHorrorPage % 2 === 0;
-                    const pageTarget = Math.floor(youthHorrorPage / 2);
+                    const isMoviePage = youthHorrorPage % 2 !== 0;
+                    const pageTarget = Math.floor((youthHorrorPage + 1) / 2);
                     
                     // STRICT YOUTH LOGIC: Child protagonists only. No foreign. Block teen overlap.
-                    const youthKeywords = "10606|15152|4344|3386"; // child protagonist, child in peril, children, child
+                    const youthKeywords = "10606|4344|15152|3386"; // child protagonist, child in peril, children, child
                     const excludeTeenKeywords = "9673,9826,6152,11130,1156"; 
                     
                     let targetUrl = isMoviePage ? 
@@ -491,14 +522,14 @@
                     let unique = new Map();
                     hardwiredItems.forEach(item => unique.set(item.id, item));
                     results = Array.from(unique.values());
-                    teenHorrorPage = 2;
+                    teenHorrorPage = 1;
                 } else {
-                    const isMoviePage = teenHorrorPage % 2 === 0; 
-                    const pageTarget = Math.floor(teenHorrorPage / 2);
+                    const isMoviePage = teenHorrorPage % 2 !== 0; 
+                    const pageTarget = Math.floor((teenHorrorPage + 1) / 2);
                     
                     // STRICT TEEN LOGIC: High school/teen protagonists only. No foreign. No Cartoons/Kids. Block youth overlap.
-                    const teenKeywords = "9673|9826|6152|11130|1156"; 
-                    const excludeYouthKeywords = "10606,4344,3386";
+                    const teenKeywords = "9673|9826|6152|11130"; 
+                    const excludeYouthKeywords = "10606,4344,3386,15152";
                     
                     let targetUrl = isMoviePage ? 
                         `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&without_genres=16,10751&with_keywords=${teenKeywords}&without_keywords=${excludeYouthKeywords}&with_original_language=en&sort_by=popularity.desc&page=${pageTarget}` :
