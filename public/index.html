@@ -49,11 +49,12 @@
         <div class="flex flex-col gap-2 horror-font text-xl">
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('list', '8661620')">STEPHEN KING</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('list', '8663550')">WES CRAVEN</button>
-            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('after_dark')">AFTER DARK</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('after_dark')">DARK CASTLE</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('black_horror')">BLACK HORROR</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('youth')">YOUTH HORROR</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('teen')">TEEN HORROR</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('japanese')">JAPANESE HORROR</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('k_horror')">K-HORROR</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('african')">AFRICAN HORROR</button>
             <button class="focusable text-left py-3 mt-10 text-zinc-600" onclick="toggleMenu()">CLOSE [X]</button>
         </div>
@@ -139,7 +140,7 @@
         let africanPage = 1, loadedAfricanIds = new Set();
         let japanesePage = 1, loadedJapaneseIds = new Set();
         let ghastlyPage = 1, loadedGhastlyIds = new Set();
-        let afterDarkPage = 1, loadedAfterDarkIds = new Set();
+        let kHorrorPage = 1, loadedKHorrorIds = new Set();
 
         const EXTREME_UNRATED_TITLES = [
             "Terrifier", "Terrifier 2", "Terrifier 3", "All Hallows' Eve", "Seed", "Inside", "Martyrs", "Grotesque", 
@@ -214,6 +215,28 @@
             "Zombie Ass", "Rape Zombie: Lust of the Dead", "Bloody Muscle Body Builder in Hell", "Deadball", 
             "Museum", "The Snow White Murder Case", "Monsterz", "Chronicle of My Mother", "Killers", 
             "Real Onigokko", "Kisaragi Station", "Homunculus", "Haze", "Bullet Ballet", "Tokyo Fist", "Tetsuo"
+        ];
+
+        const K_HORROR_TITLES = [
+            "Train to Busan", "The Wailing", "A Tale of Two Sisters", "Gonjiam: Haunted Asylum", "I Saw the Devil", "Thirst", "The Host", "The Handmaiden", "Bedevilled", "The Silenced", 
+            "Whispering Corridors", "Memento Mori", "Wishing Stairs", "Voice", "A Blood Pledge", "Death Bell", "Hide and Seek", "The Piper", "The Call", "#Alive", 
+            "Peninsula", "Rampant", "Seoul Station", "Svaha: The Sixth Finger", "The Mimic", "The Closet", "The Divine Fury", "Metamorphosis", "Warning: Do Not Play", "0.0MHz", 
+            "The Wrath", "Monstrum", "Forgotten", "Spider Forest", "Blood and Ties", "Cinderella", "Mourning Grave", "Killer Toon", "Don't Click", "The Red Shoes", 
+            "Epitaph", "Acacia", "Phone", "Into the Mirror", "R-Point", "Bloody Reunion", "The Evil Twin", "Hansel and Gretel", "Loner", "Yoga Hakwon", 
+            "White: The Melody of the Curse", "The Cat", "Two Moons", "Horror Stories", "Horror Stories II", "Horror Stories III", "The Webtoon: Murder", "Doctor", "The Tunnel", "The Chosen: Forbidden Cave", 
+            "Alice: Boy from Wonderland", "The Guest", "Lucid Dream", "The Deal", "Office", "The Treacherous", "Black House", "Arang", "The Doll Master", "Bunshinsaba", 
+            "Dead Friend", "Face", "Sorum", "Say Yes", "Nightmare", "Record", "The Ring Virus", "Someday", "Evil Twin", "Death Bell 2: Bloody Camp", 
+            "Shadows in the Palace", "Bestseller", "Manhole", "The Neighbors", "Deranged", "Midnight FM", "Blood Rain", "Rainbow Eyes", "Muoi: The Legend of a Portrait", "Cello", 
+            "The Wig", "A Tale of Cinema", "Hypnotized", "Uninvited", "Tell Me Something", "The Hole", "The Quiet Family", "Suddenly in the Dark", "Dark Forest", "Gabi", 
+            "Missing", "The Truth Beneath", "Strange Hair Salon", "Sleep", "Exhuma", "Seire", "Guimoon: The Lightless Door", "The 8th Night", "Ghost Mansion", "Contorted", 
+            "Spring Garden", "Noise", "Neulbom: The Cursed", "Chabak: Night of Murder and Romance", "The Sin", "The Cursed: Dead Man's Prey", "Midnight", "The Anchor", "White Day: Broken Boundary", "Search Out", 
+            "Lingering", "Hotel Lake", "Intruder", "Beasts Clawing at Straws", "Diva", "Black Light", "The Cursed", "The Grotesque Mansion", "Strange Rumor", "Witch Board", 
+            "Seoul Mates", "Nightmare Teacher", "Zombie School", "Mad Sad Bad", "In Her Place", "The Avulsion", "4 Horror Tales", "Dark Figure of Crime", "Bluebeard", "Memoir of a Murderer", 
+            "Seven Years of Night", "V.I.P.", "The Chase", "Murder, Take One", "Blind", "I Am a Murderer", "Secret", "The Client", "No Mercy", "Children...", 
+            "Heartbeat", "Parallel Life", "Possessed", "Living Death", "Truck", "Wide Awake", "Our Town", "Seven Days", "Paradise Murdered", "The Devil's Game", 
+            "Return", "Beautiful Sunday", "Puzzle", "The REC", "The Record", "The Cut", "Cadaver", "The Guard Post", "To Sir, With Love", "A Bloody Aria", 
+            "Bloody Beach", "The Isle", "Deep Trap", "The Hunt", "The Phone", "White: Melody of Death", "The Gumiho", "The Fox with Nine Tails", "The Gingko Bed", "Soul Guardians", 
+            "Ghost in Love", "A Devilish Homicide", "Woman's Wail", "Public Cemetery Under the Moon", "The Housemaid"
         ];
 
         const HARD_WIRED_IMDB_IDS = [
@@ -422,25 +445,6 @@
             "Invasion", "Threshold", "The Triangle", "The Lost Room", "The Langoliers"
         ];
 
-        // --- HARDWIRED FESTIVAL DATABASE: AFTER DARK HORRORFEST ---
-        const AFTER_DARK_TITLES = [
-            { n: "The Abandoned", y: "2006" }, { n: "Dark Ride", y: "2006" }, { n: "The Gravedancers", y: "2006" }, { n: "The Hamiltons", y: "2006" },
-            { n: "Penny Dreadful", y: "2006" }, { n: "Reincarnation", y: "2005" }, { n: "Snoop Dogg's Hood of Horror", y: "2006" }, { n: "The Tripper", y: "2006" },
-            { n: "Unrest", y: "2006" }, { n: "Wicked Little Things", y: "2006" }, { n: "Borderland", y: "2007" }, { n: "Crazy Eights", y: "2007" },
-            { n: "The Deaths of Ian Stone", y: "2007" }, { n: "Frontier(s)", y: "2007" }, { n: "Lake Dead", y: "2007" }, { n: "Mulberry Street", y: "2006" },
-            { n: "Nightmare Man", y: "2006" }, { n: "Tooth and Nail", y: "2007" }, { n: "Unearthed", y: "2007" }, { n: "Autopsy", y: "2008" },
-            { n: "The Broken", y: "2008" }, { n: "The Butterfly Effect 3: Revelations", y: "2009" }, { n: "Dying Breed", y: "2008" }, { n: "From Within", y: "2008" },
-            { n: "Perkins' 14", y: "2009" }, { n: "Slaughter", y: "2009" }, { n: "Voices", y: "2007" }, { n: "Dread", y: "2009" },
-            { n: "The Final", y: "2010" }, { n: "The Graves", y: "2009" }, { n: "Hidden", y: "2009" }, { n: "Kill Theory", y: "2009" },
-            { n: "Lake Mungo", y: "2008" }, { n: "The Reeds", y: "2010" }, { n: "ZMD: Zombies of Mass Destruction", y: "2009" }, { n: "51", y: "2011" },
-            { n: "Fertile Ground", y: "2011" }, { n: "Husk", y: "2011" }, { n: "Prowl", y: "2010" }, { n: "Scream of the Banshee", y: "2011" },
-            { n: "Seconds Apart", y: "2011" }, { n: "The Task", y: "2011" }, { n: "Asylum", y: "2013" }, { n: "Children of Sorrow", y: "2012" },
-            { n: "Dark Circles", y: "2013" }, { n: "Leprechaun's Revenge", y: "2012" }, { n: "Mischief Night", y: "2013" }, { n: "Ritual", y: "2013" },
-            { n: "Sanatorium", y: "2013" }, { n: "Bastard", y: "2015" }, { n: "Bedlam", y: "2015" }, { n: "The Chosen", y: "2015" },
-            { n: "Housekeeping", y: "2015" }, { n: "Lumberjack Man", y: "2015" }, { n: "Murder in the Dark", y: "2013" }, { n: "Re-Kill", y: "2015" },
-            { n: "Suspension", y: "2015" }, { n: "Unnatural", y: "2015" }, { n: "The Wicked Within", y: "2015" }, { n: "Wind Walkers", y: "2015" }
-        ];
-
         async function fetchWithRetry(url, retries = 3) {
             for (let i = 0; i < retries; i++) {
                 try {
@@ -519,8 +523,8 @@
                 japanesePage = 1;
                 loadedGhastlyIds.clear();
                 ghastlyPage = 1;
-                loadedAfterDarkIds.clear();
-                afterDarkPage = 1;
+                loadedKHorrorIds.clear();
+                kHorrorPage = 1;
             }
 
             let results = [];
@@ -584,6 +588,33 @@
                     });
                     results = Array.from(unique.values());
                     japanesePage++;
+                }
+            } else if (activeType === 'k_horror') {
+                const itemsPerPage = 16;
+                const start = (kHorrorPage - 1) * itemsPerPage;
+                const end = start + itemsPerPage;
+                const pageTitles = K_HORROR_TITLES.slice(start, end);
+                
+                if (pageTitles.length > 0) {
+                    const searchPromises = pageTitles.map(title => 
+                        fetchWithRetry(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
+                        .then(data => {
+                            if (data && data.results) {
+                                return data.results.find(m => m.original_language === 'ko' && m.poster_path && m.genre_ids && !m.genre_ids.includes(16) && !m.genre_ids.includes(10749));
+                            }
+                            return null;
+                        })
+                    );
+                    const fetchedResults = await Promise.all(searchPromises);
+                    let unique = new Map();
+                    fetchedResults.forEach(m => {
+                        if (m && !loadedKHorrorIds.has(m.id)) {
+                            unique.set(m.id, { ...m, media_type: 'movie' });
+                            loadedKHorrorIds.add(m.id);
+                        }
+                    });
+                    results = Array.from(unique.values());
+                    kHorrorPage++;
                 }
             } else if (activeType === 'african') {
                 const africanExcludedGenres = "16,35,10749"; 
@@ -688,6 +719,7 @@
                     teenHorrorPage++;
                 }
             } else if (activeType === 'ghastly_series') {
+                // --- SUPERVISOR MASTER CURATION STRATEGY FOR PARENT TAB ---
                 const itemsPerPage = 16;
                 const start = (ghastlyPage - 1) * itemsPerPage;
                 const end = start + itemsPerPage;
@@ -698,6 +730,7 @@
                         fetchWithRetry(`https://api.themoviedb.org/3/search/tv?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
                         .then(data => {
                             if (data && data.results) {
+                                // Pin down exact western/English match structures, ignoring generic unscripted variables
                                 return data.results.find(t => t.poster_path && t.original_language === 'en');
                             }
                             return null;
@@ -715,11 +748,8 @@
                     ghastlyPage++;
                 }
             } else if (activeType === 'after_dark') {
-                const items = AFTER_DARK_TITLES.slice((afterDarkPage-1)*16, afterDarkPage*16);
-                const data = await Promise.all(items.map(t => fetchWithRetry(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(t.n)}&primary_release_year=${t.y}`).then(d => d?.results?.[0])));
-                results = data.filter(m => m?.poster_path && !loadedAfterDarkIds.has(m.id));
-                results.forEach(m => loadedAfterDarkIds.add(m.id));
-                afterDarkPage++;
+                await fetchAfterDark();
+                isLoading = false; return;
             } else if (activeType === 'unrated') {
                 const itemsPerPage = 16;
                 const start = (unratedPage - 1) * itemsPerPage;
@@ -756,7 +786,7 @@
             }
 
             renderGrid(results);
-            if (!['black_magic', 'african', 'japanese', 'unrated', 'youth', 'teen', 'ghastly_series', 'after_dark'].includes(activeType)) currentPage++;
+            if (!['black_magic', 'african', 'japanese', 'unrated', 'youth', 'teen', 'ghastly_series', 'k_horror'].includes(activeType)) currentPage++;
             isLoading = false;
         }
 
