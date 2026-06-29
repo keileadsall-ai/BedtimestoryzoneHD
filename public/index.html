@@ -27,12 +27,12 @@
         .btn-play-blood { background: var(--blood); color: white; font-weight: 700; padding: 14px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; max-width: 400px; }
         #player-overlay { display: none; position: fixed; inset: 0; background: #000; z-index: 9000; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .episode-row { display: flex; gap: 15px; padding: 12px; border-bottom: 1px solid #111; cursor: pointer; border: 2px solid transparent; border-radius: 8px; }
         .ep-thumbnail { width: 120px; aspect-ratio: 16/9; background-size: cover; border-radius: 4px; flex-shrink: 0; background-color: #111; position: relative; }
         .ep-play-icon { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); color: white; font-size: 1.2rem; }
         .movie-info { position: absolute; bottom: 0; background: rgba(0,0,0,0.85); width: 100%; padding: 8px; font-size: 0.75rem; opacity: 0; transition: 0.3s; }
         .movie-card:hover .movie-info { opacity: 1; }
-        
         .fade-in { animation: fadeIn 0.4s ease-in; }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
     </style>
@@ -46,7 +46,7 @@
 
     <div id="side-menu" class="p-8 no-scrollbar overflow-y-auto">
         <h2 class="nosifer text-red-600 text-2xl mb-8">THE VAULTS</h2>
-        <div class="flex flex-col gap-2 horror-font text-xl">
+        <div class="flex flex-col gap-2 horror-font text-xl pb-10">
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('list', '8661620')">STEPHEN KING</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('list', '8663550')">WES CRAVEN</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('after_dark')">AFTER DARK</button>
@@ -73,7 +73,7 @@
                        onsearch="triggerSearch()"
                        onkeyup="handleSearch(event)">
             </div>
-            <nav class="flex px-6 pb-2 gap-8 overflow-x-auto no-scrollbar horror-font text-lg tracking-widest uppercase">
+            <nav class="flex px-6 pb-2 gap-8 overflow-x-auto no-scrollbar horror-font text-lg tracking-widest uppercase" style="scroll-behavior: smooth;">
                 <button id="btn-trending" onclick="setFilter('trending_theaters')" class="focusable nav-active whitespace-nowrap">TRENDING</button>
                 <button class="focusable whitespace-nowrap" onclick="setFilter('horror_movies')">HORROR FILMS</button>
                 <button class="focusable whitespace-nowrap" onclick="setFilter('ghastly_series')">GHASTLY SERIES</button>
@@ -95,7 +95,7 @@
             <button onclick="closeSelector()" class="focusable mb-8 bg-white/10 p-3 rounded-full border border-white/20">
                 <svg width="24" height="24" fill="white" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
             </button>
-            <div class="flex flex-col md:row gap-8 mb-10">
+            <div class="flex flex-col md:flex-row gap-8 mb-10">
                 <img id="details-poster" class="w-48 rounded-xl shadow-2xl border border-red-900/30">
                 <div class="flex flex-col justify-end">
                     <h2 id="show-title" class="nosifer text-3xl md:text-5xl text-white mb-4 leading-tight"></h2>
@@ -129,7 +129,6 @@
         const HORROR_ID = 27;
         let activeType = 'trending_theaters', activeID = '', currentMedia = {};
         let currentPage = 1, isLoading = false;
-        
         let savedScrollPosition = 0, lastFocusedElement = null;
 
         let unratedPage = 1, loadedUnratedIds = new Set();
