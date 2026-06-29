@@ -136,7 +136,6 @@
         let currentPage = 1, isLoading = false;
         let savedScrollPosition = 0, lastFocusedElement = null;
 
-        // Initialize Continue Watching
         function loadContinueWatching() {
             const watched = JSON.parse(localStorage.getItem('fear_plus_continue') || 'null');
             if (watched) {
@@ -146,10 +145,7 @@
                 grid.innerHTML = '';
                 const card = document.createElement('div');
                 card.className = "movie-card focusable fade-in"; card.tabIndex = 0;
-                card.onclick = () => { 
-                    currentMedia = watched; 
-                    startLuxeStream(); 
-                };
+                card.onclick = () => { currentMedia = watched; startLuxeStream(); };
                 card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${watched.poster}" class="w-full h-full object-cover"><div class="movie-info horror-font"><h3 class="text-red-600 font-bold truncate">${watched.title}</h3><p>Continue</p></div>`;
                 grid.appendChild(card);
             }
@@ -911,6 +907,20 @@
                 if (!m.poster_path) return;
                 const card = document.createElement('div');
                 card.className = "movie-card focusable fade-in"; card.tabIndex = 0;
+                
+                // Trailer Preview Logic
+                card.onmouseover = async () => {
+                    const type = m.media_type || (m.first_air_date ? 'tv' : 'movie');
+                    const videoData = await fetchWithRetry(`https://api.themoviedb.org/3/${type}/${m.id}/videos?api_key=${API_KEY}`);
+                    const trailer = videoData?.results.find(v => v.type === 'Trailer' || v.type === 'Teaser');
+                    if(trailer) {
+                        card.innerHTML = `<iframe class="w-full h-full" src="https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=1&controls=0&loop=1" frameborder="0"></iframe>`;
+                    }
+                };
+                card.onmouseout = () => {
+                    card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${m.poster_path}" class="w-full h-full object-cover"><div class="movie-info horror-font"><h3 class="text-red-600 font-bold truncate">${m.title || m.name}</h3><p>${(m.release_date || m.first_air_date || '').split('-')[0]}</p></div>`;
+                };
+
                 const type = m.media_type || (m.first_air_date ? 'tv' : 'movie');
                 card.onclick = () => openDetails(m.id, type);
                 card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${m.poster_path}" class="w-full h-full object-cover"><div class="movie-info horror-font"><h3 class="text-red-600 font-bold truncate">${m.title || m.name}</h3><p>${(m.release_date || m.first_air_date || '').split('-')[0]}</p></div>`;
@@ -925,7 +935,6 @@
             const data = await fetchWithRetry(`https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}`);
             if (!data) return;
             
-            // New Image Logic
             const images = await fetchWithRetry(`https://api.themoviedb.org/3/${type}/${id}/images?api_key=${API_KEY}`);
             let backdropUrl = `https://image.tmdb.org/t/p/original${data.backdrop_path}`;
             if (images && images.backdrops && images.backdrops.length > 0) {
