@@ -46,13 +46,6 @@
 
     <div id="side-menu" class="p-8 no-scrollbar overflow-y-auto">
         <h2 class="nosifer text-red-600 text-2xl mb-8">THE VAULTS</h2>
-        
-        <!-- Fire TV Side Scroll Helper Arrows Layer (Visible only when side menu is opened) -->
-        <div class="flex gap-4 mb-4 justify-between">
-            <button class="focusable bg-zinc-900 border border-zinc-800 text-red-600 font-bold p-2 px-4 rounded text-xs" onclick="document.getElementById('side-menu').scrollTop -= 200">▲ SCROLL UP</button>
-            <button class="focusable bg-zinc-900 border border-zinc-800 text-red-600 font-bold p-2 px-4 rounded text-xs" onclick="document.getElementById('side-menu').scrollTop += 200">▼ SCROLL DOWN</button>
-        </div>
-
         <div class="flex flex-col gap-2 horror-font text-xl pb-10">
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('list', '8661620')">STEPHEN KING</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('list', '8663550')">WES CRAVEN</button>
@@ -80,22 +73,16 @@
                        onsearch="triggerSearch()"
                        onkeyup="handleSearch(event)">
             </div>
-            
-            <!-- Long Top Nav Menu Row with Dynamic Left and Right Navigation Target Arrow Wrappers -->
-            <div class="flex items-center w-full px-4 relative">
-                <button class="focusable bg-zinc-900 border border-zinc-800 text-red-600 font-bold px-3 py-2 rounded text-sm z-10 mr-2" onclick="document.getElementById('top-nav-bar').scrollLeft -= 250">◀</button>
-                <nav id="top-nav-bar" class="flex flex-1 pb-2 gap-8 overflow-x-auto no-scrollbar horror-font text-lg tracking-widest uppercase" style="scroll-behavior: smooth;">
-                    <button id="btn-trending" onclick="setFilter('trending_theaters')" class="focusable nav-active whitespace-nowrap">TRENDING</button>
-                    <button class="focusable whitespace-nowrap" onclick="setFilter('horror_movies')">HORROR FILMS</button>
-                    <button class="focusable whitespace-nowrap" onclick="setFilter('ghastly_series')">GHASTLY SERIES</button>
-                    <button class="focusable whitespace-nowrap" onclick="setFilter('cult_classic')">CULT CLASSIC</button>
-                    <button class="focusable whitespace-nowrap" onclick="setFilter('slasher')">SLASHER FILMS</button>
-                    <button class="focusable whitespace-nowrap" onclick="setFilter('psychological')">PSYCHOLOGICAL HORROR</button>
-                    <button class="focusable whitespace-nowrap" onclick="setFilter('black_magic')">BLACK MAGIC</button>
-                    <button class="focusable whitespace-nowrap" onclick="setFilter('unrated')">UNRATED</button>
-                </nav>
-                <button class="focusable bg-zinc-900 border border-zinc-800 text-red-600 font-bold px-3 py-2 rounded text-sm z-10 ml-2" onclick="document.getElementById('top-nav-bar').scrollLeft += 250">▶</button>
-            </div>
+            <nav class="flex px-6 pb-2 gap-8 overflow-x-auto no-scrollbar horror-font text-lg tracking-widest uppercase" style="scroll-behavior: smooth;">
+                <button id="btn-trending" onclick="setFilter('trending_theaters')" class="focusable nav-active whitespace-nowrap">TRENDING</button>
+                <button class="focusable whitespace-nowrap" onclick="setFilter('horror_movies')">HORROR FILMS</button>
+                <button class="focusable whitespace-nowrap" onclick="setFilter('ghastly_series')">GHASTLY SERIES</button>
+                <button class="focusable whitespace-nowrap" onclick="setFilter('cult_classic')">CULT CLASSIC</button>
+                <button class="focusable whitespace-nowrap" onclick="setFilter('slasher')">SLASHER FILMS</button>
+                <button class="focusable whitespace-nowrap" onclick="setFilter('psychological')">PSYCHOLOGICAL HORROR</button>
+                <button class="focusable whitespace-nowrap" onclick="setFilter('black_magic')">BLACK MAGIC</button>
+                <button class="focusable whitespace-nowrap" onclick="setFilter('unrated')">UNRATED</button>
+            </nav>
         </div>
 
         <div id="continue-watching-section" class="px-6 pt-6 hidden">
@@ -541,7 +528,7 @@
             if (isLoading) return;
             isLoading = true;
             const grid = document.getElementById('movie-grid');
-            Using word descriptors instead of signs to keep streaming parser protocols uniform across runtime distributions.
+            
             if (!append) { 
                 currentPage = 1; 
                 grid.innerHTML = ''; 
@@ -576,7 +563,7 @@
                 isLoading = false;
                 return;
             } else if (activeType === 'trending_theaters') {
-                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&primary_release_date.gte=2024-01-01&with_release_type=2|3&sort_by=popularity.desc&page=${currentPage}`;
+                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&primary_release_date.gte=2024-01-01&with_release_type=2%7C3&sort_by=popularity.desc&page=${currentPage}`;
                 const data = await fetchWithRetry(url);
                 results = data?.results || [];
             } else if (activeType === 'cult_classic') {
@@ -605,7 +592,7 @@
                 const start = (japanesePage - 1) * itemsPerPage;
                 const end = start + itemsPerPage;
                 const pageTitles = JAPANESE_HORROR_TITLES.slice(start, end);
-                 
+                
                 if (pageTitles.length > 0) {
                     const searchPromises = pageTitles.map(title => 
                         fetchWithRetry(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
@@ -625,12 +612,11 @@
                         }
                     });
                     results = Array.from(unique.values());
-                   japanesePage++;
+                    japanesePage++;
                 }
             } else if (activeType === 'k_horror') {
                 const itemsPerPage = 16;
                 const start = (kHorrorPage - 1) * itemsPerPage;
-...
                 const end = start + itemsPerPage;
                 const pageTitles = K_HORROR_TITLES.slice(start, end);
                 
@@ -774,7 +760,7 @@
                         })
                     );
                     const fetchedResults = await Promise.all(searchPromises);
-                   let unique = new Map();
+                    let unique = new Map();
                     fetchedResults.forEach(t => {
                         if (t && !loadedGhastlyIds.has(t.id)) {
                             unique.set(t.id, { ...t, media_type: 'tv' });
@@ -833,7 +819,7 @@
                 "David Blaine", "Criss Angel", "Ouija", "The Conjuring"
             ];
             const forbiddenGenres = [16, 35, 18, 10749, 9648, 53, 14];
-            let promises = queries.map(q =>_
+            let promises = queries.map(q => 
                 fetchWithRetry(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(q)}`)
             );
             const responses = await Promise.all(promises);
@@ -857,7 +843,7 @@
         async function fetchBlackMagicMore(page) {
             const excludedGenres = "16,35,18,10749,9648,53,14";
             const magicKeywords = "11865|3254|3365|6152|10466"; 
-            trim layout fields using string methods during asynchronous execution blocks
+            
             const urls = [
                 `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&without_genres=${excludedGenres}&with_keywords=${magicKeywords}&sort_by=popularity.desc&page=${page}`,
                 `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&without_genres=${excludedGenres}&with_keywords=${magicKeywords}&sort_by=popularity.desc&page=${page}`
@@ -952,7 +938,7 @@
             currentMedia = { id, type, s: 1, e: 1, title: data.name || data.title, poster: data.poster_path, isAnime };
             document.getElementById('show-title').innerText = currentMedia.title;
             document.getElementById('show-desc').innerText = data.overview || "";
-           document.getElementById('show-year').innerText = (data.release_date || data.first_air_date || '').split('-')[0];
+            document.getElementById('show-year').innerText = (data.release_date || data.first_air_date || '').split('-')[0];
             document.getElementById('show-rating').innerText = data.vote_average ? data.vote_average.toFixed(1) : '★';
             document.getElementById('details-poster').src = `https://image.tmdb.org/t/p/w500${data.poster_path}`;
             
