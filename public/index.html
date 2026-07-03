@@ -35,6 +35,15 @@
         .movie-card:hover .movie-info { opacity: 1; }
         .fade-in { animation: fadeIn 0.4s ease-in; }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+        /* TARGETED FIRE TV/SMART TV ADJUSTMENT */
+        @media screen and (min-width: 1280px) {
+            body.is-tv {
+                transform: scale(0.94);
+                transform-origin: top center;
+                width: 106.38%; /* Compensates math perfectly for scale(0.94) to avoid side whitespace gaps */
+            }
+        }
     </style>
 </head>
 <body>
@@ -1104,6 +1113,12 @@
         }
 
         window.onload = () => {
+            /* SAFE TELEVISION BROWSER DETECTION */
+            const ua = navigator.userAgent.toLowerCase();
+            if (ua.includes('firetv') || ua.includes('aftb') || ua.includes('afts') || ua.includes('smarttv') || ua.includes('appletv')) {
+                document.body.classList.add('is-tv');
+            }
+
             fetchContent();
             loadContinueWatching();
             setTimeout(() => { 
