@@ -1084,7 +1084,33 @@
             if (dir) {
                 e.preventDefault();
                 const next = findNext(current, focusables, dir);
-                if (next) { next.focus(); next.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+                if (next) { 
+                    next.focus(); 
+                    
+                    // FireTV Overflow Auto-Scroll Engine Enhancement
+                    const parentNav = next.closest('nav');
+                    const parentSideMenu = next.closest('#side-menu');
+                    const parentSeasonButtons = next.closest('#season-buttons');
+                    
+                    if (parentNav) {
+                        parentNav.scrollTo({
+                            left: next.offsetLeft - parentNav.offsetWidth / 2 + next.offsetWidth / 2,
+                            behavior: 'smooth'
+                        });
+                    } else if (parentSeasonButtons) {
+                        parentSeasonButtons.scrollTo({
+                            left: next.offsetLeft - parentSeasonButtons.offsetWidth / 2 + next.offsetWidth / 2,
+                            behavior: 'smooth'
+                        });
+                    } else if (parentSideMenu) {
+                        parentSideMenu.scrollTo({
+                            top: next.offsetTop - parentSideMenu.offsetHeight / 2 + next.offsetHeight / 2,
+                            behavior: 'smooth'
+                        });
+                    } else {
+                        next.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
+                    }
+                }
             }
         });
 
