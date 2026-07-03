@@ -1006,7 +1006,7 @@
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 1200); 
                     const response = await fetch(consumetUrl, { method: 'HEAD', signal: controller.signal });
-                    clearTimeout(timeoutId);
+                    clearInterval(timeoutId);
                     iframe.src = response.ok ? consumetUrl : vidsrcUrl;
                 } catch (err) { iframe.src = vidsrcUrl; }
             } else { iframe.src = vidsrcUrl; }
@@ -1086,30 +1086,7 @@
                 const next = findNext(current, focusables, dir);
                 if (next) { 
                     next.focus(); 
-                    
-                    // FireTV Overflow Auto-Scroll Engine Enhancement
-                    const parentNav = next.closest('nav');
-                    const parentSideMenu = next.closest('#side-menu');
-                    const parentSeasonButtons = next.closest('#season-buttons');
-                    
-                    if (parentNav) {
-                        parentNav.scrollTo({
-                            left: next.offsetLeft - parentNav.offsetWidth / 2 + next.offsetWidth / 2,
-                            behavior: 'smooth'
-                        });
-                    } else if (parentSeasonButtons) {
-                        parentSeasonButtons.scrollTo({
-                            left: next.offsetLeft - parentSeasonButtons.offsetWidth / 2 + next.offsetWidth / 2,
-                            behavior: 'smooth'
-                        });
-                    } else if (parentSideMenu) {
-                        parentSideMenu.scrollTo({
-                            top: next.offsetTop - parentSideMenu.offsetHeight / 2 + next.offsetHeight / 2,
-                            behavior: 'smooth'
-                        });
-                    } else {
-                        next.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
-                    }
+                    next.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
                 }
             }
         });
@@ -1118,14 +1095,38 @@
             if (!cur || cur === document.body) return targets[0];
             const r1 = cur.getBoundingClientRect(), c1 = { x: r1.left + r1.width/2, y: r1.top + r1.height/2 };
             let best = null, min = Infinity;
+            
             targets.forEach(t => {
                 if (t === cur) return;
+                
+                // FireTV Scrolling Fix: Force hidden items in long overflow components to keep native bounds parameters
+                const insideNav = t.closest('nav');
+                const insideSideMenu = t.closest('#side-menu');
+                
+                if (insideNav && (dir === 'left' || dir === 'right')) {
+                    if (cur.closest('nav') !== insideNav) return;
+                }
+                if (insideSideMenu && (dir === 'up' || dir === 'down')) {
+                    if (cur.closest('#side-menu') !== insideSideMenu) return;
+                }
+                
                 const r2 = t.getBoundingClientRect(), c2 = { x: r2.left + r2.width/2, y: r2.top + r2.height/2 };
                 if (dir === 'up' && c2.y >= c1.y) return; if (dir === 'down' && c2.y <= c1.y) return;
                 if (dir === 'left' && c2.x >= c1.x) return; if (dir === 'right' && c2.x <= c1.x) return;
                 const d = Math.sqrt(Math.pow(c2.x - c1.x, 2) + Math.pow(c2.y - c1.y, 2));
                 if (d < min) { min = d; best = t; }
             });
+            
+            // Context-aware automatic programmatic tracking update
+            if (best) {
+                const navContainer = best.closest('nav');
+                const sideContainer = best.closest('#side-menu');
+                if (navContainer) {
+                    navContainer.scrollLeft += (best.getBoundingClientRect().left - navContainer.getBoundingClientRect().left) - (navContainer.clientWidth / 2) + (best.clientWidth / 2);
+                } else if (sideContainer) {
+                    sideContainer.scrollTop += (best.getBoundingClientRect().top - sideContainer.getBoundingClientRect().top) - (sideContainer.clientHeight / 2) + (best.clientHeight / 2);
+                }
+            }
             return best;
         }
 
