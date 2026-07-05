@@ -874,17 +874,24 @@
             const grid = document.getElementById('movie-grid');
             grid.innerHTML = '';
             const darkTitles = [
-                "The Hamiltons", "Penny Dreadful", "Zombies", "The Abandoned", "Dark Ride", "The Gravedancers", "The Unrest", "Snoop Dogg's Hood of Horror",
-                "The Deaths of Ian Stone", "Lake Dead", "Mulberry Street", "Tooth and Nail", "Nightmare Man", "Crazy Eights", "Borderland", "Unearthed", "Frontier(s)",
-                "Autopsy", "The Broken", "The Butterfly Effect 3: Revelations", "Dying Breed", "From Within", "Perkins' 14", "Slaughter", "Voices",
-                "The Final", "Kill Theory", "Dread", "The Graves", "Lake Mungo", "The Reeds", "Hidden", "ZMD: Zombies of Mass Destruction",
-                "Scream of the Banshee", "The Task", "The Graves", "Protomartyr", "Seconds Apart", "Fertile Ground", "Prowl", "51", "Husk",
-                "Asylum Blackout", "Children of Sorrow", "Dark Circles", "The Collection", "Ritual", "The Wicked", "Area 51", "Sanatorium",
-                "Re-Kill", "Murder in the Dark", "The Wicked Within", "Lumberjack Man", "Suspicion", "Wind Walkers", "A Christmas Horror Story", "Unnatural", "Bite"
+                // Horrorfest 2006 (8 Films to Die For)
+                "The Abandoned", "Dark Ride", "The Gravedancers", "The Hamiltons", "Penny Dreadful", "Reincarnation", "Unrest", "Wicked Little Things", "Snoop Dogg's Hood of Horror",
+                // Horrorfest 2007 (8 Films to Die For)
+                "Borderland", "Crazy Eights", "The Deaths of Ian Stone", "Lake Dead", "Mulberry Street", "Nightmare Man", "Tooth and Nail", "Unearthed", "Frontier(s)",
+                // Horrorfest 2008 / 2009 (Third Annual)
+                "Autopsy", "The Broken", "The Butterfly Effect 3: Revelations", "Dying Breed", "From Within", "Perkins' 14", "Slaughter", "Voices", "Ghouls",
+                // Horrorfest 4 (2010)
+                "Dread", "The Final", "The Graves", "Kill Theory", "Lake Mungo", "The Reeds", "Hidden", "Zombies of Mass Destruction",
+                // After Dark Originals 2011 & 2012
+                "51", "Fertile Ground", "Husk", "Prowl", "Seconds Apart", "Scream of the Banshee", "The Task", "Underground", "Asylum Blackout",
+                // After Dark Action & Extra Originals (2012-2014)
+                "Transit", "Dragon Eyes", "The Philly Kid", "Stash House", "Universal Soldier: Day of Reckoning", "El Gringo", "Dark Circles", "Red Clover", "Children of Sorrow", "Sanatorium", "Ritual", "Mischief Night", "Bedlam", "Blood Ransom",
+                // Horrorfest 2015 (8 Films to Die For Revival)
+                "Re-Kill", "Murder in the Dark", "The Wicked Within", "Lumberjack Man", "Suspension", "Unnatural", "Bastard", "Wind Walkers"
             ];
             const searchPromises = darkTitles.map(title => 
                 fetchWithRetry(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
-                .then(data => data && data.results ? data.results.find(m => m.poster_path) : null)
+                .then(data => data && data.results ? data.results[0] : null)
             );
             const results = await Promise.all(searchPromises);
             renderGrid(results.filter(m => m && m.poster_path));
@@ -1169,7 +1176,7 @@
                 sideMenu.appendChild(upArrow);
                 sideMenu.appendChild(downArrow);
 
-                // Track changes during vertical navigation inside vaults list
+                // Auto-center view when elements receive focus via D-Pad
                 sideScrollArea.querySelectorAll('button').forEach(btn => {
                     btn.addEventListener('focus', function() {
                         setTimeout(() => {
