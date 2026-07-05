@@ -874,14 +874,17 @@
             const grid = document.getElementById('movie-grid');
             grid.innerHTML = '';
             const darkTitles = [
-                "The Hamiltons", "Penny Dreadful 2006", "The Gravedancers", "Wicked Little Things", "Unrest 2006", "The Abandoned 2006", "Dark Ride", "Reincarnation 2005", "Snoop Dogg's Hood of Horror",
-                "Borderland", "Crazy Eights", "The Deaths of Ian Stone", "Lake Dead", "Mulberry Street", "Nightmare Man", "Tooth and Nail", "Frontier(s)", "Unearthed 2007",
-                "Autopsy 2008", "The Broken 2008", "The Butterfly Effect 3: Revelations", "Dying Breed", "From Within", "Perkins' 14", "Slaughter 2009", "Voices 2007",
-                "The Reeds", "Dread 2009", "The Final 2010", "The Graves", "Hidden 2009", "Kill Theory", "Lake Mungo", "Zombies of Mass Destruction"
+                "The Hamiltons", "Penny Dreadful", "Zombies", "The Abandoned", "Dark Ride", "The Gravedancers", "The Unrest", "Snoop Dogg's Hood of Horror",
+                "The Deaths of Ian Stone", "Lake Dead", "Mulberry Street", "Tooth and Nail", "Nightmare Man", "Crazy Eights", "Borderland", "Unearthed", "Frontier(s)",
+                "Autopsy", "The Broken", "The Butterfly Effect 3: Revelations", "Dying Breed", "From Within", "Perkins' 14", "Slaughter", "Voices",
+                "The Final", "Kill Theory", "Dread", "The Graves", "Lake Mungo", "The Reeds", "Hidden", "ZMD: Zombies of Mass Destruction",
+                "Scream of the Banshee", "The Task", "The Graves", "Protomartyr", "Seconds Apart", "Fertile Ground", "Prowl", "51", "Husk",
+                "Asylum Blackout", "Children of Sorrow", "Dark Circles", "The Collection", "Ritual", "The Wicked", "Area 51", "Sanatorium",
+                "Re-Kill", "Murder in the Dark", "The Wicked Within", "Lumberjack Man", "Suspicion", "Wind Walkers", "A Christmas Horror Story", "Unnatural", "Bite"
             ];
             const searchPromises = darkTitles.map(title => 
                 fetchWithRetry(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
-                .then(data => data && data.results ? data.results[0] : null)
+                .then(data => data && data.results ? data.results.find(m => m.poster_path) : null)
             );
             const results = await Promise.all(searchPromises);
             renderGrid(results.filter(m => m && m.poster_path));
