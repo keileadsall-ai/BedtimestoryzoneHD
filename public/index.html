@@ -41,7 +41,7 @@
             body.is-tv {
                 transform: scale(0.94);
                 transform-origin: top center;
-                width: 106.38%; /* Compensates math perfectly for scale(0.94) to avoid side whitespace gaps */
+                width: 106.38%;
             }
         }
     </style>
@@ -55,7 +55,7 @@
 
     <div id="side-menu" class="p-8 no-scrollbar overflow-y-auto">
         <h2 class="nosifer text-red-600 text-2xl mb-8">THE VAULTS</h2>
-        <div class="flex flex-col gap-2 horror-font text-xl pb-10">
+        <div id="side-scroll-area" class="flex flex-col gap-2 horror-font text-xl pb-10 overflow-y-auto max-h-[70vh] no-scrollbar" style="scroll-behavior: smooth;">
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('list', '8661620')">STEPHEN KING</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('list', '8663550')">WES CRAVEN</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('after_dark')">AFTER DARK</button>
@@ -82,16 +82,18 @@
                        onsearch="triggerSearch()"
                        onkeyup="handleSearch(event)">
             </div>
-            <nav class="flex px-6 pb-2 gap-8 overflow-x-auto no-scrollbar horror-font text-lg tracking-widest uppercase" style="scroll-behavior: smooth;">
-                <button id="btn-trending" onclick="setFilter('trending_theaters')" class="focusable nav-active whitespace-nowrap">TRENDING</button>
-                <button class="focusable whitespace-nowrap" onclick="setFilter('horror_movies')">HORROR FILMS</button>
-                <button class="focusable whitespace-nowrap" onclick="setFilter('ghastly_series')">GHASTLY SERIES</button>
-                <button class="focusable whitespace-nowrap" onclick="setFilter('cult_classic')">CULT CLASSIC</button>
-                <button class="focusable whitespace-nowrap" onclick="setFilter('slasher')">SLASHER FILMS</button>
-                <button class="focusable whitespace-nowrap" onclick="setFilter('psychological')">PSYCHOLOGICAL HORROR</button>
-                <button class="focusable whitespace-nowrap" onclick="setFilter('black_magic')">BLACK MAGIC</button>
-                <button class="focusable whitespace-nowrap" onclick="setFilter('unrated')">UNRATED</button>
-            </nav>
+            <div id="top-nav-container" class="relative w-full flex items-center">
+                <nav id="top-nav-menu" class="flex px-12 pb-2 gap-8 overflow-x-auto no-scrollbar horror-font text-lg tracking-widest uppercase w-full" style="scroll-behavior: smooth;">
+                    <button id="btn-trending" onclick="setFilter('trending_theaters')" class="focusable nav-active whitespace-nowrap">TRENDING</button>
+                    <button class="focusable whitespace-nowrap" onclick="setFilter('horror_movies')">HORROR FILMS</button>
+                    <button class="focusable whitespace-nowrap" onclick="setFilter('ghastly_series')">GHASTLY SERIES</button>
+                    <button class="focusable whitespace-nowrap" onclick="setFilter('cult_classic')">CULT CLASSIC</button>
+                    <button class="focusable whitespace-nowrap" onclick="setFilter('slasher')">SLASHER FILMS</button>
+                    <button class="focusable whitespace-nowrap" onclick="setFilter('psychological')">PSYCHOLOGICAL HORROR</button>
+                    <button class="focusable whitespace-nowrap" onclick="setFilter('black_magic')">BLACK MAGIC</button>
+                    <button class="focusable whitespace-nowrap" onclick="setFilter('unrated')">UNRATED</button>
+                </nav>
+            </div>
         </div>
 
         <div id="continue-watching-section" class="px-6 pt-6 hidden">
@@ -934,7 +936,6 @@
             const data = await fetchWithRetry(`https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}`);
             if (!data) return;
             
-            // New Image Logic
             const images = await fetchWithRetry(`https://api.themoviedb.org/3/${type}/${id}/images?api_key=${API_KEY}`);
             let backdropUrl = `https://image.tmdb.org/t/p/original${data.backdrop_path}`;
             if (images && images.backdrops && images.backdrops.length > 0) {
@@ -1112,6 +1113,65 @@
             return best;
         }
 
+        // Setup custom dynamic navigation arrows for both menus
+        function setupNavigationArrows() {
+            // 1. Top Navigation Menu Setup
+            const topNavMenu = document.getElementById('top-nav-menu');
+            const topNavContainer = document.getElementById('top-nav-container');
+            
+            if (topNavMenu && topNavContainer) {
+                const leftArrow = document.createElement('button');
+                leftArrow.className = 'focusable absolute left-0 z-50 bg-black/90 text-red-600 font-bold px-3 py-2 border border-red-900/40 rounded-r-lg shadow-2xl';
+                leftArrow.innerHTML = '❮';
+                leftArrow.onclick = () => topNavMenu.scrollBy({ left: -200, behavior: 'smooth' });
+
+                const rightArrow = document.createElement('button');
+                rightArrow.className = 'focusable absolute right-0 z-50 bg-black/90 text-red-600 font-bold px-3 py-2 border border-red-900/40 rounded-l-lg shadow-2xl';
+                rightArrow.innerHTML = '❯';
+                rightArrow.onclick = () => topNavMenu.scrollBy({ left: 200, behavior: 'smooth' });
+
+                topNavContainer.appendChild(leftArrow);
+                topNavContainer.appendChild(rightArrow);
+
+                // Auto-center view when elements receive focus via D-Pad
+                topNavMenu.querySelectorAll('button').forEach(btn => {
+                    btn.addEventListener('focus', function() {
+                        setTimeout(() => {
+                            topNavMenu.scrollLeft = this.offsetLeft - (topNavMenu.offsetWidth / 2) + (this.offsetWidth / 2);
+                        }, 100);
+                    });
+                });
+            }
+
+            // 2. Side Menu Setup
+            const sideScrollArea = document.getElementById('side-scroll-area');
+            const sideMenu = document.getElementById('side-menu');
+            
+            if (sideScrollArea && sideMenu) {
+                const upArrow = document.createElement('button');
+                upArrow.className = 'focusable absolute top-20 left-1/2 -translate-x-1/2 z-50 bg-black/90 text-red-600 font-bold px-6 py-1 border border-red-900/40 rounded-full shadow-2xl';
+                upArrow.innerHTML = '▲';
+                upArrow.onclick = () => sideScrollArea.scrollBy({ top: -150, behavior: 'smooth' });
+
+                const downArrow = document.createElement('button');
+                downArrow.className = 'focusable absolute bottom-4 left-1/2 -translate-x-1/2 z-50 bg-black/90 text-red-600 font-bold px-6 py-1 border border-red-900/40 rounded-full shadow-2xl';
+                downArrow.innerHTML = '▼';
+                downArrow.onclick = () => sideScrollArea.scrollBy({ top: 150, behavior: 'smooth' });
+
+                sideMenu.appendChild(upArrow);
+                sideMenu.appendChild(downArrow);
+
+                // Track changes during vertical navigation inside vaults list
+                sideScrollArea.querySelectorAll('button').forEach(btn => {
+                    btn.addEventListener('focus', function() {
+                        setTimeout(() => {
+                            sideScrollArea.scrollTop = this.offsetTop - (sideScrollArea.offsetHeight / 2) + (this.offsetHeight / 2);
+                        }, 100);
+                    });
+                });
+            }
+        }
+
         window.onload = () => {
             /* SAFE TELEVISION BROWSER DETECTION */
             const ua = navigator.userAgent.toLowerCase();
@@ -1119,6 +1179,7 @@
                 document.body.classList.add('is-tv');
             }
 
+            setupNavigationArrows();
             fetchContent();
             loadContinueWatching();
             setTimeout(() => { 
