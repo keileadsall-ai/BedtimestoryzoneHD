@@ -819,7 +819,6 @@
                 currentPage++;
             }
 
-            grid.appendChild(createGridElements(results)); // Kept your render consistency logic intact
             renderGrid(results);
             if (!['black_magic', 'african', 'japanese', 'unrated', 'youth', 'teen', 'ghastly_series', 'k_horror'].includes(activeType)) currentPage++;
             isLoading = false;
@@ -875,14 +874,10 @@
             const grid = document.getElementById('movie-grid');
             grid.innerHTML = '';
             const darkTitles = [
-                // FESTIVAL 1 (2006)
-                "The Abandoned", "Dark Ride", "The Gravedancers", "The Hamiltons", "Penny Dreadful", "Reincarnation", "Unrest", "Wicked Little Things", "Hood of Horror",
-                // FESTIVAL 2 (2007)
-                "Borderland", "Crazy Eights", "The Deaths of Ian Stone", "Lake Dead", "Mulberry Street", "Nightmare Man", "Tooth and Nail", "Unearthed", "Frontier(s)",
-                // FESTIVAL 3 (2009)
-                "Autopsy", "The Broken", "The Butterfly Effect 3: Revelations", "Dying Breed", "From Within", "Perkins' 14", "Slaughter", "Voices",
-                // FESTIVAL 4 (2010)
-                "Dread", "The Graves", "Hidden", "Kill Theory", "Lake Mungo", "The Reeds", "ZMD: Zombies of Mass Destruction", "The Final"
+                "The Hamiltons", "Penny Dreadful 2006", "The Gravedancers", "Wicked Little Things", "Unrest 2006", "The Abandoned 2006", "Dark Ride", "Reincarnation 2005", "Snoop Dogg's Hood of Horror",
+                "Borderland", "Crazy Eights", "The Deaths of Ian Stone", "Lake Dead", "Mulberry Street", "Nightmare Man", "Tooth and Nail", "Frontier(s)", "Unearthed 2007",
+                "Autopsy 2008", "The Broken 2008", "The Butterfly Effect 3: Revelations", "Dying Breed", "From Within", "Perkins' 14", "Slaughter 2009", "Voices 2007",
+                "The Reeds", "Dread 2009", "The Final 2010", "The Graves", "Hidden 2009", "Kill Theory", "Lake Mungo", "Zombies of Mass Destruction"
             ];
             const searchPromises = darkTitles.map(title => 
                 fetchWithRetry(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
@@ -1175,7 +1170,7 @@
                 sideScrollArea.querySelectorAll('button').forEach(btn => {
                     btn.addEventListener('focus', function() {
                         setTimeout(() => {
-                            sideScrollArea.scrollTop = this.offsetTop - (sideScrollArea.offsetHeight / 2) + (this.offsetHeight / 2);
+                            sideScrollArea.scrollTop = this.offsetLeft - (sideScrollArea.offsetHeight / 2) + (this.offsetHeight / 2);
                         }, 100);
                     });
                 });
