@@ -429,10 +429,10 @@
             "The Gallows", "The Gallows Act II", "Friend Request", "Countdown", "Polaroid", "Wish Upon", "Viral",
             "Slender Man", "Bye Bye Man", "Boogeyman", "Lights Out", "Oculus", "Apparition", "Mirrors",
             "The Crazies", "Drag Me to Hell", "Thirteen Ghosts", "Ghost Ship", "Gothika", "The Reaping", "The Invasion",
-            "The Unborn", "Whiteout", "13 Sins", "April Fool's Day", "The Grudge 2", "My Soul to Take", "The Collector",
+            "The Unborn", "April Fool's Day", "The Grudge 2", "My Soul to Take", "The Collector",
             "The Collection", "See No Evil", "See No Evil 2", "The Forest", "The Lazarus Effect", "The 47 Meters Down",
             "The 5th Wave", "The Quiet Ones", "The Possession", "The Pyramid", "As Above So Below", "The Vatican Tapes",
-            "Ouija: Origin of Evil", "Brahms: The Boy II", "The Visit", "The Gallows", "Deliver Us from Evil",
+            "The Visit", "Deliver Us from Evil",
             "Paranormal Activity", "Paranormal Activity 2", "Paranormal Activity 3", "Paranormal Activity 4",
             "Paranormal Activity: The Marked Ones", "Paranormal Activity: The Ghost Dimension", "Paranormal Activity: Next of Kin",
             "The Ritual", "Hereditary", "Midsommar", "The Witch", "The Lighthouse", "X", "Pearl", "Infinity Pool",
@@ -458,7 +458,7 @@
             "Wellington Paranormal", "Preacher", "Outcast", "The Exorcist", "Damien",
             "Rosemary's Baby", "Bates Motel", "The Strain", "Hemlock Grove", "Helix",
             "Between", "The Returned", "Resurrection", "Les Revenants", "Glitch",
-            "The Feeding", "The Passage", "The Vampire Diaries", "Midnight, Texas", "Dracula",
+            "The Feeding", "The Passage", "Midnight, Texas", "Dracula",
             "Dracula", "Penny Dreadful", "Salem", "Sleepy Hollow", "Witches of East End",
             "A Discovery of Witches", "Mayfair Witches", "Interview with the Vampire", "The Magicians", "The Order",
             "The Midnight Room", "The Bastard Son & The Devil Himself", "Locke & Key", "The Sandman", "Constantine",
@@ -473,7 +473,7 @@
             "The Lying Game", "The Secret Circle", "The Nine Lives of Chloe King", "Teen Wolf", "Wolf Pack",
             "Shadowhunters", "Bitten", "Lost Girl", "Being Human", "Being Human",
             "The Tomorrow People", "The Messengers", "Star-Crossed", "Roswell", "Roswell, New Mexico",
-            "The Vampire Diaries", "The Walking Dead", "Fear the Walking Dead", "The strains", "The Terror",
+            "The strains", "The Terror",
             "The Terror: Infamy", "The Alienist", "The Alienist: Angel of Darkness", "The Frankenstein Chronicles", "Taboo",
             "Ripper Street", "Penny Dreadful", "Carnival Row", "American Gods", "Good Omens",
             "The Dead Zone", "Haven", "Alcatraz", "Wayward Pines", "Persons Unknown",
@@ -874,24 +874,22 @@
             const grid = document.getElementById('movie-grid');
             grid.innerHTML = '';
             const darkTitles = [
-                // Horrorfest 2006 (8 Films to Die For)
-                "The Abandoned", "Dark Ride", "The Gravedancers", "The Hamiltons", "Penny Dreadful", "Reincarnation", "Unrest", "Wicked Little Things", "Snoop Dogg's Hood of Horror",
-                // Horrorfest 2007 (8 Films to Die For)
-                "Borderland", "Crazy Eights", "The Deaths of Ian Stone", "Lake Dead", "Mulberry Street", "Nightmare Man", "Tooth and Nail", "Unearthed", "Frontier(s)",
-                // Horrorfest 2008 / 2009 (Third Annual)
-                "Autopsy", "The Broken", "The Butterfly Effect 3: Revelations", "Dying Breed", "From Within", "Perkins' 14", "Slaughter", "Voices", "Ghouls",
-                // Horrorfest 4 (2010)
-                "Dread", "The Final", "The Graves", "Kill Theory", "Lake Mungo", "The Reeds", "Hidden", "Zombies of Mass Destruction",
-                // After Dark Originals 2011 & 2012
-                "51", "Fertile Ground", "Husk", "Prowl", "Seconds Apart", "Scream of the Banshee", "The Task", "Underground", "Asylum Blackout",
-                // After Dark Action & Extra Originals (2012-2014)
-                "Transit", "Dragon Eyes", "The Philly Kid", "Stash House", "Universal Soldier: Day of Reckoning", "El Gringo", "Dark Circles", "Red Clover", "Children of Sorrow", "Sanatorium", "Ritual", "Mischief Night", "Bedlam", "Blood Ransom",
-                // Horrorfest 2015 (8 Films to Die For Revival)
-                "Re-Kill", "Murder in the Dark", "The Wicked Within", "Lumberjack Man", "Suspension", "Unnatural", "Bastard", "Wind Walkers"
+                "The Abandoned", "Dark Ride", "The Hamiltons", "Penny Dreadful", "Reincarnation", 
+                "Unrest", "Wicked Little Things", "The Gravedancers", "The Tripper", "Snoop Dogg's Hood of Horror", 
+                "Borderland", "Crazy Eights", "The Deaths of Ian Stone", "Lake Dead", "Mulberry St.", 
+                "Nightmare Man", "Tooth and Nail", "Unearthed", "Frontier(s)", "Autopsy", 
+                "The Broken", "The Butterfly Effect 3", "Dying Breed", "From Within", "Perkin's 14", 
+                "Slaughter", "Voices", "Dread", "The Final", "The Graves", 
+                "Hidden", "Kill Theory", "Lake Mungo", "The Reeds", "Zombies of Mass Destruction",
+                "51", "Fertile Ground", "Husk", "Prowl", "Scream of the Banshee", 
+                "Seconds Apart", "The Task", "Asylum Blackout", "Children of Sorrow", "Dark Circles", 
+                "Red Clover", "Ritual", "Sanatorium", "Stash House", "Transit", 
+                "Murder in the Dark", "The Wicked Within", "Lumberjack Man", "Suspension", "Unnatural", 
+                "Wind Walkers", "A Christmas Horror Story", "Re-Kill", "House of Bones"
             ];
             const searchPromises = darkTitles.map(title => 
                 fetchWithRetry(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
-                .then(data => data && data.results ? data.results[0] : null)
+                .then(data => data && data.results ? data.results.find(m => m.poster_path) || data.results[0] : null)
             );
             const results = await Promise.all(searchPromises);
             renderGrid(results.filter(m => m && m.poster_path));
@@ -1176,11 +1174,11 @@
                 sideMenu.appendChild(upArrow);
                 sideMenu.appendChild(downArrow);
 
-                // Auto-center view when elements receive focus via D-Pad
+                // Track changes during vertical navigation inside vaults list
                 sideScrollArea.querySelectorAll('button').forEach(btn => {
                     btn.addEventListener('focus', function() {
                         setTimeout(() => {
-                            sideScrollArea.scrollTop = this.offsetLeft - (sideScrollArea.offsetHeight / 2) + (this.offsetHeight / 2);
+                            sideScrollArea.scrollTop = this.offsetTop - (sideScrollArea.offsetHeight / 2) + (this.offsetHeight / 2);
                         }, 100);
                     });
                 });
