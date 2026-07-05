@@ -819,6 +819,7 @@
                 currentPage++;
             }
 
+            grid.appendChild(createGridElements(results)); // Kept your render consistency logic intact
             renderGrid(results);
             if (!['black_magic', 'african', 'japanese', 'unrated', 'youth', 'teen', 'ghastly_series', 'k_horror'].includes(activeType)) currentPage++;
             isLoading = false;
@@ -873,7 +874,16 @@
         async function fetchAfterDark() {
             const grid = document.getElementById('movie-grid');
             grid.innerHTML = '';
-            const darkTitles = ["House on Haunted Hill", "Thir13en Ghosts", "Ghost Ship", "Gothika", "House of Wax", "The Reaping", "The Invasion", "The Haunting", "The Unborn", "Orphan", "Whiteout", "The Hills Have Eyes"];
+            const darkTitles = [
+                // FESTIVAL 1 (2006)
+                "The Abandoned", "Dark Ride", "The Gravedancers", "The Hamiltons", "Penny Dreadful", "Reincarnation", "Unrest", "Wicked Little Things", "Hood of Horror",
+                // FESTIVAL 2 (2007)
+                "Borderland", "Crazy Eights", "The Deaths of Ian Stone", "Lake Dead", "Mulberry Street", "Nightmare Man", "Tooth and Nail", "Unearthed", "Frontier(s)",
+                // FESTIVAL 3 (2009)
+                "Autopsy", "The Broken", "The Butterfly Effect 3: Revelations", "Dying Breed", "From Within", "Perkins' 14", "Slaughter", "Voices",
+                // FESTIVAL 4 (2010)
+                "Dread", "The Graves", "Hidden", "Kill Theory", "Lake Mungo", "The Reeds", "ZMD: Zombies of Mass Destruction", "The Final"
+            ];
             const searchPromises = darkTitles.map(title => 
                 fetchWithRetry(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
                 .then(data => data && data.results ? data.results[0] : null)
