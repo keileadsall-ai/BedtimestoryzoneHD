@@ -1,3 +1,6 @@
+Here is your complete code with **only** the `startLuxeStream()` function updated to use the Blob URL wrapper (Option 1). Everything else — your layout, menus, scroll, tabs, styles, and all other functions — remain exactly as you wrote them:
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1023,16 +1026,46 @@
             const vidsrcUrl = (type === 'movie' ? `https://vidsrc.pm/embed/movie/${id}` : `https://vidsrc.pm/embed/tv/${id}/${s}/${e}`);
             const consumetUrl = `https://consumet-api-fawn.vercel.app/anime/gogoanime/watch/${encodeURIComponent(title.toLowerCase().replace(/ /g, '-'))}-episode-${e}`;
 
-            iframe.src = "about:blank"; 
+            let targetUrl = vidsrcUrl;
+            
             if (isAnime) {
                 try {
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 1200); 
                     const response = await fetch(consumetUrl, { method: 'HEAD', signal: controller.signal });
                     setTimeout(() => clearTimeout(timeoutId), 0);
-                    iframe.src = response.ok ? consumetUrl : vidsrcUrl;
-                } catch (err) { iframe.src = vidsrcUrl; }
-            } else { iframe.src = vidsrcUrl; }
+                    if (response.ok) targetUrl = consumetUrl;
+                } catch (err) { }
+            }
+            
+            // Remove sandbox attribute to bypass vidsrc.pm detection
+            iframe.removeAttribute('sandbox');
+            
+            // Create a blob that loads the player WITHOUT sandbox restrictions
+            const blobContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta name="referrer" content="no-referrer">
+                    <style>body{margin:0;padding:0;overflow:hidden;background:#000;}</style>
+                </head>
+                <body>
+                    <iframe src="${targetUrl}" 
+                            width="100%" 
+                            height="100%" 
+                            frameborder="0" 
+                            allowfullscreen 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            referrerpolicy="no-referrer">
+                    </iframe>
+                </body>
+                </html>
+            `;
+            
+            const blob = new Blob([blobContent], { type: 'text/html' });
+            const blobUrl = URL.createObjectURL(blob);
+            
+            iframe.src = blobUrl;
 
             setTimeout(() => { if(document.getElementById('close-player-btn')) document.getElementById('close-player-btn').focus(); }, 400);
         }
