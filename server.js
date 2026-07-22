@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const axios = require('axios'); // We'll need this for the proxy
+const axios = require('axios');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -22,14 +22,12 @@ app.get('/video-proxy', async (req, res) => {
             }
         });
         
-        // Forward the headers from the original response
         Object.entries(response.headers).forEach(([key, value]) => {
             if (key.toLowerCase() !== 'content-encoding' && key.toLowerCase() !== 'transfer-encoding') {
                 res.setHeader(key, value);
             }
         });
         
-        // Pipe the video stream to the client
         response.data.pipe(res);
     } catch (error) {
         console.error('Proxy error:', error);
