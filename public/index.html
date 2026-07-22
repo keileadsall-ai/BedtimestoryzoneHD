@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -77,11 +76,11 @@
             <div class="flex items-center w-[95%] mx-auto gap-4 py-4">
                 <button id="menu-btn" onclick="toggleMenu()" class="focusable text-red-600 text-3xl px-2">☰</button>
                 <input type="search" id="search-input" 
-                       class="focusable flex-1 bg-zinc-900 border border-zinc-800 rounded-lg py-3 px-6 text-white horror-font text-lg outline-none" 
-                       placeholder="Search the Graves..." 
-                       enterkeyhint="search"
-                       onsearch="triggerSearch()"
-                       onkeyup="handleSearch(event)">
+                    class="focusable flex-1 bg-zinc-900 border border-zinc-800 rounded-lg py-3 px-6 text-white horror-font text-lg outline-none" 
+                    placeholder="Search the Graves..." 
+                    enterkeyhint="search"
+                    onsearch="triggerSearch()"
+                    onkeyup="handleSearch(event)">
             </div>
             <div id="top-nav-container" class="relative w-full flex items-center">
                 <nav id="top-nav-menu" class="flex px-12 pb-2 gap-8 overflow-x-auto no-scrollbar horror-font text-lg tracking-widest uppercase w-full" style="scroll-behavior: smooth;">
@@ -140,18 +139,6 @@
         </div>
         <iframe id="luxe-player" class="w-full h-full" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock" referrerpolicy="no-referrer"></iframe>
     </div>
-
-    <button id="playVideoBtn" class="focusable fixed bottom-4 right-4 z-[9999] bg-red-600 text-white horror-font px-6 py-3 rounded-lg shadow-2xl border border-red-900">Play Video</button>
-
-    <script>
-      document.getElementById('playVideoBtn').addEventListener('click', function() {
-        const videoWindow = window.open(
-            'https://vidrsc.pm/embed/your-video-id',
-            'videoPlayer',
-            'width=640,height=480'
-        );
-      });
-    </script>
 
     <script>
         const API_KEY = 'b9c746781e1e9b084c4cc4f0420156d4';
@@ -1035,6 +1022,8 @@
             
             const vidsrcUrl = (type === 'movie' ? `https://vidsrc.pm/embed/movie/${id}` : `https://vidsrc.pm/embed/tv/${id}/${s}/${e}`);
             const consumetUrl = `https://consumet-api-fawn.vercel.app/anime/gogoanime/watch/${encodeURIComponent(title.toLowerCase().replace(/ /g, '-'))}-episode-${e}`;
+            // Use your own proxy instead of the direct vidsrc.pm URL
+            const proxyUrl = `/video-proxy?url=${encodeURIComponent(vidsrcUrl)}`;
 
             iframe.src = "about:blank"; 
             if (isAnime) {
@@ -1043,9 +1032,11 @@
                     const timeoutId = setTimeout(() => controller.abort(), 1200); 
                     const response = await fetch(consumetUrl, { method: 'HEAD', signal: controller.signal });
                     setTimeout(() => clearTimeout(timeoutId), 0);
-                    iframe.src = response.ok ? consumetUrl : vidsrcUrl;
-                } catch (err) { iframe.src = vidsrcUrl; }
-            } else { iframe.src = vidsrcUrl; }
+                    iframe.src = response.ok ? consumetUrl : proxyUrl;
+                } catch (err) { iframe.src = proxyUrl; }
+            } else { 
+                iframe.src = proxyUrl; 
+            }
 
             setTimeout(() => { if(document.getElementById('close-player-btn')) document.getElementById('close-player-btn').focus(); }, 400);
         }
@@ -1218,5 +1209,3 @@
     </script>
 </body>
 </html>
-
-```
