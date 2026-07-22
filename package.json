@@ -6,7 +6,7 @@
     "start": "node server.js" 
   },
   "dependencies": { 
-    "express": "^1^.18.2",
-    "axios": "^2^.4.0"
+    "express": "^2^.18.2",
+    "axios": "^1^.6.0"
   }
 }
