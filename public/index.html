@@ -81,6 +81,7 @@
                     enterkeyhint="search"
                     onsearch="triggerSearch()"
                     onkeyup="handleSearch(event)">
+                <button id="search-action-btn" onclick="triggerSearch()" class="focusable bg-red-600 text-white font-bold px-6 py-3 rounded-lg horror-font text-lg tracking-wider whitespace-nowrap">SEARCH</button>
             </div>
             <div id="top-nav-container" class="relative w-full flex items-center">
                 <nav id="top-nav-menu" class="flex px-12 pb-2 gap-8 overflow-x-auto no-scrollbar horror-font text-lg tracking-widest uppercase w-full" style="scroll-behavior: smooth;">
@@ -741,6 +742,12 @@
                                     if (title === "Totem") {
                                         return (m.release_date || "").startsWith("2017");
                                     }
+                                    if (title === "Bodies Bodies Bodies") {
+                                        return (m.release_date || "").startsWith("2022");
+                                    }
+                                    if (title === "The Midnight Man") {
+                                        return (m.release_date || "").startsWith("2016");
+                                    }
                                     return true;
                                 });
                             }
@@ -878,16 +885,16 @@
             const grid = document.getElementById('movie-grid');
             grid.innerHTML = '';
             const darkTitles = [
-                // Festival 1 (2006)
-                "The Abandoned", "Dark Ride", "The Gravedancers", "The Hamiltons", "Penny Dreadful", "Reincarnation", "Unrest", "Wicked Little Things",
-                // Festival 2 (2007 + Bonus Frontier(s))
-                "Borderland", "Crazy Eights", "The Deaths of Ian Stone", "Lake Dead", "Mulberry St.", "Nightmare Man", "Tooth and Nail", "Unearthed", "Frontier(s)",
-                // Festival 3 (2008)
+                // Horrorfest 2006 (Series 1)
+                "The Abandoned", "Dark Ride", "The Gravedancers", "The Hamiltons", "Penny Dreadful", "Reincarnation", "Snoop Dogg's Hood of Horror", "Unrest", "Wicked Little Things",
+                // Horrorfest II (2007)
+                "Borderland", "Crazy Eights", "The Deaths of Ian Stone", "Frontier(s)", "Lake Dead", "Mulberry Street", "Nightmare Man", "Tooth & Nail", "Unearthed",
+                // Horrorfest III (2008/2009)
                 "Autopsy", "The Broken", "The Butterfly Effect 3: Revelations", "Dying Breed", "From Within", "Perkins' 14", "Slaughter", "Voices",
-                // Festival 4 (2010)
+                // Horrorfest 4 (2010)
                 "Dread", "The Final", "The Graves", "Hidden", "Kill Theory", "Lake Mungo", "The Reeds", "Zombies of Mass Destruction",
-                // Festival 8 Films to Die For (2015 revival)
-                "The Demented", "The Dyatlov Pass Incident", "Estate", "Ghost House", "Hanger", "The Wicked Within", "Suspension", "Lumberjack Man"
+                // 8 Films to Die For (2015 Revival)
+                "Murder in the Dark", "Wind Walkers", "Suspension", "Unnatural", "The Wicked Within", "Re-Kill", "Lumberjack Man", "Bastard"
             ];
             const searchPromises = darkTitles.map(title => 
                 fetchWithRetry(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
@@ -1111,6 +1118,7 @@
 
             if (e.key === 'Enter' || e.keyCode === 13) { 
                 if (current && current.id === 'search-input') { triggerSearch(); return; }
+                if (current && current.id === 'search-action-btn') { triggerSearch(); return; }
                 if (current && current.classList.contains('focusable')) { current.click(); return; }
             }
 
