@@ -11,7 +11,7 @@
 
     <style>
         :root { --blood: #e50914; --void: #000; --ash: #1a1a1a; }
-        body { background: var(--void); color: white; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; touch-action: pan-y; }
+        body { background: var(--void); color: white; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; touch-action: pan-y; zoom: 85%; }
         .horror-font { font-family: 'Creepster', cursive; }
         .nosifer { font-family: 'Nosifer', cursive; }
         #loader { position: fixed; inset: 0; background: black; z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.8s; }
@@ -734,11 +734,15 @@
                         fetchWithRetry(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
                         .then(data => {
                             if (data && data.results) {
-                                return data.results.find(m => 
-                                    m.poster_path && 
-                                    (m.media_type === 'movie' || m.media_type === 'tv') && 
-                                    !(m.genre_ids && m.genre_ids.includes(16))
-                                );
+                                return data.results.find(m => {
+                                    if (!m.poster_path) return false;
+                                    if (m.media_type !== 'movie' && m.media_type !== 'tv') return false;
+                                    if (m.genre_ids && m.genre_ids.includes(16)) return false;
+                                    if (title === "Totem") {
+                                        return (m.release_date || "").startsWith("2017");
+                                    }
+                                    return true;
+                                });
                             }
                             return null;
                         })
@@ -874,25 +878,31 @@
             const grid = document.getElementById('movie-grid');
             grid.innerHTML = '';
             const darkTitles = [
-                "The Abandoned", "Dark Ride", "The Hamiltons", "Penny Dreadful", "Reincarnation", 
-                "Unrest", "Wicked Little Things", "The Gravedancers", "The Tripper", "Snoop Dogg's Hood of Horror", 
-                "Borderland", "Crazy Eights", "The Deaths of Ian Stone", "Lake Dead", "Mulberry St.", 
-                "Nightmare Man", "Tooth and Nail", "Unearthed", "Frontier(s)", "Autopsy", 
-                "The Broken", "The Butterfly Effect 3", "Dying Breed", "From Within", "Perkin's 14", 
-                "Slaughter", "Voices", "Dread", "The Final", "The Graves", 
-                "Hidden", "Kill Theory", "Lake Mungo", "The Reeds", "Zombies of Mass Destruction",
-                "51", "Fertile Ground", "Husk", "Prowl", "Scream of the Banshee", 
-                "Seconds Apart", "The Task", "Asylum Blackout", "Children of Sorrow", "Dark Circles", 
-                "Red Clover", "Ritual", "Sanatorium", "Stash House", "Transit", 
-                "Murder in the Dark", "The Wicked Within", "Lumberjack Man", "Suspension", "Unnatural", 
-                "Wind Walkers", "A Christmas Horror Story", "Re-Kill", "House of Bones"
+                // Festival 1 (2006)
+                "The Abandoned", "Dark Ride", "The Gravedancers", "The Hamiltons", "Penny Dreadful", "Reincarnation", "Unrest", "Wicked Little Things",
+                // Festival 2 (2007 + Bonus Frontier(s))
+                "Borderland", "Crazy Eights", "The Deaths of Ian Stone", "Lake Dead", "Mulberry St.", "Nightmare Man", "Tooth and Nail", "Unearthed", "Frontier(s)",
+                // Festival 3 (2008)
+                "Autopsy", "The Broken", "The Butterfly Effect 3: Revelations", "Dying Breed", "From Within", "Perkins' 14", "Slaughter", "Voices",
+                // Festival 4 (2010)
+                "Dread", "The Final", "The Graves", "Hidden", "Kill Theory", "Lake Mungo", "The Reeds", "Zombies of Mass Destruction",
+                // Festival 8 Films to Die For (2015 revival)
+                "The Demented", "The Dyatlov Pass Incident", "Estate", "Ghost House", "Hanger", "The Wicked Within", "Suspension", "Lumberjack Man"
             ];
             const searchPromises = darkTitles.map(title => 
                 fetchWithRetry(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
                 .then(data => data && data.results ? data.results.find(m => m.poster_path) || data.results[0] : null)
             );
             const results = await Promise.all(searchPromises);
-            renderGrid(results.filter(m => m && m.poster_path));
+            
+            let unique = new Map();
+            results.forEach(m => {
+                if (m && m.poster_path && !unique.has(m.id)) {
+                    unique.set(m.id, m);
+                }
+            });
+
+            renderGrid(Array.from(unique.values()));
         }
 
         async function fetchCultClassics() {
