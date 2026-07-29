@@ -894,11 +894,45 @@
                 // Horrorfest 4 (2010)
                 "Dread", "The Final", "The Graves", "Hidden", "Kill Theory", "Lake Mungo", "The Reeds", "Zombies of Mass Destruction",
                 // 8 Films to Die For (2015 Revival)
-                "Murder in the Dark", "Wind Walkers", "Suspension", "Unnatural", "The Wicked Within", "Re-Kill", "Lumberjack Man", "Bastard"
+                "Murder in the Dark", "Wind Walkers", "Suspension", "Unnatural", "The Wicked Within", "Re-Kill", "Lumberjack Man", "Bastard",
+                // Additional requested item
+                "Mum & Dad"
             ];
             const searchPromises = darkTitles.map(title => 
                 fetchWithRetry(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
-                .then(data => data && data.results ? data.results.find(m => m.poster_path) || data.results[0] : null)
+                .then(data => {
+                    if (data && data.results) {
+                        return data.results.find(m => {
+                            if (!m.poster_path) return false;
+                            if (title === "Reincarnation") {
+                                return (m.release_date || "").startsWith("2006");
+                            }
+                            if (title === "Bastard") {
+                                return (m.release_date || "").startsWith("2015");
+                            }
+                            if (title === "Nightmare Man") {
+                                return (m.release_date || "").startsWith("2006");
+                            }
+                            if (title === "Voices") {
+                                return (m.release_date || "").startsWith("2007");
+                            }
+                            if (title === "Hidden") {
+                                return (m.release_date || "").startsWith("2009");
+                            }
+                            if (title === "Dread") {
+                                return (m.release_date || "").startsWith("2009");
+                            }
+                            if (title === "The Final") {
+                                return (m.release_date || "").startsWith("2010");
+                            }
+                            if (title === "Mum & Dad") {
+                                return (m.release_date || "").startsWith("2008");
+                            }
+                            return true;
+                        }) || data.results[0];
+                    }
+                    return null;
+                })
             );
             const results = await Promise.all(searchPromises);
             
