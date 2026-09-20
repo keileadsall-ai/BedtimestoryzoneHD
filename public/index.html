@@ -36,6 +36,29 @@
         .fade-in { animation: fadeIn 0.4s ease-in; }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
+        /* HEART FAVORITE BUTTON STYLING */
+        .fav-heart-btn {
+            background: rgba(20, 20, 20, 0.85);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .fav-heart-btn svg {
+            transition: fill 0.3s ease, stroke 0.3s ease, transform 0.3s ease;
+        }
+        .fav-heart-btn.is-fav {
+            border-color: var(--blood);
+            box-shadow: 0 0 20px rgba(229, 9, 20, 0.6);
+        }
+        .fav-heart-btn.is-fav svg {
+            fill: var(--blood) !important;
+            stroke: var(--blood) !important;
+            transform: scale(1.15);
+            filter: drop-shadow(0 0 8px rgba(229, 9, 20, 0.8));
+        }
+
         /* TARGETED FIRE TV/SMART TV ADJUSTMENT */
         @media screen and (min-width: 1280px) {
             body.is-tv {
@@ -56,6 +79,10 @@
     <div id="side-menu" class="p-8 no-scrollbar overflow-y-auto">
         <h2 class="nosifer text-red-600 text-2xl mb-8">THE VAULTS</h2>
         <div id="side-scroll-area" class="flex flex-col gap-2 horror-font text-xl pb-10 overflow-y-auto max-h-[70vh] no-scrollbar" style="scroll-behavior: smooth;">
+            <button class="focusable text-left py-3 border-b border-red-950 text-red-500 font-bold flex items-center justify-between" onclick="setFilter('favorites')">
+                <span>BLOOD FAVORITES</span>
+                <span>♥</span>
+            </button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('list', '8661620')">STEPHEN KING</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('list', '8663550')">WES CRAVEN</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('after_dark')">AFTER DARK</button>
@@ -114,20 +141,31 @@
             </button>
             <div class="flex flex-col md:flex-row gap-8 mb-10">
                 <img id="details-poster" class="w-48 rounded-xl shadow-2xl border border-red-900/30">
-                <div class="flex flex-col justify-end">
+                <div class="flex flex-col justify-end flex-1">
                     <h2 id="show-title" class="nosifer text-3xl md:text-5xl text-white mb-4 leading-tight"></h2>
                     <div class="flex items-center gap-4 horror-font text-xl text-zinc-400">
                         <span id="show-year"></span>
                         <span class="border border-red-600 text-red-600 px-2 py-1 rounded">★ <span id="show-rating"></span></span>
                         <span id="media-type-tag" class="text-zinc-500"></span>
                     </div>
-                    <button id="main-play-trigger" onclick="startLuxeStream()" class="focusable btn-play-blood mt-6 horror-font text-2xl tracking-widest">▶ COMMENCE</button>
+                    <div class="flex items-center gap-4 mt-6">
+                        <button id="main-play-trigger" onclick="startLuxeStream()" class="focusable btn-play-blood horror-font text-2xl tracking-widest flex-1 max-w-[340px]">▶ COMMENCE</button>
+                        <button id="fav-toggle-btn" onclick="toggleCurrentFavorite()" class="focusable fav-heart-btn p-4 rounded-xl cursor-pointer" title="Add to Favorites">
+                            <svg id="fav-heart-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
             <p id="show-desc" class="text-zinc-400 text-lg leading-relaxed mb-10 max-w-3xl"></p>
             <div id="tv-controls" class="hidden">
                 <h3 class="horror-font text-red-600 text-2xl mb-4 uppercase">Epitaphs</h3>
-                <div id="season-buttons" class="flex gap-3 overflow-x-auto no-scrollbar mb-6"></div>
+                <div id="season-controls-wrapper" class="relative w-full flex items-center mb-6">
+                    <button id="season-arrow-left" onclick="scrollSeasons(-200)" class="focusable hidden z-30 bg-black/90 text-red-600 font-bold px-3 py-2 border border-red-900/40 rounded-r-lg shadow-2xl flex-shrink-0">❮</button>
+                    <div id="season-buttons" class="flex gap-3 overflow-x-auto no-scrollbar w-full px-2" style="scroll-behavior: smooth;"></div>
+                    <button id="season-arrow-right" onclick="scrollSeasons(200)" class="focusable hidden z-30 bg-black/90 text-red-600 font-bold px-3 py-2 border border-red-900/40 rounded-l-lg shadow-2xl flex-shrink-0">❯</button>
+                </div>
                 <div id="episode-grid" class="flex flex-col gap-2"></div>
             </div>
         </div>
@@ -147,6 +185,65 @@
         let activeType = 'trending_theaters', activeID = '', currentMedia = {};
         let currentPage = 1, isLoading = false;
         let savedScrollPosition = 0, lastFocusedElement = null;
+
+        // FAVORITES STORAGE LOGIC
+        function getFavorites() {
+            try {
+                return JSON.parse(localStorage.getItem('fear_plus_favorites') || '[]');
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function isFavorite(id) {
+            const favs = getFavorites();
+            return favs.some(f => String(f.id) === String(id));
+        }
+
+        function updateFavoriteHeartUI() {
+            const btn = document.getElementById('fav-toggle-btn');
+            if (!btn || !currentMedia.id) return;
+            if (isFavorite(currentMedia.id)) {
+                btn.classList.add('is-fav');
+            } else {
+                btn.classList.remove('is-fav');
+            }
+        }
+
+        function toggleCurrentFavorite() {
+            if (!currentMedia || !currentMedia.id) return;
+            let favs = getFavorites();
+            const existsIndex = favs.findIndex(f => String(f.id) === String(currentMedia.id));
+
+            if (existsIndex > -1) {
+                favs.splice(existsIndex, 1);
+            } else {
+                favs.unshift({
+                    id: currentMedia.id,
+                    media_type: currentMedia.type,
+                    title: currentMedia.title,
+                    name: currentMedia.title,
+                    poster_path: currentMedia.poster,
+                    release_date: currentMedia.year || ''
+                });
+            }
+            localStorage.setItem('fear_plus_favorites', JSON.stringify(favs));
+            updateFavoriteHeartUI();
+            if (activeType === 'favorites') {
+                renderFavoritesGrid();
+            }
+        }
+
+        function renderFavoritesGrid() {
+            const grid = document.getElementById('movie-grid');
+            grid.innerHTML = '';
+            const favs = getFavorites();
+            if (favs.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-20 text-center horror-font text-2xl text-zinc-500 uppercase tracking-wider">No Cursed Souls Favorited Yet...</div>`;
+                return;
+            }
+            renderGrid(favs);
+        }
 
         // Initialize Continue Watching
         function loadContinueWatching() {
@@ -538,6 +635,7 @@
 
         async function fetchContent(append = false) {
             if (isLoading) return;
+            if (activeType === 'favorites') return;
             isLoading = true;
             const grid = document.getElementById('movie-grid');
             
@@ -954,10 +1052,10 @@
                 "Final Destination", "Get Out", "Misery", "Scream", "The Texas Chain Saw Massacre", 
                 "Child's Play", "The Exorcist", "The Shining", "The Thing", "Poltergeist", 
                 "Hellraiser", "The Evil Dead", "Rosemary's Baby", "The Amityville Horror", 
-                "The Omen", "Night of the Living Dead", "Saw", "The Ring", "The Blair Witch Project",
-                "Psycho", "The Silence of the Lambs", "An American Werewolf in London", "Sleepaway Camp",
-                "My Bloody Valentine", "The Descent", "28 Days Later", "The Cabin in the Woods",
-                "Dawn of the Dead", "Day of the Dead", "Evil Dead II", "Army of Darkness",
+                "The Omen", "Night of the Living Dead", "Saw", "The Ring", "The Blair Witch Project", 
+                "Psycho", "The Silence of the Lambs", "An American Werewolf in London", "Sleepaway Camp", 
+                "My Bloody Valentine", "The Descent", "28 Days Later", "The Cabin in the Woods", 
+                "Dawn of the Dead", "Day of the Dead", "Evil Dead II", "Army of Darkness", 
                 "Pet Sematary", "Christine", "The Fly", "Phantasm", "The Return of the Living Dead", 
                 "Re-Animator", "Suspiria", "The Wicker Man"
             ];
@@ -1009,10 +1107,19 @@
             
             const isAnime = data.original_language === 'ja' && data.genres && data.genres.some(g => g.name === 'Animation');
 
-            currentMedia = { id, type, s: 1, e: 1, title: data.name || data.title, poster: data.poster_path, isAnime };
+            currentMedia = { 
+                id, 
+                type, 
+                s: 1, 
+                e: 1, 
+                title: data.name || data.title, 
+                poster: data.poster_path, 
+                isAnime,
+                year: (data.release_date || data.first_air_date || '').split('-')[0]
+            };
             document.getElementById('show-title').innerText = currentMedia.title;
             document.getElementById('show-desc').innerText = data.overview || "";
-            document.getElementById('show-year').innerText = (data.release_date || data.first_air_date || '').split('-')[0];
+            document.getElementById('show-year').innerText = currentMedia.year;
             document.getElementById('show-rating').innerText = data.vote_average ? data.vote_average.toFixed(1) : '★';
             document.getElementById('details-poster').src = `https://image.tmdb.org/t/p/w500${data.poster_path}`;
             
@@ -1022,6 +1129,8 @@
 
             document.getElementById('media-type-tag').innerText = type.toUpperCase();
             
+            updateFavoriteHeartUI();
+
             const tvArea = document.getElementById('tv-controls');
             if (type === 'tv') { tvArea.classList.remove('hidden'); renderSeasons(data); } else { tvArea.classList.add('hidden'); }
             
@@ -1032,17 +1141,46 @@
         }
 
         function renderSeasons(data) {
-            const container = document.getElementById('season-buttons'); container.innerHTML = '';
+            const container = document.getElementById('season-buttons'); 
+            container.innerHTML = '';
             if(!data.seasons) return;
-            data.seasons.forEach(s => {
-                if (s.season_number === 0) return;
+
+            const validSeasons = data.seasons.filter(s => s.season_number > 0);
+            const leftArrow = document.getElementById('season-arrow-left');
+            const rightArrow = document.getElementById('season-arrow-right');
+
+            // MULTI-SEASON CHECK: Show arrows only if more than 1 season exists
+            if (validSeasons.length > 1) {
+                leftArrow.classList.remove('hidden');
+                rightArrow.classList.remove('hidden');
+            } else {
+                leftArrow.classList.add('hidden');
+                rightArrow.classList.add('hidden');
+            }
+
+            validSeasons.forEach(s => {
                 const btn = document.createElement('button');
-                btn.className = "focusable px-6 py-2 bg-zinc-900 rounded horror-font text-lg border border-zinc-800 whitespace-nowrap";
+                btn.className = "focusable px-6 py-2 bg-zinc-900 rounded horror-font text-lg border border-zinc-800 whitespace-nowrap flex-shrink-0";
                 btn.innerText = `Season ${s.season_number}`;
                 btn.onclick = () => loadEpisodes(data.id, s.season_number);
+                
+                // Keep active season focused into view for Smart TV / Fire TV
+                btn.addEventListener('focus', function() {
+                    setTimeout(() => {
+                        container.scrollLeft = this.offsetLeft - (container.offsetWidth / 2) + (this.offsetWidth / 2);
+                    }, 50);
+                });
+
                 container.appendChild(btn);
             });
             if(container.firstChild) container.firstChild.click();
+        }
+
+        function scrollSeasons(amount) {
+            const container = document.getElementById('season-buttons');
+            if(container) {
+                container.scrollBy({ left: amount, behavior: 'smooth' });
+            }
         }
 
         async function loadEpisodes(showId, seasonNum) {
@@ -1055,7 +1193,7 @@
                 epRow.onclick = () => { 
                     currentMedia.s = seasonNum; 
                     currentMedia.e = e.episode_number; 
-                    saveToContinue(currentMedia);
+                    saveToContinue(currentMedia); 
                     startLuxeStream(); 
                 };
                 const thumb = e.still_path ? `https://image.tmdb.org/t/p/w300${e.still_path}` : '';
@@ -1112,8 +1250,14 @@
         function setFilter(type, id = '') {
             activeType = type; activeID = id;
             document.querySelectorAll('nav button').forEach(b => b.classList.remove('nav-active'));
-            if(event && event.target && event.target.tagName === 'BUTTON') event.target.classList.add('nav-active');
-            fetchContent();
+            if(window.event && window.event.target && window.event.target.tagName === 'BUTTON') {
+                window.event.target.classList.add('nav-active');
+            }
+            if (type === 'favorites') {
+                renderFavoritesGrid();
+            } else {
+                fetchContent();
+            }
             document.getElementById('side-menu').classList.remove('menu-open');
             window.scrollTo(0,0);
         }
@@ -1253,7 +1397,7 @@
                 const loader = document.getElementById('loader');
                 if(loader) { loader.style.opacity = '0'; setTimeout(()=>loader.remove(), 800); }
             }, 1200);
-            const obs = new IntersectionObserver(e => { if(e[0].isIntersecting && activeType !== 'after_dark') fetchContent(true); });
+            const obs = new IntersectionObserver(e => { if(e[0].isIntersecting && activeType !== 'after_dark' && activeType !== 'favorites') fetchContent(true); });
             obs.observe(document.getElementById('sentinel'));
         };
     </script>
