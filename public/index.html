@@ -14,7 +14,7 @@
         body { background: var(--void); color: white; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; touch-action: pan-y; zoom: 85%; }
         .horror-font { font-family: 'Creepster', cursive; }
         .nosifer { font-family: 'Nosifer', cursive; }
-        #loader { position: fixed; inset: 0; background: black; z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.8s; }
+        #loader { position: fixed; inset: 0; background: black; z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.8s; }
         .voodoo-container { width: 180px; height: 180px; border-radius: 50%; border: 3px solid var(--blood); overflow: hidden; box-shadow: 0 0 40px var(--blood); }
         .medusa-heart { width: 100%; height: 100%; object-fit: cover; animation: thump 1s infinite; }
         @keyframes thump { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.1); } }
@@ -1209,7 +1209,8 @@
             const iframe = document.getElementById('luxe-player');
             playerOverlay.style.display = 'block';
             
-            const vidsrcUrl = (type === 'movie' ? `https://vidlink.pro/movie/${id}` : `https://vidlink.pro/tv/${id}/${s}/${e}`);
+            // UPDATED PLAYER SOURCE — VidCore (ad-free, same structure as vidsrc)
+            const vidsrcUrl = (type === 'movie' ? `https://vidcore.org/embed/movie/${id}` : `https://vidcore.org/embed/tv/${id}/${s}/${e}`);
             const consumetUrl = `https://consumet-api-fawn.vercel.app/anime/gogoanime/watch/${encodeURIComponent(title.toLowerCase().replace(/ /g, '-'))}-episode-${e}`;
 
             iframe.src = "about:blank"; 
@@ -1311,44 +1312,95 @@
 
         function findNext(cur, targets, dir) {
             if (!cur || cur === document.body) return targets[0];
-            const curRect = cur.getBoundingClientRect();
-            let best = null;
-            let minDistance = Infinity;
-
-            targets.forEach(target => {
-                if (target === cur) return;
-                const rect = target.getBoundingClientRect();
-
-                let isCandidate = false;
-                if (dir === 'up' && rect.bottom <= curRect.top + 5) isCandidate = true;
-                if (dir === 'down' && rect.top >= curRect.bottom - 5) isCandidate = true;
-                if (dir === 'left' && rect.right <= curRect.left + 5) isCandidate = true;
-                if (dir === 'right' && rect.left >= curRect.right - 5) isCandidate = true;
-
-                if (isCandidate) {
-                    const dx = (rect.left + rect.width / 2) - (curRect.left + curRect.width / 2);
-                    const dy = (rect.top + rect.height / 2) - (curRect.top + curRect.height / 2);
-                    const dist = dx * dx + dy * dy;
-                    if (dist < minDistance) {
-                        minDistance = dist;
-                        best = target;
-                    }
-                }
+            const r1 = cur.getBoundingClientRect(), c1 = { x: r1.left + r1.width/2, y: r1.top + r1.height/2 };
+            let best = null, min = Infinity;
+            targets.forEach(t => {
+                if (t === cur) return;
+                const r2 = t.getBoundingClientRect(), c2 = { x: r2.left + r2.width/2, y: r2.top + r2.height/2 };
+                if (dir === 'up' && c2.y >= c1.y) return; if (dir === 'down' && c2.y <= c1.y) return;
+                if (dir === 'left' && c2.x >= c1.x) return; if (dir === 'right' && c2.x <= c1.x) return;
+                const d = Math.sqrt(Math.pow(c2.x - c1.x, 2) + Math.pow(c2.y - c1.y, 2));
+                if (d < min) { min = d; best = t; }
             });
-
             return best;
         }
 
-        window.addEventListener('load', () => {
-            loadContinueWatching();
-            const loader = document.getElementById('loader');
-            if (loader) {
-                loader.style.opacity = '0';
-                setTimeout(() => loader.style.display = 'none', 800);
-            }
-        });
+        // Setup custom dynamic navigation arrows for both menus
+        function setupNavigationArrows() {
+            // 1. Top Navigation Menu Setup
+            const topNavMenu = document.getElementById('top-nav-menu');
+            const topNavContainer = document.getElementById('top-nav-container');
+            
+            if (topNavMenu && topNavContainer) {
+                const leftArrow = document.createElement('button');
+                leftArrow.className = 'focusable absolute left-0 z-50 bg-black/90 text-red-600 font-bold px-3 py-2 border border-red-900/40 rounded-r-lg shadow-2xl';
+                leftArrow.innerHTML = '❮';
+                leftArrow.onclick = () => topNavMenu.scrollBy({ left: -200, behavior: 'smooth' });
 
-        fetchContent();
+                const rightArrow = document.createElement('button');
+                rightArrow.className = 'focusable absolute right-0 z-50 bg-black/90 text-red-600 font-bold px-3 py-2 border border-red-900/40 rounded-l-lg shadow-2xl';
+                rightArrow.innerHTML = '❯';
+                rightArrow.onclick = () => topNavMenu.scrollBy({ left: 200, behavior: 'smooth' });
+
+                topNavContainer.appendChild(leftArrow);
+                topNavContainer.appendChild(rightArrow);
+
+                // Auto-center view when elements receive focus via D-Pad
+                topNavMenu.querySelectorAll('button').forEach(btn => {
+                    btn.addEventListener('focus', function() {
+                        setTimeout(() => {
+                            topNavMenu.scrollLeft = this.offsetLeft - (topNavMenu.offsetWidth / 2) + (this.offsetWidth / 2);
+                        }, 100);
+                    });
+                });
+            }
+
+            // 2. Side Menu Setup
+            const sideScrollArea = document.getElementById('side-scroll-area');
+            const sideMenu = document.getElementById('side-menu');
+            
+            if (sideScrollArea && sideMenu) {
+                const upArrow = document.createElement('button');
+                upArrow.className = 'focusable absolute top-20 left-1/2 -translate-x-1/2 z-50 bg-black/90 text-red-600 font-bold px-6 py-1 border border-red-900/40 rounded-full shadow-2xl';
+                upArrow.innerHTML = '▲';
+                upArrow.onclick = () => sideScrollArea.scrollBy({ top: -150, behavior: 'smooth' });
+
+                const downArrow = document.createElement('button');
+                downArrow.className = 'focusable absolute bottom-4 left-1/2 -translate-x-1/2 z-50 bg-black/90 text-red-600 font-bold px-6 py-1 border border-red-900/40 rounded-full shadow-2xl';
+                downArrow.innerHTML = '▼';
+                downArrow.onclick = () => sideScrollArea.scrollBy({ top: 150, behavior: 'smooth' });
+
+                sideMenu.appendChild(upArrow);
+                sideMenu.appendChild(downArrow);
+
+                // Track changes during vertical navigation inside vaults list
+                sideScrollArea.querySelectorAll('button').forEach(btn => {
+                    btn.addEventListener('focus', function() {
+                        setTimeout(() => {
+                            sideScrollArea.scrollTop = this.offsetTop - (sideScrollArea.offsetHeight / 2) + (this.offsetHeight / 2);
+                        }, 100);
+                    });
+                });
+            }
+        }
+
+        window.onload = () => {
+            /* SAFE TELEVISION BROWSER DETECTION */
+            const ua = navigator.userAgent.toLowerCase();
+            if (ua.includes('firetv') || ua.includes('aftb') || ua.includes('afts') || ua.includes('smarttv') || ua.includes('appletv')) {
+                document.body.classList.add('is-tv');
+            }
+
+            setupNavigationArrows();
+            fetchContent();
+            loadContinueWatching();
+            setTimeout(() => { 
+                const loader = document.getElementById('loader');
+                if(loader) { loader.style.opacity = '0'; setTimeout(()=>loader.remove(), 800); }
+            }, 1200);
+            const obs = new IntersectionObserver(e => { if(e[0].isIntersecting && activeType !== 'after_dark' && activeType !== 'favorites') fetchContent(true); });
+            obs.observe(document.getElementById('sentinel'));
+        };
     </script>
 </body>
 </html>
