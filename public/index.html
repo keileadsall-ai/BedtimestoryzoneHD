@@ -136,8 +136,8 @@
     <div id="selector-overlay" class="hidden fixed inset-0 bg-black z-[5000] overflow-y-auto no-scrollbar">
         <div id="details-backdrop" class="absolute top-0 w-full h-[60vh] opacity-40 bg-cover bg-center"></div>
         <div class="relative z-10 p-6 max-w-5xl mx-auto">
-            <button onclick="closeSelector()" class="focusable mb-8 bg-white/10 p-3 rounded-full border border-white/20">
-                <svg width="24" height="24" fill="white" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+            <button onclick="closeSelector()" class="focusable mb-8 bg-white/10 p-3 rounded-full(f border border-white/av20">
+                <svg widths="24" height="24" fill="white" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
             </button>
             <div class="flex flex-col md:flex-row gap-8 mb-10">
                 <img id="details-poster" class="w-48 rounded-xl shadow-2xl border border-red-900/30">
@@ -176,7 +176,7 @@
             <div class="horror-font text-red-600 bg-black/80 px-4 py-2 rounded border border-red-900 uppercase">Now Consuming</div>
             <button id="close-player-btn" onclick="closePlayer()" class="focusable bg-red-600 text-white px-6 py-2 rounded font-bold">✕ CEASE</button>
         </div>
-        <iframe id="luxe-player" class="w-full h-full" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="no-referrer"></iframe>
+        <iframe id="luxe-player" class="w-full h-full" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation" referrerpolicy="no-referrer"></iframe>
     </div>
 
     <script>
@@ -227,7 +227,7 @@
                     release_date: currentMedia.year || ''
                 });
             }
-            localStorage.setItem('fear_plus_favorites', JSON.stringify(favs));
+            localStorage.setItem('fear_plus_favorites', JSON.stringify));
             updateFavoriteHeartUI();
             if (activeType === 'favorites') {
                 renderFavoritesGrid();
@@ -1209,7 +1209,16 @@
             const iframe = document.getElementById('luxe-player');
             playerOverlay.style.display = 'block';
             
-            const vidsrcUrl = (type === 'movie' ? `https://vidsrc.pm/embed/movie/${id}` : `https://vidsrc.pm/embed/tv/${id}/${s}/${e}`);
+            // CHANGED: Primary source is now VidCore (minimal ads, cleaner sandboxing)
+            const vidcoreUrl = (type === 'movie' 
+                ? `https://vidcore.org/embed/movie/${id}` 
+                : `https://vidcore.org/embed/tv/${id}/${s}/${e}`);
+            
+            // Fallback source if VidCore fails
+            const vidsrcFallback = (type === 'movie' 
+                ? `https://vidsrc.to/embed/movie/${id}` 
+                : `https://vidsrc.to/embed/tv/${id}/${s}/${e}`);
+            
             const consumetUrl = `https://consumet-api-fawn.vercel.app/anime/gogoanime/watch/${encodeURIComponent(title.toLowerCase().replace(/ /g, '-'))}-episode-${e}`;
 
             iframe.src = "about:blank"; 
@@ -1219,11 +1228,24 @@
                     const timeoutId = setTimeout(() => controller.abort(), 1200); 
                     const response = await fetch(consumetUrl, { method: 'HEAD', signal: controller.signal });
                     setTimeout(() => clearTimeout(timeoutId), 0);
-                    iframe.src = response.ok ? consumetUrl : vidsrcUrl;
-                } catch (err) { iframe.src = vidsrcUrl; }
+                    iframe.src = response.ok ? consumetUrl : vidcoreUrl;
+                } catch (err) { iframe.src = vidcoreUrl; }
             } else { 
-                iframe.src = vidsrcUrl; 
+                iframe.src = vidcoreUrl; 
             }
+
+            // Fallback: if VidCore doesn't load within a reasonable time, try vidsrc.to
+            const fallbackTimeout = setTimeout(() => {
+                if (iframe.src && iframe.src.includes('vidcore.org')) {
+                    // Only switch if still on VidCore (hasn't redirected)
+                    console.log('VidCore taking too long, switching to fallback...');
+                    iframe.src = vidsrcFallback;
+                }
+            }, 8000);
+
+            iframe.onload = () => {
+                clearTimeout(fallbackTimeout);
+            };
 
             setTimeout(() => { if(document.getElementById('close-player-btn')) document.getElementById('close-player-btn').focus(); }, 400);
         }
