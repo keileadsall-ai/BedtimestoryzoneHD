@@ -59,11 +59,6 @@
             filter: drop-shadow(0 0 8px rgba(229, 9, 20, 0.8));
         }
 
-        /* SERVER SELECTOR STYLING */
-        .server-option { color: #a8a29e; transition: all 0.2s ease; font-family: 'Creepster', cursive; }
-        .server-option:hover { color: var(--blood); background: rgba(229, 9, 20, 0.1); }
-        .server-option.active { color: var(--blood); background: rgba(229, 9, 20, 0.15); border-left: 3px solid var(--blood); }
-
         /* TARGETED FIRE TV/SMART TV ADJUSTMENT */
         @media screen and (min-width: 1280px) {
             body.is-tv {
@@ -179,19 +174,7 @@
     <div id="player-overlay">
         <div class="absolute top-6 left-6 right-6 flex justify-between items-center z-[9001]">
             <div class="horror-font text-red-600 bg-black/80 px-4 py-2 rounded border border-red-900 uppercase">Now Consuming</div>
-            <div class="flex items-center gap-3">
-                <div class="relative">
-                    <button id="server-selector-btn" onclick="toggleServerMenu(event)" class="focusable bg-black/80 text-red-500 border border-red-900 px-4 py-2 rounded font-bold horror-font tracking-wider whitespace-nowrap">⚙ SERVER: <span id="current-server-name">VIDSRC.TO</span></button>
-                    <div id="server-menu" class="hidden absolute right-0 mt-2 bg-black border-2 border-red-900 rounded shadow-2xl min-w-[220px] z-[9002] overflow-hidden">
-                        <button data-server="vidsrcto" onclick="changeServer('vidsrcto')" class="server-option active focusable w-full text-left px-4 py-3 border-b border-red-950 text-lg">VIDSRC.TO</button>
-                        <button data-server="vidsrcxyz" onclick="changeServer('vidsrcxyz')" class="server-option focusable w-full text-left px-4 py-3 border-b border-red-950 text-lg">VIDSRC.XYZ</button>
-                        <button data-server="autoembed" onclick="changeServer('autoembed')" class="server-option focusable w-full text-left px-4 py-3 border-b border-red-950 text-lg">AUTOEMBED</button>
-                        <button data-server="embedsu" onclick="changeServer('embedsu')" class="server-option focusable w-full text-left px-4 py-3 border-b border-red-950 text-lg">EMBED.SU</button>
-                        <button data-server="vidlink" onclick="changeServer('vidlink')" class="server-option focusable w-full text-left px-4 py-3 text-lg">VIDLINK.PRO</button>
-                    </div>
-                </div>
-                <button id="close-player-btn" onclick="closePlayer()" class="focusable bg-red-600 text-white px-6 py-2 rounded font-bold">✕ CEASE</button>
-            </div>
+            <button id="close-player-btn" onclick="closePlayer()" class="focusable bg-red-600 text-white px-6 py-2 rounded font-bold">✕ CEASE</button>
         </div>
         <iframe id="luxe-player" class="w-full h-full" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="no-referrer"></iframe>
     </div>
@@ -202,90 +185,6 @@
         let activeType = 'trending_theaters', activeID = '', currentMedia = {};
         let currentPage = 1, isLoading = false;
         let savedScrollPosition = 0, lastFocusedElement = null;
-
-        // ====== SERVER SELECTOR (NEW) ======
-        // Each provider is independent. vidsrc.to is default (matches your original).
-        // If one buffers or auto-switches, user picks a different one manually.
-        let currentServer = 'vidsrcto';
-
-        const SERVERS = {
-            'vidsrcto': {
-                name: 'VIDSRC.TO',
-                movie: (id) => `https://vidsrc.to/embed/movie/${id}`,
-                tv: (id, s, e) => `https://vidsrc.to/embed/tv/${id}/${s}/${e}`
-            },
-            'vidsrcxyz': {
-                name: 'VIDSRC.XYZ',
-                movie: (id) => `https://vidsrc.xyz/embed/movie?tmdb=${id}`,
-                tv: (id, s, e) => `https://vidsrc.xyz/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
-            },
-            'autoembed': {
-                name: 'AUTOEMBED',
-                movie: (id) => `https://autoembed.co/movie/tmdb/${id}`,
-                tv: (id, s, e) => `https://autoembed.co/tv/tmdb/${id}-${s}-${e}`
-            },
-            'embedsu': {
-                name: 'EMBED.SU',
-                movie: (id) => `https://embed.su/embed/movie/${id}`,
-                tv: (id, s, e) => `https://embed.su/embed/tv/${id}/${s}/${e}`
-            },
-            'vidlink': {
-                name: 'VIDLINK.PRO',
-                movie: (id) => `https://vidlink.pro/movie/${id}`,
-                tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}`
-            }
-        };
-
-        function getServerUrl(type, id, s, e) {
-            const server = SERVERS[currentServer] || SERVERS['vidsrcto'];
-            return type === 'movie' ? server.movie(id) : server.tv(id, s, e);
-        }
-
-        function toggleServerMenu(event) {
-            if (event) event.stopPropagation();
-            const menu = document.getElementById('server-menu');
-            if (menu) menu.classList.toggle('hidden');
-        }
-
-        function updateServerMenuUI() {
-            document.querySelectorAll('.server-option').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.server === currentServer);
-            });
-            const nameEl = document.getElementById('current-server-name');
-            if (nameEl && SERVERS[currentServer]) {
-                nameEl.innerText = SERVERS[currentServer].name;
-            }
-        }
-
-        function changeServer(serverKey) {
-            if (!SERVERS[serverKey]) return;
-            currentServer = serverKey;
-            updateServerMenuUI();
-            const menu = document.getElementById('server-menu');
-            if (menu) menu.classList.add('hidden');
-
-            // Reload current stream on the newly selected server
-            const { type, id, s, e } = currentMedia || {};
-            if (!type || !id) return;
-            const iframe = document.getElementById('luxe-player');
-            if (!iframe) return;
-            iframe.src = "about:blank";
-            setTimeout(() => {
-                iframe.src = getServerUrl(type, id, s || 1, e || 1);
-            }, 120);
-        }
-
-        // Close server menu when clicking outside of it
-        document.addEventListener('click', function(e) {
-            const menu = document.getElementById('server-menu');
-            const btn = document.getElementById('server-selector-btn');
-            if (menu && !menu.classList.contains('hidden')) {
-                if (!menu.contains(e.target) && btn && !btn.contains(e.target)) {
-                    menu.classList.add('hidden');
-                }
-            }
-        });
-        // ====== END SERVER SELECTOR ======
 
         // FAVORITES STORAGE LOGIC
         function getFavorites() {
@@ -1310,9 +1209,14 @@
             const iframe = document.getElementById('luxe-player');
             playerOverlay.style.display = 'block';
             
-            // Uses current server selection (default: vidsrc.to).
-            // User can switch servers via the ⚙ SERVER menu in the player overlay.
-            const vidsrcUrl = getServerUrl(type, id, s, e);
+            // ---- PLAYER SOURCE CHANGED TO VIDCORE ----
+            // VidCore: ad-free, zero-buffering, TMDB-ID based, single stable stream per title.
+            // Docs: https://vidcore.org/  (movie: /embed/movie/{tmdb_id}  tv: /embed/tv/{tmdb_id}/{season}/{episode})
+            const vidcoreUrl = (type === 'movie' 
+                ? `https://vidcore.org/embed/movie/${id}?autoplay=true` 
+                : `https://vidcore.org/embed/tv/${id}/${s}/${e}?autoplay=true`);
+            // ------------------------------------------
+            
             const consumetUrl = `https://consumet-api-fawn.vercel.app/anime/gogoanime/watch/${encodeURIComponent(title.toLowerCase().replace(/ /g, '-'))}-episode-${e}`;
 
             iframe.src = "about:blank"; 
@@ -1322,16 +1226,11 @@
                     const timeoutId = setTimeout(() => controller.abort(), 1200); 
                     const response = await fetch(consumetUrl, { method: 'HEAD', signal: controller.signal });
                     setTimeout(() => clearTimeout(timeoutId), 0);
-                    iframe.src = response.ok ? consumetUrl : vidsrcUrl;
-                } catch (err) { iframe.src = vidsrcUrl; }
+                    iframe.src = response.ok ? consumetUrl : vidcoreUrl;
+                } catch (err) { iframe.src = vidcoreUrl; }
             } else { 
-                iframe.src = vidsrcUrl; 
+                iframe.src = vidcoreUrl; 
             }
-
-            // Ensure server menu is closed each time player opens
-            const serverMenu = document.getElementById('server-menu');
-            if (serverMenu) serverMenu.classList.add('hidden');
-            updateServerMenuUI();
 
             setTimeout(() => { if(document.getElementById('close-player-btn')) document.getElementById('close-player-btn').focus(); }, 400);
         }
@@ -1352,8 +1251,6 @@
         function closePlayer() { 
             document.getElementById('luxe-player').src = "about:blank"; 
             document.getElementById('player-overlay').style.display = 'none'; 
-            const serverMenu = document.getElementById('server-menu');
-            if (serverMenu) serverMenu.classList.add('hidden');
             document.getElementById('main-play-trigger').focus();
         }
         
@@ -1398,12 +1295,6 @@
             if (e.key === 'Backspace' || e.keyCode === 8 || e.keyCode === 10009) {
                 if (current && current.id === 'search-input') return; 
                 e.preventDefault();
-                // Close server menu first if open
-                const serverMenu = document.getElementById('server-menu');
-                if (serverMenu && !serverMenu.classList.contains('hidden')) {
-                    serverMenu.classList.add('hidden');
-                    return;
-                }
                 if (document.getElementById('player-overlay').style.display === 'block') closePlayer();
                 else if (!document.getElementById('selector-overlay').classList.contains('hidden')) closeSelector();
                 else if (document.getElementById('side-menu').classList.contains('menu-open')) toggleMenu();
@@ -1465,4 +1356,57 @@
                     btn.addEventListener('focus', function() {
                         setTimeout(() => {
                             topNavMenu.scrollLeft = this.offsetLeft - (topNavMenu.offsetWidth / 2) + (this.offsetWidth / 2);
-                        }, 100
+                        }, 100);
+                    });
+                });
+            }
+
+            // 2. Side Menu Setup
+            const sideScrollArea = document.getElementById('side-scroll-area');
+            const sideMenu = document.getElementById('side-menu');
+            
+            if (sideScrollArea && sideMenu) {
+                const upArrow = document.createElement('button');
+                upArrow.className = 'focusable absolute top-20 left-1/2 -translate-x-1/2 z-50 bg-black/90 text-red-600 font-bold px-6 py-1 border border-red-900/40 rounded-full shadow-2xl';
+                upArrow.innerHTML = '▲';
+                upArrow.onclick = () => sideScrollArea.scrollBy({ top: -150, behavior: 'smooth' });
+
+                const downArrow = document.createElement('button');
+                downArrow.className = 'focusable absolute bottom-4 left-1/2 -translate-x-1/2 z-50 bg-black/90 text-red-600 font-bold px-6 py-1 border border-red-900/40 rounded-full shadow-2xl';
+                downArrow.innerHTML = '▼';
+                downArrow.onclick = () => sideScrollArea.scrollBy({ top: 150, behavior: 'smooth' });
+
+                sideMenu.appendChild(upArrow);
+                sideMenu.appendChild(downArrow);
+
+                // Track changes during vertical navigation inside vaults list
+                sideScrollArea.querySelectorAll('button').forEach(btn => {
+                    btn.addEventListener('focus', function() {
+                        setTimeout(() => {
+                            sideScrollArea.scrollTop = this.offsetTop - (sideScrollArea.offsetHeight / 2) + (this.offsetHeight / 2);
+                        }, 100);
+                    });
+                });
+            }
+        }
+
+        window.onload = () => {
+            /* SAFE TELEVISION BROWSER DETECTION */
+            const ua = navigator.userAgent.toLowerCase();
+            if (ua.includes('firetv') || ua.includes('aftb') || ua.includes('afts') || ua.includes('smarttv') || ua.includes('appletv')) {
+                document.body.classList.add('is-tv');
+            }
+
+            setupNavigationArrows();
+            fetchContent();
+            loadContinueWatching();
+            setTimeout(() => { 
+                const loader = document.getElementById('loader');
+                if(loader) { loader.style.opacity = '0'; setTimeout(()=>loader.remove(), 800); }
+            }, 1200);
+            const obs = new IntersectionObserver(e => { if(e[0].isIntersecting && activeType !== 'after_dark' && activeType !== 'favorites') fetchContent(true); });
+            obs.observe(document.getElementById('sentinel'));
+        };
+    </script>
+</body>
+</html>
