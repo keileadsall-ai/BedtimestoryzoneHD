@@ -1209,12 +1209,11 @@
             const iframe = document.getElementById('luxe-player');
             playerOverlay.style.display = 'block';
             
-            // ---- PLAYER SOURCE CHANGED TO VIDCORE ----
-            // VidCore: ad-free, zero-buffering, TMDB-ID based, single stable stream per title.
-            // Docs: https://vidcore.org/  (movie: /embed/movie/{tmdb_id}  tv: /embed/tv/{tmdb_id}/{season}/{episode})
-            const vidcoreUrl = (type === 'movie' 
-                ? `https://vidcore.org/embed/movie/${id}?autoplay=true` 
-                : `https://vidcore.org/embed/tv/${id}/${s}/${e}?autoplay=true`);
+            // ---- PLAYER SOURCE CHANGED TO VIDSRC.NET ----
+            // VidSrc.net: stable provider with a large catalog, TMDB-ID based.
+            const vidsrcUrl = (type === 'movie' 
+                ? `https://vidsrc.net/embed/movie/${id}` 
+                : `https://vidsrc.net/embed/tv/${id}/${s}/${e}`);
             // ------------------------------------------
             
             const consumetUrl = `https://consumet-api-fawn.vercel.app/anime/gogoanime/watch/${encodeURIComponent(title.toLowerCase().replace(/ /g, '-'))}-episode-${e}`;
@@ -1226,10 +1225,10 @@
                     const timeoutId = setTimeout(() => controller.abort(), 1200); 
                     const response = await fetch(consumetUrl, { method: 'HEAD', signal: controller.signal });
                     setTimeout(() => clearTimeout(timeoutId), 0);
-                    iframe.src = response.ok ? consumetUrl : vidcoreUrl;
-                } catch (err) { iframe.src = vidcoreUrl; }
+                    iframe.src = response.ok ? consumetUrl : vidsrcUrl;
+                } catch (err) { iframe.src = vidsrcUrl; }
             } else { 
-                iframe.src = vidcoreUrl; 
+                iframe.src = vidsrcUrl; 
             }
 
             setTimeout(() => { if(document.getElementById('close-player-btn')) document.getElementById('close-player-btn').focus(); }, 400);
