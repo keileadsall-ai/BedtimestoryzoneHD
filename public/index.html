@@ -1209,7 +1209,14 @@
             const iframe = document.getElementById('luxe-player');
             playerOverlay.style.display = 'block';
             
-            const vidsrcUrl = (type === 'movie' ? `https://vidlink.pro/movie/${id}` : `https://vidlink.pro/tv/${id}/${s}/${e}`);
+            // ---- PLAYER SOURCE CHANGED HERE ----
+            // Old source: vidsrc.pm (ad-heavy, redirect issues)
+            // New source: vidsrc.to  (cleaner embed, fewer pop-ups, fullscreen-friendly)
+            const vidsrcUrl = (type === 'movie' 
+                ? `https://vidsrc.to/embed/movie/${id}` 
+                : `https://vidsrc.to/embed/tv/${id}/${s}/${e}`);
+            // -------------------------------------
+            
             const consumetUrl = `https://consumet-api-fawn.vercel.app/anime/gogoanime/watch/${encodeURIComponent(title.toLowerCase().replace(/ /g, '-'))}-episode-${e}`;
 
             iframe.src = "about:blank"; 
