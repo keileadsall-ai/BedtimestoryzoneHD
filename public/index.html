@@ -85,6 +85,7 @@
             </button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('list', '8661620')">STEPHEN KING</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('list', '8663550')">WES CRAVEN</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('shudder')">SHUDDER</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('after_dark')">AFTER DARK</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('black_horror')">BLACK HORROR</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('youth')">YOUTH HORROR</button>
@@ -579,6 +580,144 @@
             "Invasion", "Threshold", "The Triangle", "The Lost Room", "The Langoliers"
         ];
 
+        // SHUDDER CURATED TITLES (hardwired)
+        const SHUDDER_TITLES = [
+            "A Dark Song",
+            "Better Watch Out",
+            "Cold Hell",
+            "Downrange",
+            "Kuso",
+            "Mayhem",
+            "Mon Mon Mon Monsters",
+            "Monster Party",
+            "Puppet Master: The Littlest Reich",
+            "Revenge",
+            "Satan's Slaves",
+            "Still/Born",
+            "Terrified",
+            "The Ranger",
+            "Belzebuth",
+            "Daniel Isn't Real",
+            "Gwen",
+            "Horror Noire: A History of Black Horror",
+            "In Search of Darkness",
+            "Nightmare Cinema",
+            "One Cut of the Dead",
+            "Satanic Panic",
+            "The Cleansing Hour",
+            "The Room",
+            "The Witch in the Window",
+            "Tigers Are Not Afraid",
+            "Anything for Jackson",
+            "Blood Quantum",
+            "Boys From County Hell",
+            "Color Out of Space",
+            "Host",
+            "Impetigore",
+            "La Llorona",
+            "Leap of Faith: William Friedkin on The Exorcist",
+            "Metamorphosis",
+            "Random Acts of Violence",
+            "Scare Me",
+            "Spiral",
+            "Superdeep",
+            "The Beach House",
+            "The Mortuary Collection",
+            "VFW",
+            "Yummy",
+            "Z",
+            "Caveat",
+            "In Search of Darkness Part II",
+            "Jakob's Wife",
+            "Kandisha",
+            "Martyrs Lane",
+            "Psycho Goreman",
+            "Slaxx",
+            "Son",
+            "Stay Out of the F**king Attic",
+            "Superhost",
+            "Teddy",
+            "The Advent Calendar",
+            "The Boy Behind the Door",
+            "The Medium",
+            "The Power",
+            "The Queen of Black Magic",
+            "The Spine of Night",
+            "V/H/S/94",
+            "Violation",
+            "Woodlands Dark and Days Bewitched: A History of Folk Horror",
+            "A Wounded Fawn",
+            "Christmas Bloody Christmas",
+            "Deadstream",
+            "Glorious",
+            "Good Madam",
+            "Hellbender",
+            "In Search of Darkness Part III",
+            "Mad God",
+            "Moloch",
+            "Night's End",
+            "Offseason",
+            "Raven's Hollow",
+            "Revealer",
+            "Saloum",
+            "Sissy",
+            "Speak No Evil",
+            "The Cellar",
+            "The Sadness",
+            "The Twin",
+            "V/H/S/99",
+            "Virus-32",
+            "Watcher",
+            "What Josiah Saw",
+            "Who Invited Them",
+            "Attachment",
+            "Bad Behaviour",
+            "Birth/Rebirth",
+            "Brooklyn 45",
+            "Elevator Game",
+            "From Black",
+            "Huesera: The Bone Woman",
+            "In My Mother's Skin",
+            "Influencer",
+            "It's a Wonderful Knife",
+            "Night of the Hunted",
+            "Perpetrator",
+            "Quicksand",
+            "Satanic Hispanics",
+            "Sharksploitation",
+            "Skinamarink",
+            "Sorry About the Demon",
+            "Suitable Flesh",
+            "The Angry Black Girl and Her Monster",
+            "The Puppetman",
+            "The Sacrifice Game",
+            "The Wrath of Becky",
+            "V/H/S/85",
+            "When Evil Lurks",
+            "Azrael",
+            "Dancing Village: The Curse Begins",
+            "Exhuma",
+            "Humanist Vampire Seeking Consenting Suicidal Person",
+            "In a Violent Nature",
+            "Infested",
+            "Late Night with the Devil",
+            "Night Shift",
+            "Nightwatch: Demons Are Forever",
+            "Oddity",
+            "Stopmotion",
+            "The Coffee Table",
+            "The Demon Disorder",
+            "The Rule of Jenny Pen",
+            "V/H/S/Beyond",
+            "You'll Never Find Me",
+            "V/H/S/88",
+            "The Last Video Store",
+            "Monster Summer",
+            "In a Violent Nature 2",
+            "The Red Virgin",
+            "Dead Mail"
+        ];
+
         async function fetchWithRetry(url, retries = 3) {
             for (let i = 0; i < retries; i++) {
                 try {
@@ -890,6 +1029,9 @@
                     results = Array.from(unique.values());
                     ghastlyPage++;
                 }
+            } else if (activeType === 'shudder') {
+                await fetchShudder();
+                isLoading = false; return;
             } else if (activeType === 'after_dark') {
                 await fetchAfterDark();
                 isLoading = false; return;
@@ -929,8 +1071,32 @@
             }
 
             renderGrid(results);
-            if (!['black_magic', 'african', 'japanese', 'unrated', 'youth', 'teen', 'ghastly_series', 'k_horror'].includes(activeType)) currentPage++;
+            if (!['black_magic', 'african', 'japanese', 'unrated', 'youth', 'teen', 'ghastly_series', 'k_horror', 'shudder'].includes(activeType)) currentPage++;
             isLoading = false;
+        }
+
+        async function fetchShudder() {
+            const grid = document.getElementById('movie-grid');
+            grid.innerHTML = '';
+            const searchPromises = SHUDDER_TITLES.map(title => 
+                fetchWithRetry(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
+                .then(data => {
+                    if (data && data.results) {
+                        return data.results.find(m => m.poster_path && (m.media_type === 'movie' || m.media_type === 'tv')) || null;
+                    }
+                    return null;
+                })
+            );
+            const results = await Promise.all(searchPromises);
+            
+            let unique = new Map();
+            results.forEach(m => {
+                if (m && m.poster_path && !unique.has(m.id)) {
+                    unique.set(m.id, m);
+                }
+            });
+
+            renderGrid(Array.from(unique.values()));
         }
 
         async function fetchBlackMagicInitial() {
@@ -1403,7 +1569,7 @@
                 const loader = document.getElementById('loader');
                 if(loader) { loader.style.opacity = '0'; setTimeout(()=>loader.remove(), 800); }
             }, 1200);
-            const obs = new IntersectionObserver(e => { if(e[0].isIntersecting && activeType !== 'after_dark' && activeType !== 'favorites') fetchContent(true); });
+            const obs = new IntersectionObserver(e => { if(e[0].isIntersecting && activeType !== 'after_dark' && activeType !== 'favorites' && activeType !== 'shudder') fetchContent(true); });
             obs.observe(document.getElementById('sentinel'));
         };
     </script>
