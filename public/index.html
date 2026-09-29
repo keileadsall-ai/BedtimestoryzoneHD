@@ -69,10 +69,6 @@
 </head>
 <body>
 
-    <!-- ============================================================ -->
-    <!-- BULLETPROOF LOADER FAILSAFE — runs as the FIRST thing in body -->
-    <!-- Three redundant timers so it fires no matter what else breaks -->
-    <!-- ============================================================ -->
     <script>
         (function(){
             function killLoader(){
@@ -87,11 +83,9 @@
                     }
                 } catch(e) {}
             }
-            // Three independent timers for maximum reliability
             setTimeout(killLoader, 1500);
             setTimeout(killLoader, 3000);
             setTimeout(killLoader, 6000);
-            // Also fire when DOM is fully loaded as a bonus path
             try {
                 if (document.readyState === 'loading') {
                     document.addEventListener('DOMContentLoaded', function(){ setTimeout(killLoader, 1800); });
@@ -607,125 +601,57 @@
             "Invasion", "Threshold", "The Triangle", "The Lost Room", "The Langoliers"
         ];
 
+        // ---- SHUDDER TAB (rebuilt — only the films specified) ----
         const SHUDDER_TITLES = [
             "Revenge",
-            "Satan's Slaves",
             "Terrified",
-            "The Ranger",
-            "Gwen",
-            "Belzebuth",
-            "Horror Noire: A History of Black Horror",
-            "In Search of Darkness",
+            "Satan's Slaves",
+            "The Amusement Park",
             "One Cut of the Dead",
-            "The Witch in the Window",
             "Tigers Are Not Afraid",
-            "Anything for Jackson",
-            "Blood Quantum",
-            "Boys From County Hell",
-            "Color Out of Space",
-            "Host",
+            "The Room",
             "Impetigore",
-            "La Llorona",
-            "Leap of Faith: William Friedkin on The Exorcist",
-            "Metamorphosis",
-            "Scare Me",
-            "Spiral",
-            "Superdeep",
-            "The Beach House",
+            "Host",
             "The Mortuary Collection",
-            "VFW",
-            "Yummy",
-            "Z",
-            "Caveat",
-            "In Search of Darkness Part II",
-            "Jakob's Wife",
-            "Kandisha",
-            "Martyrs Lane",
-            "Psycho Goreman",
+            "Random Acts of Violence",
+            "Blood Quantum",
+            "The Beach House",
+            "La Llorona",
+            "Horror Noire: A History of Black Horror",
+            "Scare Me",
+            "Anything for Jackson",
+            "Lucky",
             "Slaxx",
-            "Son",
-            "Stay Out of the F**king Attic",
-            "Superhost",
-            "Teddy",
-            "The Advent Calendar",
-            "The Boy Behind the Door",
-            "The Medium",
-            "The Power",
-            "The Queen of Black Magic",
-            "The Spine of Night",
             "V/H/S/94",
-            "Violation",
-            "Woodlands Dark and Days Bewitched: A History of Folk Horror",
-            "A Wounded Fawn",
-            "Christmas Bloody Christmas",
             "Deadstream",
-            "Glorious",
-            "Good Madam",
             "Hellbender",
-            "In Search of Darkness Part III",
-            "Mad God",
-            "Moloch",
-            "Night's End",
-            "Offseason",
-            "Raven's Hollow",
-            "Revealer",
-            "Saloum",
-            "Sissy",
-            "Speak No Evil",
-            "The Cellar",
+            "The Boy Behind the Door",
+            "Superhost",
+            "Vicious Fun",
             "The Sadness",
-            "The Twin",
-            "V/H/S/99",
-            "Virus-32",
             "Watcher",
-            "What Josiah Saw",
-            "Who Invited Them",
-            "Attachment",
-            "Bad Behaviour",
-            "Birth/Rebirth",
-            "Brooklyn 45",
-            "Elevator Game",
-            "From Black",
-            "Huesera: The Bone Woman",
-            "In My Mother's Skin",
-            "Influencer",
-            "It's a Wonderful Knife",
-            "Night of the Hunted",
-            "Perpetrator",
-            "Quicksand",
-            "Satanic Hispanics",
-            "Sharksploitation",
+            "Mad God",
+            "Speak No Evil",
+            "Glorious",
+            "V/H/S/99",
+            "Dark Glasses",
+            "Christmas Bloody Christmas",
             "Skinamarink",
-            "Sorry About the Demon",
-            "Suitable Flesh",
-            "The Angry Black Girl and Her Monster",
-            "The Puppetman",
-            "The Sacrifice Game",
-            "The Wrath of Becky",
-            "V/H/S/85",
-            "When Evil Lurks",
-            "Azrael",
-            "Dancing Village: The Curse Begins",
-            "Exhuma",
-            "Humanist Vampire Seeking Consenting Suicidal Person",
+            "Sissy",
             "In a Violent Nature",
-            "Infested",
             "Late Night with the Devil",
-            "Night Shift",
-            "Nightwatch: Demons Are Forever",
             "Oddity",
+            "When Evil Lurks",
+            "Infested",
+            "Birth/Rebirth",
+            "Azrael",
             "Stopmotion",
-            "The Coffee Table",
-            "The Demon Disorder",
-            "The Rule of Jenny Pen",
+            "V/H/S/85",
             "V/H/S/Beyond",
-            "You'll Never Find Me",
-            "V/H/S/88",
-            "The Last Video Store",
-            "Monster Summer",
-            "In a Violent Nature 2",
-            "The Red Virgin",
-            "Dead Mail"
+            "Destroy All Neighbors",
+            "The Rule of Jenny Pen",
+            "Good Boy",
+            "Night Patrol"
         ];
 
         async function fetchWithRetry(url, retries = 3) {
@@ -1568,7 +1494,6 @@
                 obs.observe(document.getElementById('sentinel'));
             } catch (e) { console.error('IntersectionObserver failed:', e); }
 
-            // Visual fade for the loader — the failsafe at the top of <body> is the real backup
             setTimeout(() => { 
                 const loader = document.getElementById('loader');
                 if(loader) { loader.style.opacity = '0'; setTimeout(()=>loader.remove(), 800); }
