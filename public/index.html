@@ -36,6 +36,7 @@
         .fade-in { animation: fadeIn 0.4s ease-in; }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
+        /* HEART FAVORITE BUTTON STYLING */
         .fav-heart-btn {
             background: rgba(20, 20, 20, 0.85);
             border: 2px solid rgba(255, 255, 255, 0.2);
@@ -58,6 +59,7 @@
             filter: drop-shadow(0 0 8px rgba(229, 9, 20, 0.8));
         }
 
+        /* TARGETED FIRE TV/SMART TV ADJUSTMENT */
         @media screen and (min-width: 1280px) {
             body.is-tv {
                 transform: scale(0.94);
@@ -557,7 +559,30 @@
             "Paranormal Activity: The Marked Ones", "Paranormal Activity: The Ghost Dimension", "Paranormal Activity: Next of Kin",
             "The Ritual", "Hereditary", "Midsommar", "The Witch", "The Lighthouse", "X", "Pearl", "Infinity Pool",
             "Barbarian", "Late Night with the Devil", "Fresh", "Watcher", "The Menu", "Significant Other", "The Invitation",
-            "Sissy", "Coming Home in the Dark", "Resurrection", "Speak No Evil"
+            "Sissy", "Coming Home in the Dark", "Resurrection", "Speak No Evil",
+            "The House on Sorority Row", "Hell Night", "The Initiation", "Sorority House Massacre", "Girls Nite Out",
+            "Final Exam", "Splatter University", "Night School", "Killer Party", "The Dorm That Dripped Blood",
+            "Strange Behavior", "Happy Birthday to Me", "Cutting Class", "Doom Asylum", "The Slayer", "Edge of the Axe",
+            "Deadly Games", "The Initiation of Sarah", "Aenigma", "The Sisterhood", "The Hazing", "Dorm of the Dead",
+            "Voodoo Academy", "The Loved Ones", "All the Boys Love Mandy Lane", "The Woods", "Brainscan", "Campfire Tales",
+            "Dr. Giggles", "Mirror Mirror", "The Club", "Soul Survivors", "The New Kids", "Joy Ride", "Wicked",
+            "The Crush", "My Boyfriend's Back", "The Blob", "Hello Mary Lou: Prom Night II", "Prom Night III: The Last Kiss",
+            "Prom Night IV: Deliver Us from Evil", "Dance of the Dead", "The Convent", "When a Stranger Calls", "Disturbia",
+            "The Skulls II", "The Skulls III", "The Forsaken", "The Breed", "Dead Man's Curve", "Wishcraft", "Frightmare",
+            "Sleepy Hollow High", "Fear Runs Silent", "Hangman's Curse", "Medley", "Student Bodies", "Return to Horror High",
+            "The Final Terror", "Just Before Dawn", "Madman", "Cheerleader Camp", "Spirit Camp", "Satan's Cheerleaders",
+            "The Pit", "Mikey", "The Good Son", "The Children", "Who Can Kill a Child?", "Beware: Children at Play",
+            "Cemetery High", "Blood Hook", "Hide and Go Shriek", "Open House", "The Carpenter", "The Jitters", "Nightlife",
+            "Fatal Pulse", "The Invisible Kid", "The Under Achievers", "The Night Stalker", "The Vagrant",
+            "The Unnamable", "The Unnamable II: The Statement of Randolph Carter", "The Resurrected",
+            "The Brotherhood", "The Brotherhood II: Young Warlocks", "The Brotherhood III: Young Demons",
+            "The Blackcoat's Daughter", "Demons Never Die", "Tormented", "Unhallowed Ground", "They/Them", "It Lives Inside",
+            "Clown in a Cornfield", "Whistle", "Fear Street: Prom Queen", "Hell of a Summer", "Bloody Axe Wound",
+            "You're Dead to Me", "This Is Not a Test", "Leviticus", "Penny Lane is Dead", "Foreigner",
+            "The Virgin of the Quarry Lake", "Red Riding", "The Brook", "Veronica",
+            "Excision", "Eating Miss Campbell", "Extracurricular", "Raw", "Titane", "Devour", "Slaughter High",
+            "The Lurker", "Vampire Girl vs. Frankenstein Girl", "Lesson of the Evil",
+            "Teenage Sex and Death at Camp Miasma"
         ];
 
         const GHASTLY_SERIES_TITLES = [
@@ -601,7 +626,6 @@
             "Invasion", "Threshold", "The Triangle", "The Lost Room", "The Langoliers"
         ];
 
-        // ---- SHUDDER TAB (rebuilt — only the films specified) ----
         const SHUDDER_TITLES = [
             "Revenge",
             "Terrified",
@@ -652,6 +676,25 @@
             "The Rule of Jenny Pen",
             "Good Boy",
             "Night Patrol"
+        ];
+
+        // BLACK HORROR TITLES — hardwired list + 41 new additions
+        const BLACK_HORROR_TITLES = [
+            // --- Original list ---
+            "Get Out", "Us", "Nope", "Candyman", "Candyman: Farewell to the Flesh", "Candyman: Day of the Dead",
+            "Tales from the Hood", "Tales from the Hood 2", "Tales from the Hood 3", "Blacula", "Scream Blacula Scream",
+            "Blackenstein", "Ganja & Hess", "Da Sweet Blood of Jesus", "The Addiction", "Def by Temptation",
+            "Bones", "The People Under the Stairs", "Vampire in Brooklyn", "Blade", "Blade II", "Blade: Trinity",
+            "Spawn", "The Craft", "The Craft: Legacy", "Skeleton Key", "The Skeleton Key", "Eve's Bayou",
+            "Belly", "Belly 2: Millionaire Boyz Club", "Twelve Years a Slave", "Antebellum", "His House",
+            "The Girl with All the Gifts", "Attack the Block", "The Strange Thing About the Johnsons", "Wake",
+            "Angel Heart", "She Devil", "Welcome II the Terrordome", "Embalmer", "The Blackening",
+            "28 Years Later: The Bone Temple", "Is God Is", "They Will Kill You", "Queen & Slim", "Bitter Souls",
+            "Cabbage", "Displaced", "Ghosted", "The Geechee Witch: A Boo Hag Story", "NoSeemUms", "Black Krampus",
+            "40 Acres", "Ashes Never Rest", "The Man in My Basement", "Master", "Black as Night", "Ma",
+            "Shadow: Dead Riot", "Cryptz", "No Hood Deed", "When the Bough Breaks", "Murder on the 13th Floor",
+            "Restraining Order", "Hello", "Mea Culpa", "The Pass", "Sugar Mama", "You're Not Alone", "Best Friend",
+            "The Deadly Getaway", "Rendezvous", "Running Out of Time"
         ];
 
         async function fetchWithRetry(url, retries = 3) {
