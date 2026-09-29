@@ -36,7 +36,6 @@
         .fade-in { animation: fadeIn 0.4s ease-in; }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
-        /* HEART FAVORITE BUTTON STYLING */
         .fav-heart-btn {
             background: rgba(20, 20, 20, 0.85);
             border: 2px solid rgba(255, 255, 255, 0.2);
@@ -59,7 +58,6 @@
             filter: drop-shadow(0 0 8px rgba(229, 9, 20, 0.8));
         }
 
-        /* TARGETED FIRE TV/SMART TV ADJUSTMENT */
         @media screen and (min-width: 1280px) {
             body.is-tv {
                 transform: scale(0.94);
@@ -678,23 +676,51 @@
             "Night Patrol"
         ];
 
-        // BLACK HORROR TITLES — hardwired list + 41 new additions
-        const BLACK_HORROR_TITLES = [
-            // --- Original list ---
-            "Get Out", "Us", "Nope", "Candyman", "Candyman: Farewell to the Flesh", "Candyman: Day of the Dead",
-            "Tales from the Hood", "Tales from the Hood 2", "Tales from the Hood 3", "Blacula", "Scream Blacula Scream",
-            "Blackenstein", "Ganja & Hess", "Da Sweet Blood of Jesus", "The Addiction", "Def by Temptation",
-            "Bones", "The People Under the Stairs", "Vampire in Brooklyn", "Blade", "Blade II", "Blade: Trinity",
-            "Spawn", "The Craft", "The Craft: Legacy", "Skeleton Key", "The Skeleton Key", "Eve's Bayou",
-            "Belly", "Belly 2: Millionaire Boyz Club", "Twelve Years a Slave", "Antebellum", "His House",
-            "The Girl with All the Gifts", "Attack the Block", "The Strange Thing About the Johnsons", "Wake",
-            "Angel Heart", "She Devil", "Welcome II the Terrordome", "Embalmer", "The Blackening",
-            "28 Years Later: The Bone Temple", "Is God Is", "They Will Kill You", "Queen & Slim", "Bitter Souls",
-            "Cabbage", "Displaced", "Ghosted", "The Geechee Witch: A Boo Hag Story", "NoSeemUms", "Black Krampus",
-            "40 Acres", "Ashes Never Rest", "The Man in My Basement", "Master", "Black as Night", "Ma",
-            "Shadow: Dead Riot", "Cryptz", "No Hood Deed", "When the Bough Breaks", "Murder on the 13th Floor",
-            "Restraining Order", "Hello", "Mea Culpa", "The Pass", "Sugar Mama", "You're Not Alone", "Best Friend",
-            "The Deadly Getaway", "Rendezvous", "Running Out of Time"
+        // ================================================================
+        // BLACK HORROR — NEW TITLES appended on top of your IMDb-based list
+        // ================================================================
+        const BLACK_HORROR_NEW_TITLES = [
+            "Welcome II the Terrordome",
+            "Embalmer",
+            "The Blackening",
+            "28 Years Later: The Bone Temple",
+            "Is God Is",
+            "They Will Kill You",
+            "Queen & Slim",
+            "The Girl with All the Gifts",
+            "Attack the Block",
+            "The Strange Thing About the Johnsons",
+            "Wake",
+            "Angel Heart",
+            "She Devil",
+            "Bitter Souls",
+            "Cabbage",
+            "Displaced",
+            "Ghosted",
+            "The Geechee Witch: A Boo Hag Story",
+            "NoSeemUms",
+            "Black Krampus",
+            "40 Acres",
+            "Ashes Never Rest",
+            "The Man in My Basement",
+            "Master",
+            "Black as Night",
+            "Ma",
+            "Shadow: Dead Riot",
+            "Cryptz",
+            "No Hood Deed",
+            "When the Bough Breaks",
+            "Murder on the 13th Floor",
+            "Restraining Order",
+            "Hello",
+            "Mea Culpa",
+            "The Pass",
+            "Sugar Mama",
+            "You're Not Alone",
+            "Best Friend",
+            "The Deadly Getaway",
+            "Rendezvous",
+            "Running Out of Time"
         ];
 
         async function fetchWithRetry(url, retries = 3) {
@@ -749,6 +775,29 @@
             });
             const items = await Promise.all(promises);
             return items.filter(Boolean);
+        }
+
+        // NEW: search TMDB by title for the extra black-horror films
+        async function fetchExtraBlackHorrorTitles(idSet) {
+            const searchPromises = BLACK_HORROR_NEW_TITLES.map(title =>
+                fetchWithRetry(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
+                    .then(data => {
+                        if (data && data.results) {
+                            return data.results.find(m => m.poster_path && (m.media_type === 'movie' || m.media_type === 'tv')) || null;
+                        }
+                        return null;
+                    })
+                    .catch(() => null)
+            );
+            const fetchedResults = await Promise.all(searchPromises);
+            const items = [];
+            fetchedResults.forEach(m => {
+                if (m && !idSet.has(m.id)) {
+                    idSet.add(m.id);
+                    items.push({ ...m, media_type: m.media_type || (m.first_air_date ? 'tv' : 'movie') });
+                }
+            });
+            return items;
         }
 
         async function fetchContent(append = false) {
@@ -892,8 +941,12 @@
                 }
             } else if (activeType === 'black_horror') {
                 if (!append) {
+                    // ORIGINAL: IMDb-based hardwired list
                     const hardwiredItems = await resolveItemsFromImdbList(HARD_WIRED_IMDB_IDS, loadedBlackHorrorIds);
-                    results = hardwiredItems;
+                    // NEW: title-based search for the 41 added films
+                    const extraItems = await fetchExtraBlackHorrorTitles(loadedBlackHorrorIds);
+                    // Combine both — dedupe handled by loadedBlackHorrorIds
+                    results = [...hardwiredItems, ...extraItems];
                 } else {
                     const actorIdsParam = UNIQUE_BLACK_IDS.join('|');
                     const urls = [
