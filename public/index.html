@@ -36,7 +36,6 @@
         .fade-in { animation: fadeIn 0.4s ease-in; }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
-        /* HEART FAVORITE BUTTON STYLING */
         .fav-heart-btn {
             background: rgba(20, 20, 20, 0.85);
             border: 2px solid rgba(255, 255, 255, 0.2);
@@ -59,7 +58,6 @@
             filter: drop-shadow(0 0 8px rgba(229, 9, 20, 0.8));
         }
 
-        /* TARGETED FIRE TV/SMART TV ADJUSTMENT */
         @media screen and (min-width: 1280px) {
             body.is-tv {
                 transform: scale(0.94);
@@ -70,6 +68,37 @@
     </style>
 </head>
 <body>
+
+    <!-- ============================================================ -->
+    <!-- BULLETPROOF LOADER FAILSAFE — runs as the FIRST thing in body -->
+    <!-- Three redundant timers so it fires no matter what else breaks -->
+    <!-- ============================================================ -->
+    <script>
+        (function(){
+            function killLoader(){
+                try {
+                    var l = document.getElementById('loader');
+                    if (l && l.parentNode) {
+                        l.style.transition = 'opacity 0.3s ease';
+                        l.style.opacity = '0';
+                        setTimeout(function(){
+                            try { if (l && l.parentNode) l.parentNode.removeChild(l); } catch(e) {}
+                        }, 350);
+                    }
+                } catch(e) {}
+            }
+            // Three independent timers for maximum reliability
+            setTimeout(killLoader, 1500);
+            setTimeout(killLoader, 3000);
+            setTimeout(killLoader, 6000);
+            // Also fire when DOM is fully loaded as a bonus path
+            try {
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', function(){ setTimeout(killLoader, 1800); });
+                }
+            } catch(e) {}
+        })();
+    </script>
 
     <div id="loader">
         <div class="voodoo-container"><img src="IMG_8259.jpeg" class="medusa-heart"></div>
@@ -187,7 +216,6 @@
         let currentPage = 1, isLoading = false;
         let savedScrollPosition = 0, lastFocusedElement = null;
 
-        // FAVORITES STORAGE LOGIC
         function getFavorites() {
             try {
                 return JSON.parse(localStorage.getItem('fear_plus_favorites') || '[]');
@@ -240,13 +268,12 @@
             grid.innerHTML = '';
             const favs = getFavorites();
             if (favs.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-20 text-center horror-font text-2xl text-zinc-500 uppercase tracking-wider">No Cursed Souls Favorited Yet...</div>`;
+                grid.innerHTML = '<div class="col-span-full py-20 text-center horror-font text-2xl text-zinc-500 uppercase tracking-wider">No Cursed Souls Favorited Yet...</div>';
                 return;
             }
             renderGrid(favs);
         }
 
-        // Initialize Continue Watching
         function loadContinueWatching() {
             const watched = JSON.parse(localStorage.getItem('fear_plus_continue') || 'null');
             if (watched) {
@@ -284,7 +311,7 @@
             "Terrifier", "Terrifier 2", "Terrifier 3", "All Hallows' Eve", "Seed", "Inside", "Martyrs", "Grotesque", 
             "Rohtenburg", "High Tension", "Frontier(s)", "The Sadness", "Baskin", "Raw", "Bone Tomahawk", "The Green Inferno", 
             "Cannibal Holocaust", "Cannibal Ferox", "Eaten Alive!", "Jungle Holocaust", "The Human Centipede", 
-            "The Human Centipede 2", "The Human Centipede 3", "A Serbian Film", "Salò, or the 120 Days of Sodom", 
+            "The Human Centipede 2", "The Human Centipede 3", "A Serbian Film", "Salo, or the 120 Days of Sodom", 
             "Nekromantik", "Nekromantik 2", "Schramm", "Der Todesking", "August Underground", "August Underground's Mordum", 
             "August Underground's Penance", "Faces of Death", "Faces of Death II", "Faces of Death III", "Traces of Death", 
             "Traces of Death II", "Traces of Death III", "Orozco the Embalmer", "Shocking Asia", "Africa Addio", "Mondo Cane", 
@@ -298,7 +325,7 @@
             "Tokyo Gore Police", "Meatball Machine", "The Machine Girl", "Dead Sushi", "Mutant Girls Squad", "Adam Chaplin", 
             "Taeter City", "Hotel Inferno", "Atroz", "Thanatomorphose", "Contracted", "Contracted: Phase II", "The Poughkeepsie Tapes", 
             "Megan Is Missing", "The Girl Next Door", "Snowtown", "The Golden Glove", "Angst", "Henry: Portrait of a Serial Killer", 
-            "Maniac", "The House That Jack Built", "Antichrist", "Irréversible", "Baise-moi", "Trouble Every Day", "Sombre", 
+            "Maniac", "The House That Jack Built", "Antichrist", "Irreversible", "Baise-moi", "Trouble Every Day", "Sombre", 
             "Calvaire", "Vinyan", "Sheitan", "Mutants", "Macabre", "The Devil's Rejects", "House of 1000 Corpses", "31", 
             "100 Tears", "Headless", "Gutterballs", "Hanger", "Porkchop", "The Gateway Meat", "Hate Crime", "Torched", 
             "Carcinoma", "Voyage to Agatis", "Melancholie der Engel", "Cannibal", "Debris Documentar", "Scrapbook", 
@@ -367,9 +394,9 @@
             "The Cat", "Don't Click", "The Chosen: Forbidden Cave", "The Guest", "The Tunnel", "Black Light", "Neighbor Zombie", "Alien Zombie", "Zombie School", "Mad Sad Bad",
             "The Flu", "Deranged", "Sector 7", "The Tower", "Pandemic", "Ashfall", "Tidal Wave", "Haeundae", "Chaw", "To Sir, With Love",
             "Bloody Reunion", "Death Bell 2: Bloody Camp", "Ghost", "The Record", "The Cut", "A Record of Sweet Murder", "Bestseller", "Someone Behind You", "Shadows in the Palace", "The Guard Post",
-            "Kingdom: Ashin of the North", "Sweet Home", "Hellbound", "All of Us Are Dead", "Gyeongseong Creature", "Strangersard from Hell", "The Be",queathed", "Monstrous", "The Curs "ed", "Search",
-            "Priest",The "Hometown", "Dark Hole", "Save Me Deal", "Coma", "Goedam", "Nightmare Teacher", "White Day: Broken Boundary", "The Labyrinth",
-            "Tomb of the River", "Seobok", "The Witch: Part 1. The Subversion", "The Witch: Part 2. The Other One", "The Chase", "Forgotten", "Memoir of a Murderer", "V.I.P.", "Bluebe",
+            "Kingdom: Ashin of the North", "Sweet Home", "Hellbound", "All of Us Are Dead", "Gyeongseong Creature", "Strangers from Hell", "The Bequeathed", "Monstrous", "The Cursed", "Search",
+            "Priest", "Hometown", "Dark Hole", "Save Me", "Coma", "Goedam", "Nightmare Teacher", "White Day: Broken Boundary", "The Labyrinth",
+            "Tomb of the River", "Seobok", "The Witch: Part 1. The Subversion", "The Witch: Part 2. The Other One", "The Chase", "Forgotten", "Memoir of a Murderer", "V.I.P.", "Bluebeard", "The Deal",
             "The Truth Beneath", "Missing You", "Office", "The Treacherous", "Manhole", "The Phone", "Alice: Boy from Wonderland", "Fatal Intuition", "The Exclusive: Beat the Devil's Tattoo", "Dark Figure of Crime",
             "Door Lock", "Deja Vu", "The Witness", "Marionette", "The Vanished", "Bargain", "The Anchor", "The Flinch", "The Devil's Deal"
         ];
@@ -580,9 +607,7 @@
             "Invasion", "Threshold", "The Triangle", "The Lost Room", "The Langoliers"
         ];
 
-        // ---- SHUDDER ORIGINALS & EXCLUSIVES ONLY (hardwired) ----
         const SHUDDER_TITLES = [
-            // Early Originals / Exclusives
             "Revenge",
             "Satan's Slaves",
             "Terrified",
@@ -1134,17 +1159,11 @@
             const grid = document.getElementById('movie-grid');
             grid.innerHTML = '';
             const darkTitles = [
-                // Horrorfest 2006 (Series 1)
                 "The Abandoned", "Dark Ride", "The Gravedancers", "The Hamiltons", "Penny Dreadful", "Reincarnation", "Snoop Dogg's Hood of Horror", "Unrest", "Wicked Little Things",
-                // Horrorfest II (2007)
                 "Borderland", "Crazy Eights", "The Deaths of Ian Stone", "Frontier(s)", "Lake Dead", "Mulberry Street", "Nightmare Man", "Tooth & Nail", "Unearthed",
-                // Horrorfest III (2008/2009)
                 "Autopsy", "The Broken", "The Butterfly Effect 3: Revelations", "Dying Breed", "From Within", "Perkins' 14", "Slaughter", "Voices",
-                // Horrorfest 4 (2010)
                 "Dread", "The Final", "The Graves", "Hidden", "Kill Theory", "Lake Mungo", "The Reeds", "Zombies of Mass Destruction",
-                // 8 Films to Die For (2015 Revival)
                 "Murder in the Dark", "Wind Walkers", "Suspension", "Unnatural", "The Wicked Within", "Re-Kill", "Lumberjack Man", "Bastard",
-                // Additional requested item
                 "Mum & Dad"
             ];
             const searchPromises = darkTitles.map(title => 
@@ -1300,7 +1319,6 @@
             const leftArrow = document.getElementById('season-arrow-left');
             const rightArrow = document.getElementById('season-arrow-right');
 
-            // MULTI-SEASON CHECK: Show arrows only if more than 1 season exists
             if (validSeasons.length > 1) {
                 leftArrow.classList.remove('hidden');
                 rightArrow.classList.remove('hidden');
@@ -1315,7 +1333,6 @@
                 btn.innerText = `Season ${s.season_number}`;
                 btn.onclick = () => loadEpisodes(data.id, s.season_number);
                 
-                // Keep active season focused into view for Smart TV / Fire TV
                 btn.addEventListener('focus', function() {
                     setTimeout(() => {
                         container.scrollLeft = this.offsetLeft - (container.offsetWidth / 2) + (this.offsetWidth / 2);
@@ -1360,11 +1377,10 @@
             const iframe = document.getElementById('luxe-player');
             playerOverlay.style.display = 'block';
             
-            // ---- PLAYER SOURCE: VIDSRC.TO (matches your preferred player) ----
             const vidsrcUrl = (type === 'movie' 
                 ? `https://vidsrc.to/embed/movie/${id}` 
                 : `https://vidsrc.to/embed/tv/${id}/${s}/${e}`);
-            // ------------------------------------------------------------------
+            
             const consumetUrl = `https://consumet-api-fawn.vercel.app/anime/gogoanime/watch/${encodeURIComponent(title.toLowerCase().replace(/ /g, '-'))}-episode-${e}`;
 
             iframe.src = "about:blank"; 
@@ -1479,9 +1495,7 @@
             return best;
         }
 
-        // Setup custom dynamic navigation arrows for both menus
         function setupNavigationArrows() {
-            // 1. Top Navigation Menu Setup
             const topNavMenu = document.getElementById('top-nav-menu');
             const topNavContainer = document.getElementById('top-nav-container');
             
@@ -1499,7 +1513,6 @@
                 topNavContainer.appendChild(leftArrow);
                 topNavContainer.appendChild(rightArrow);
 
-                // Auto-center view when elements receive focus via D-Pad
                 topNavMenu.querySelectorAll('button').forEach(btn => {
                     btn.addEventListener('focus', function() {
                         setTimeout(() => {
@@ -1509,7 +1522,6 @@
                 });
             }
 
-            // 2. Side Menu Setup
             const sideScrollArea = document.getElementById('side-scroll-area');
             const sideMenu = document.getElementById('side-menu');
             
@@ -1527,7 +1539,6 @@
                 sideMenu.appendChild(upArrow);
                 sideMenu.appendChild(downArrow);
 
-                // Track changes during vertical navigation inside vaults list
                 sideScrollArea.querySelectorAll('button').forEach(btn => {
                     btn.addEventListener('focus', function() {
                         setTimeout(() => {
@@ -1539,21 +1550,29 @@
         }
 
         window.onload = () => {
-            /* SAFE TELEVISION BROWSER DETECTION */
-            const ua = navigator.userAgent.toLowerCase();
-            if (ua.includes('firetv') || ua.includes('aftb') || ua.includes('afts') || ua.includes('smarttv') || ua.includes('appletv')) {
-                document.body.classList.add('is-tv');
-            }
+            try {
+                const ua = navigator.userAgent.toLowerCase();
+                if (ua.includes('firetv') || ua.includes('aftb') || ua.includes('afts') || ua.includes('smarttv') || ua.includes('appletv')) {
+                    document.body.classList.add('is-tv');
+                }
+            } catch (e) { console.error('UA check failed:', e); }
 
-            setupNavigationArrows();
-            fetchContent();
-            loadContinueWatching();
+            try { setupNavigationArrows(); } catch (e) { console.error('setupNavigationArrows failed:', e); }
+            try { fetchContent(); } catch (e) { console.error('fetchContent failed:', e); }
+            try { loadContinueWatching(); } catch (e) { console.error('loadContinueWatching failed:', e); }
+
+            try {
+                const obs = new IntersectionObserver(e => { 
+                    if(e[0].isIntersecting && activeType !== 'after_dark' && activeType !== 'favorites' && activeType !== 'shudder') fetchContent(true); 
+                });
+                obs.observe(document.getElementById('sentinel'));
+            } catch (e) { console.error('IntersectionObserver failed:', e); }
+
+            // Visual fade for the loader — the failsafe at the top of <body> is the real backup
             setTimeout(() => { 
                 const loader = document.getElementById('loader');
                 if(loader) { loader.style.opacity = '0'; setTimeout(()=>loader.remove(), 800); }
             }, 1200);
-            const obs = new IntersectionObserver(e => { if(e[0].isIntersecting && activeType !== 'after_dark' && activeType !== 'favorites' && activeType !== 'shudder') fetchContent(true); });
-            obs.observe(document.getElementById('sentinel'));
         };
     </script>
 </body>
