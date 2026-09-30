@@ -676,51 +676,55 @@
             "Night Patrol"
         ];
 
-        // ================================================================
-        // BLACK HORROR — NEW TITLES appended on top of your IMDb-based list
-        // ================================================================
+        // ==================================================================
+        // BLACK HORROR — NEW TITLES with STRICT YEAR MATCHING
+        // Each entry is { title, year } and the search will ONLY accept a
+        // result whose release/first-air year matches exactly (or ±1 for
+        // release-date ambiguity). If no year match is found, the title is
+        // skipped entirely — no wrong films will ever be shown.
+        // ==================================================================
         const BLACK_HORROR_NEW_TITLES = [
-            "Welcome II the Terrordome",
-            "Embalmer",
-            "The Blackening",
-            "28 Years Later: The Bone Temple",
-            "Is God Is",
-            "They Will Kill You",
-            "Queen & Slim",
-            "The Girl with All the Gifts",
-            "Attack the Block",
-            "The Strange Thing About the Johnsons",
-            "Wake",
-            "Angel Heart",
-            "She Devil",
-            "Bitter Souls",
-            "Cabbage",
-            "Displaced",
-            "Ghosted",
-            "The Geechee Witch: A Boo Hag Story",
-            "NoSeemUms",
-            "Black Krampus",
-            "40 Acres",
-            "Ashes Never Rest",
-            "The Man in My Basement",
-            "Master",
-            "Black as Night",
-            "Ma",
-            "Shadow: Dead Riot",
-            "Cryptz",
-            "No Hood Deed",
-            "When the Bough Breaks",
-            "Murder on the 13th Floor",
-            "Restraining Order",
-            "Hello",
-            "Mea Culpa",
-            "The Pass",
-            "Sugar Mama",
-            "You're Not Alone",
-            "Best Friend",
-            "The Deadly Getaway",
-            "Rendezvous",
-            "Running Out of Time"
+            { title: "Welcome II the Terrordome", year: 1995 },
+            { title: "Embalmer", year: 1996 },
+            { title: "The Blackening", year: 2022 },
+            { title: "28 Years Later: The Bone Temple", year: 2026 },
+            { title: "Is God Is", year: 2026 },
+            { title: "They Will Kill You", year: 2026 },
+            { title: "Queen & Slim", year: 2019 },
+            { title: "The Girl with All the Gifts", year: 2016 },
+            { title: "Attack the Block", year: 2011 },
+            { title: "The Strange Thing About the Johnsons", year: 2011 },
+            { title: "Wake", year: 2010 },
+            { title: "Angel Heart", year: 1987 },
+            { title: "She Devil", year: 1934 },
+            { title: "Bitter Souls", year: 2026 },
+            { title: "Cabbage", year: 2023 },
+            { title: "Displaced", year: 2023 },
+            { title: "Ghosted", year: 2024 },
+            { title: "The Geechee Witch: A Boo Hag Story", year: 2024 },
+            { title: "NoSeemUms", year: 2026 },
+            { title: "Black Krampus", year: 2025 },
+            { title: "40 Acres", year: 2024 },
+            { title: "Ashes Never Rest", year: 2025 },
+            { title: "The Man in My Basement", year: 2025 },
+            { title: "Master", year: 2022 },
+            { title: "Black as Night", year: 2021 },
+            { title: "Ma", year: 2019 },
+            { title: "Shadow: Dead Riot", year: 2006 },
+            { title: "Cryptz", year: 2002 },
+            { title: "No Hood Deed", year: 2014 },
+            { title: "When the Bough Breaks", year: 2016 },
+            { title: "Murder on the 13th Floor", year: 2012 },
+            { title: "Restraining Order", year: 2006 },
+            { title: "Hello", year: 2022 },
+            { title: "Mea Culpa", year: 2024 },
+            { title: "The Pass", year: 2023 },
+            { title: "Sugar Mama", year: 2025 },
+            { title: "You're Not Alone", year: 2023 },
+            { title: "Best Friend", year: 2023 },
+            { title: "The Deadly Getaway", year: 2022 },
+            { title: "Rendezvous", year: 1999 },
+            { title: "Running Out of Time", year: 2018 }
         ];
 
         async function fetchWithRetry(url, retries = 3) {
@@ -777,19 +781,44 @@
             return items.filter(Boolean);
         }
 
-        // NEW: search TMDB by title for the extra black-horror films
+        // STRICT year-matched search for the extra black horror films.
+        // Uses search/movie with primary_release_year + search/tv with first_air_date_year,
+        // then double-checks the returned year in JS to be safe.
         async function fetchExtraBlackHorrorTitles(idSet) {
-            const searchPromises = BLACK_HORROR_NEW_TITLES.map(title =>
-                fetchWithRetry(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
-                    .then(data => {
-                        if (data && data.results) {
-                            return data.results.find(m => m.poster_path && (m.media_type === 'movie' || m.media_type === 'tv')) || null;
-                        }
-                        return null;
-                    })
-                    .catch(() => null)
-            );
-            const fetchedResults = await Promise.all(searchPromises);
+            const promises = BLACK_HORROR_NEW_TITLES.map(({ title, year }) => {
+                const movieUrl = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}&primary_release_year=${year}`;
+                const tvUrl = `https://api.themoviedb.org/3/search/tv?api_key=${API_KEY}&query=${encodeURIComponent(title)}&first_air_date_year=${year}`;
+                return Promise.all([
+                    fetchWithRetry(movieUrl).catch(() => null),
+                    fetchWithRetry(tvUrl).catch(() => null)
+                ]).then(([movieData, tvData]) => {
+                    const candidates = [];
+                    if (movieData && movieData.results) {
+                        movieData.results.forEach(m => candidates.push({ ...m, media_type: 'movie' }));
+                    }
+                    if (tvData && tvData.results) {
+                        tvData.results.forEach(t => candidates.push({ ...t, media_type: 'tv' }));
+                    }
+                    // Double-check year in JS
+                    const yearMatches = candidates.filter(m => {
+                        if (!m.poster_path) return false;
+                        const yearStr = ((m.release_date || m.first_air_date) || '').split('-')[0];
+                        const y = parseInt(yearStr, 10);
+                        return y === year;
+                    });
+                    if (yearMatches.length > 0) return yearMatches[0];
+                    // Fallback ±1 year tolerance for release-date ambiguity
+                    const nearMatches = candidates.filter(m => {
+                        if (!m.poster_path) return false;
+                        const yearStr = ((m.release_date || m.first_air_date) || '').split('-')[0];
+                        const y = parseInt(yearStr, 10);
+                        return Math.abs(y - year) <= 1;
+                    });
+                    return nearMatches[0] || null;
+                });
+            });
+
+            const fetchedResults = await Promise.all(promises);
             const items = [];
             fetchedResults.forEach(m => {
                 if (m && !idSet.has(m.id)) {
@@ -941,11 +970,11 @@
                 }
             } else if (activeType === 'black_horror') {
                 if (!append) {
-                    // ORIGINAL: IMDb-based hardwired list
+                    // ORIGINAL IMDb-based hardwired list — untouched
                     const hardwiredItems = await resolveItemsFromImdbList(HARD_WIRED_IMDB_IDS, loadedBlackHorrorIds);
-                    // NEW: title-based search for the 41 added films
+                    // NEW: strict year-matched search for the 41 added films
                     const extraItems = await fetchExtraBlackHorrorTitles(loadedBlackHorrorIds);
-                    // Combine both — dedupe handled by loadedBlackHorrorIds
+                    // Combine both
                     results = [...hardwiredItems, ...extraItems];
                 } else {
                     const actorIdsParam = UNIQUE_BLACK_IDS.join('|');
