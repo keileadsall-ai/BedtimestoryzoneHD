@@ -490,10 +490,9 @@
         ];
 
         // ================================================================
-        // TEEN HORROR — REPLACED with your new list. Each entry is { title, year }.
-        // Strict year matching will be enforced via primary_release_year /
-        // first_air_date_year, plus a JS double-check. No unrelated films
-        // can slip through — if no year match exists, the title is skipped.
+        // TEEN HORROR — REPLACED with the full hardwired list (title + year).
+        // Strict year matching via primary_release_year / first_air_date_year.
+        // If no year match is found, the title is skipped — no wrong films.
         // ================================================================
         const TEEN_HORROR_TITLES = [
             { title: "Carrie", year: 1976 },
@@ -855,7 +854,91 @@
             { title: "Some Kind of Hate", year: 2015 },
             { title: "Sweatshop", year: 2009 },
             { title: "Final Remains", year: 2009 },
-            { title: "Cannibal Campout", year: 1988 }
+            { title: "Cannibal Campout", year: 1988 },
+            { title: "Fear Street: 1994", year: 2021 },
+            { title: "Fear Street: 1978", year: 2021 },
+            { title: "Fear Street: 1666", year: 2021 },
+            { title: "The Craft: Legacy", year: 2020 },
+            { title: "Devil in the Flesh", year: 1998 },
+            { title: "Spirit in the Blood", year: 2024 },
+            { title: "Y2K", year: 2024 },
+            { title: "We're All Going to the World's Fair", year: 2021 },
+            { title: "Eye for an Eye", year: 2025 },
+            { title: "When a Stranger Calls", year: 2006 },
+            { title: "A Nightmare on Elm Street", year: 2010 },
+            { title: "The Cabin in the Woods", year: 2011 },
+            { title: "It Follows", year: 2014 },
+            { title: "Midsommar", year: 2019 },
+            { title: "Insidious: Chapter 3", year: 2015 },
+            { title: "Zombieland", year: 2009 },
+            { title: "Hostel", year: 2005 },
+            { title: "House of 1000 Corpses", year: 2003 },
+            { title: "The Exorcist II: The Heretic", year: 1977 },
+            { title: "Night of the Demons 2", year: 1994 },
+            { title: "Evils of the Night", year: 1985 },
+            { title: "Nightbreed", year: 1990 },
+            { title: "The Vampires of Sorority Row", year: 1999 },
+            { title: "Pumpkinhead", year: 1988 },
+            { title: "Ouija", year: 2014 },
+            { title: "Nightmare Classics", year: 1989 },
+            { title: "The Last One", year: 2017 },
+            { title: "A Message from Brianna", year: 2021 },
+            { title: "The Despaired", year: 2024 },
+            { title: "Stay Out", year: 2023 },
+            { title: "The Reading", year: 2023 },
+            { title: "Freddy's Nightmares", year: 1988 },
+            { title: "Slasher", year: 2016 },
+            { title: "Dementia 13", year: 2017 },
+            { title: "SiREN", year: 2016 },
+            { title: "Deep in the Darkness", year: 2014 },
+            { title: "Animal", year: 2014 },
+            { title: "The Monkey's Paw", year: 2013 },
+            { title: "Ghoul", year: 2012 },
+            { title: "Dead Souls", year: 2012 },
+            { title: "Bring It On: Cheer or Die", year: 2022 },
+            { title: "Hysteria!", year: 2024 },
+            { title: "Mothman", year: 2010 },
+            { title: "Ogre", year: 2008 },
+            { title: "Truth or Dare", year: 2017 },
+            { title: "Scarecrow", year: 2013 },
+            { title: "Neverknock", year: 2017 },
+            { title: "House of the Witch", year: 2017 },
+            { title: "The Night Before Halloween", year: 2016 },
+            { title: "Haunted High", year: 2012 },
+            { title: "Glass House: The Good Mother", year: 2006 },
+            { title: "#AMFAD: All My Friends Are Dead", year: 2024 },
+            { title: "Influencer", year: 2022 },
+            { title: "Model House", year: 2024 },
+            { title: "The Den", year: 2013 },
+            { title: "Smiley", year: 2012 },
+            { title: "Donkey Punch", year: 2008 },
+            { title: "Invertigo", year: 2026 },
+            { title: "Hell Fest", year: 2018 },
+            { title: "Dark Ride", year: 2006 },
+            { title: "Escape from Tomorrow", year: 2013 },
+            { title: "The Funhouse", year: 1981 },
+            { title: "Traction Park Massacre", year: 2025 },
+            { title: "Thrill", year: 1996 },
+            { title: "Scream Park", year: 2012 },
+            { title: "Willy's Wonderland", year: 2021 },
+            { title: "Society", year: 1989 },
+            { title: "Beach Logs Kill", year: 2024 },
+            { title: "The Kool Kids", year: 2025 },
+            { title: "The Sacrifice Game", year: 2023 },
+            { title: "Brave Citizen", year: 2023 },
+            { title: "X Game", year: 2010 },
+            { title: "Prom Ride", year: 2015 },
+            { title: "Live Animals", year: 2008 },
+            { title: "Dread", year: 2009 },
+            { title: "Asylum", year: 2008 },
+            { title: "Strangeland", year: 1998 },
+            { title: "Eden Lake", year: 2008 },
+            { title: "Hostel: Part II", year: 2007 },
+            { title: "Rage", year: 2022 },
+            { title: "The Plague", year: 2025 },
+            { title: "Death Bell", year: 2008 },
+            { title: "Hellmaster", year: 1992 },
+            { title: "My Friend Dahmer", year: 2017 }
         ];
 
         const GHASTLY_SERIES_TITLES = [
@@ -1325,12 +1408,11 @@
                     youthHorrorPage++;
                 }
             } else if (activeType === 'teen') {
-                // NEW: strict year-matched search. If no year match found, title is skipped.
+                // STRICT year-matched search for Teen Horror.
                 const allTeenItems = await fetchTeenHorrorTitles(loadedTeenHorrorIds);
                 if (allTeenItems.length > 0) {
                     results = allTeenItems;
                 } else {
-                    // Fallback: paginate if array somehow empty
                     const itemsPerPage = 20;
                     const start = (teenHorrorPage - 1) * itemsPerPage;
                     const end = start + itemsPerPage;
