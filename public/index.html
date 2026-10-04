@@ -489,98 +489,373 @@
             "Monster Mutt", "My Mom's a Werewolf", "The Ghost Club", "Ghost Patrol", "Halloween High", "Ghost Trackers"
         ];
 
+        // ================================================================
+        // TEEN HORROR — REPLACED with your new list. Each entry is { title, year }.
+        // Strict year matching will be enforced via primary_release_year /
+        // first_air_date_year, plus a JS double-check. No unrelated films
+        // can slip through — if no year match exists, the title is skipped.
+        // ================================================================
         const TEEN_HORROR_TITLES = [
-            "IT", "It Chapter Two", "Poltergeist", "Totem", "I Know What You Did Last Summer", "I Still Know What You Did Last Summer",
-            "I'll Always Know What You Did Last Summer", "Fear Street: 1994", "Fear Street: 1978", "Fear Street: 1666",
-            "Fear", "The Faculty", "Happy Death Day", "Happy Death Day 2U", "Totally Killer", "Jennifer's Body",
-            "Haunt", "The Midnight Man", "Scream", "Scream 2", "Scream 3", "Scream 4", "Scream", "Scream VI",
-            "Scream: The TV Series", "The Craft", "The Craft: Legacy", "Final Destination", "Final Destination 2",
-            "Final Destination 3", "The Final Destination", "Final Destination 5", "Chilling Adventures of Sabrina",
-            "Freaky", "Ginger Snaps", "Ginger Snaps 2: Unleashed", "Ginger Snaps Back: The Beginning",
-            "Scary Stories to Tell in the Dark", "Bodies Bodies Bodies", "Urban Legend", "Urban Legends: Final Cut",
-            "Urban Legends: Bloody Mary", "Carrie", "The Rage: Carrie 2", "Carrie", "Christine", "The Lost Boys",
-            "Lost Boys: The Tribe", "Lost Boys: The Thirst", "Fright Night", "Fright Night Part 2", "Fright Night",
-            "Fright Night 2: New Blood", "Buffy the Vampire Slayer", "The Cabin in the Woods", "Tucker and Dale vs. Evil",
-            "The Evil Dead", "Evil Dead II", "Army of Darkness", "Evil Dead", "Evil Dead Rise", "Ash vs Evil Dead",
-            "A Nightmare on Elm Street", "A Nightmare on Elm Street 2: Freddy's Revenge", "A Nightmare on Elm Street 3: Dream Warriors",
-            "A Nightmare on Elm Street 4: The Dream Master", "A Nightmare on Elm Street 5: The Dream Child",
-            "Freddy's Dead: The Final Nightmare", "Wes Craven's New Nightmare", "Freddy vs. Jason", "A Nightmare on Elm Street",
-            "Friday the 13th", "Friday the 13th Part 2", "Friday the 13th Part III", "Friday the 13th: The Final Chapter",
-            "Friday the 13th: A New Beginning", "Friday the 13th Part VI: Jason Lives", "Friday the 13th Part VII: The New Blood",
-            "Friday the 13th Part VIII: Jason Takes Manhattan", "Jason Goes to Hell: The Final Friday", "Jason X",
-            "Friday the 13th", "Halloween", "Halloween II", "Halloween III: Season of the Witch",
-            "Halloween 4: The Return of Michael Myers", "Halloween 5: The Revenge of Michael Myers",
-            "Halloween: The Curse of Michael Myers", "Halloween H20: 20 Years Later", "Halloween: Resurrection",
-            "Halloween", "Halloween II", "Halloween", "Halloween Kills", "Halloween Ends",
-            "The Texas Chain Saw Massacre", "The Texas Chainsaw Massacre 2", "Leatherface: Texas Chainsaw Massacre III",
-            "Texas Chainsaw Massacre: The Next Generation", "The Texas Chainsaw Massacre", "The Texas Chainsaw Massacre: The Beginning",
-            "Texas Chainsaw 3D", "Leatherface", "Texas Chainsaw Massacre", "Child's Play", "Child's Play 2",
-            "Child's Play 3", "Bride of Chucky", "Seed of Chucky", "Curse of Chucky", "Cult of Chucky",
-            "Child's Play", "Chucky", "Hellraiser", "Hellbound: Hellraiser II", "Hellraiser III: Hell on Earth",
-            "Hellraiser: Bloodline", "Hellraiser: Inferno", "Hellraiser: Hellseeker", "Hellraiser: Deader",
-            "Hellraiser: Hellworld", "Hellraiser: Revelations", "Hellraiser: Judgment", "Hellraiser", "Candyman",
-            "Candyman: Farewell to the Flesh", "Candyman: Day of the Dead", "Candyman", "The Ring", "The Ring Two",
-            "Rings", "The Grudge", "The Grudge 2", "The Grudge 3", "The Grudge", "Smile", "Talk to Me",
-            "Insidious", "Insidious: Chapter 2", "Insidious: Chapter 3", "Insidious: The Last Key", "Insidious: The Red Door",
-            "The Conjuring", "The Conjuring 2", "The Conjuring: The Devil Made Me Do It", "Annabelle", "Annabelle: Creation",
-            "Annabelle Comes Home", "The Nun", "The Nun II", "The Curse of La Llorona", "Sinister", "Sinister 2",
-            "The Purge", "The Purge: Anarchy", "The Purge: Election Year", "The First Purge", "The Forever Purge",
-            "The Purge", "It Follows", "Truth or Dare", "Unfriended", "Unfriended: Dark Web", "Ouija",
-            "Ouija: Origin of Evil", "The Boy", "Brahms: The Boy II", "Black Christmas", "Black Christmas",
-            "Black Christmas", "House of Wax", "My Bloody Valentine", "My Bloody Valentine 3D", "Prom Night",
-            "Prom Night", "Sorority Row", "The Slumber Party Massacre", "Slumber Party Massacre II", "Slumber Party Massacre III",
-            "Slumber Party Massacre", "Sleepaway Camp", "Sleepaway Camp II: Unhappy Campers", "Sleepaway Camp III: Teenage Wasteland",
-            "Return to Sleepaway Camp", "The Hills Have Eyes", "The Hills Have Eyes Part II", "The Hills Have Eyes",
-            "The Hills Have Eyes 2", "Wrong Turn", "Wrong Turn 2: Dead End", "Wrong Turn 3: Left for Dead",
-            "Wrong Turn 4: Bloody Beginnings", "Wrong Turn 5: Bloodlines", "Wrong Turn 6: Last Resort", "Wrong Turn",
-            "Saw", "Saw II", "Saw III", "Saw IV", "Saw V", "Saw VI", "Saw 3D", "Jigsaw", "Spiral: From the Book of Saw",
-            "Saw X", "Hostel", "Hostel: Part II", "Hostel: Part III", "The Strangers", "The Strangers: Prey at Night",
-            "The Strangers: Chapter 1", "Hush", "Don't Breathe", "Don't Breathe 2", "The Descent", "The Descent: Part 2",
-            "You're Next", "Ready or Not", "Escape Room", "Escape Room: Tournament of Champions", "Ma", "M3GAN",
-            "Five Nights at Freddy's", "The Black Phone", "Orphan", "Orphan: First Kill", "The Babysitter",
-            "The Babysitter: Killer Queen", "Sick", "Thanksgiving", "There's Someone Inside Your House",
-            "Vampires vs. the Bronx", "Assassination Nation", "Tragedy Girls", "The Final Girls", "All Cheerleaders Die",
-            "Detention", "Cooties", "Better Watch Out", "Bloody Birthday", "The Hole", "Cry Wolf", "Valentine",
-            "Cherry Falls", "Teaching Mrs. Tingle", "Disturbing Behavior", "Idle Hands", "The Skulls",
-            "I Am Not a Serial Killer", "Hell Fest", "Blood Fest", "Trick", "Monster Party", "Initiation", "The Dare",
-            "Student Body", "Seance", "Head Count", "Ruin Me", "Pledge", "The Row", "Witches in the Woods",
-            "Kristy", "The Belko Experiment", "Nerve", "Nighthawks", "Spontaneous", "Super Dark Times",
-            "Vicious Fun", "We Summon the Darkness", "Deadgirl", "Kristy", "Smiley Face Killers", "The Furies",
-            "The Gallows", "The Gallows Act II", "Friend Request", "Countdown", "Polaroid", "Wish Upon", "Viral",
-            "Slender Man", "Bye Bye Man", "Boogeyman", "Lights Out", "Oculus", "Apparition", "Mirrors",
-            "The Crazies", "Drag Me to Hell", "Thirteen Ghosts", "Ghost Ship", "Gothika", "The Reaping", "The Invasion",
-            "The Unborn", "April Fool's Day", "The Grudge 2", "My Soul to Take", "The Collector",
-            "The Collection", "See No Evil", "See No Evil 2", "The Forest", "The Lazarus Effect", "The 47 Meters Down",
-            "The 5th Wave", "The Quiet Ones", "The Possession", "The Pyramid", "As Above So Below", "The Vatican Tapes",
-            "The Visit", "Deliver Us from Evil",
-            "Paranormal Activity", "Paranormal Activity 2", "Paranormal Activity 3", "Paranormal Activity 4",
-            "Paranormal Activity: The Marked Ones", "Paranormal Activity: The Ghost Dimension", "Paranormal Activity: Next of Kin",
-            "The Ritual", "Hereditary", "Midsommar", "The Witch", "The Lighthouse", "X", "Pearl", "Infinity Pool",
-            "Barbarian", "Late Night with the Devil", "Fresh", "Watcher", "The Menu", "Significant Other", "The Invitation",
-            "Sissy", "Coming Home in the Dark", "Resurrection", "Speak No Evil",
-            "The House on Sorority Row", "Hell Night", "The Initiation", "Sorority House Massacre", "Girls Nite Out",
-            "Final Exam", "Splatter University", "Night School", "Killer Party", "The Dorm That Dripped Blood",
-            "Strange Behavior", "Happy Birthday to Me", "Cutting Class", "Doom Asylum", "The Slayer", "Edge of the Axe",
-            "Deadly Games", "The Initiation of Sarah", "Aenigma", "The Sisterhood", "The Hazing", "Dorm of the Dead",
-            "Voodoo Academy", "The Loved Ones", "All the Boys Love Mandy Lane", "The Woods", "Brainscan", "Campfire Tales",
-            "Dr. Giggles", "Mirror Mirror", "The Club", "Soul Survivors", "The New Kids", "Joy Ride", "Wicked",
-            "The Crush", "My Boyfriend's Back", "The Blob", "Hello Mary Lou: Prom Night II", "Prom Night III: The Last Kiss",
-            "Prom Night IV: Deliver Us from Evil", "Dance of the Dead", "The Convent", "When a Stranger Calls", "Disturbia",
-            "The Skulls II", "The Skulls III", "The Forsaken", "The Breed", "Dead Man's Curve", "Wishcraft", "Frightmare",
-            "Sleepy Hollow High", "Fear Runs Silent", "Hangman's Curse", "Medley", "Student Bodies", "Return to Horror High",
-            "The Final Terror", "Just Before Dawn", "Madman", "Cheerleader Camp", "Spirit Camp", "Satan's Cheerleaders",
-            "The Pit", "Mikey", "The Good Son", "The Children", "Who Can Kill a Child?", "Beware: Children at Play",
-            "Cemetery High", "Blood Hook", "Hide and Go Shriek", "Open House", "The Carpenter", "The Jitters", "Nightlife",
-            "Fatal Pulse", "The Invisible Kid", "The Under Achievers", "The Night Stalker", "The Vagrant",
-            "The Unnamable", "The Unnamable II: The Statement of Randolph Carter", "The Resurrected",
-            "The Brotherhood", "The Brotherhood II: Young Warlocks", "The Brotherhood III: Young Demons",
-            "The Blackcoat's Daughter", "Demons Never Die", "Tormented", "Unhallowed Ground", "They/Them", "It Lives Inside",
-            "Clown in a Cornfield", "Whistle", "Fear Street: Prom Queen", "Hell of a Summer", "Bloody Axe Wound",
-            "You're Dead to Me", "This Is Not a Test", "Leviticus", "Penny Lane is Dead", "Foreigner",
-            "The Virgin of the Quarry Lake", "Red Riding", "The Brook", "Veronica",
-            "Excision", "Eating Miss Campbell", "Extracurricular", "Raw", "Titane", "Devour", "Slaughter High",
-            "The Lurker", "Vampire Girl vs. Frankenstein Girl", "Lesson of the Evil",
-            "Teenage Sex and Death at Camp Miasma"
+            { title: "Carrie", year: 1976 },
+            { title: "The Initiation of Sarah", year: 1978 },
+            { title: "Halloween", year: 1978 },
+            { title: "Prom Night", year: 1980 },
+            { title: "Terror Train", year: 1980 },
+            { title: "Final Exam", year: 1981 },
+            { title: "Graduation Day", year: 1981 },
+            { title: "Hell Night", year: 1981 },
+            { title: "Night School", year: 1981 },
+            { title: "The Prowler", year: 1981 },
+            { title: "Strange Behavior", year: 1981 },
+            { title: "Girls Nite Out", year: 1982 },
+            { title: "The Dorm That Dripped Blood", year: 1982 },
+            { title: "Pieces", year: 1982 },
+            { title: "The House on Sorority Row", year: 1983 },
+            { title: "Splatter University", year: 1984 },
+            { title: "The Initiation", year: 1984 },
+            { title: "Silent Madness", year: 1984 },
+            { title: "Slaughter High", year: 1986 },
+            { title: "Night of the Creeps", year: 1986 },
+            { title: "Sorority House Massacre", year: 1986 },
+            { title: "Vamp", year: 1986 },
+            { title: "Blood Sisters", year: 1987 },
+            { title: "Hell High", year: 1987 },
+            { title: "Return to Horror High", year: 1987 },
+            { title: "Rush Week", year: 1989 },
+            { title: "Fright Night Part 2", year: 1988 },
+            { title: "Prom Night III: The Last Kiss", year: 1990 },
+            { title: "Sorority House Massacre II", year: 1990 },
+            { title: "Ghoulies III: Ghoulies Go to College", year: 1990 },
+            { title: "Pledge Night", year: 1990 },
+            { title: "Candyman", year: 1992 },
+            { title: "The Addiction", year: 1995 },
+            { title: "Thesis", year: 1996 },
+            { title: "Scream", year: 1996 },
+            { title: "The Craft", year: 1996 },
+            { title: "Scream 2", year: 1997 },
+            { title: "I Know What You Did Last Summer", year: 1997 },
+            { title: "The Faculty", year: 1998 },
+            { title: "Urban Legend", year: 1998 },
+            { title: "Halloween H20: 20 Years Later", year: 1998 },
+            { title: "Cherry Falls", year: 2000 },
+            { title: "Ginger Snaps", year: 2000 },
+            { title: "Urban Legends: Final Cut", year: 2000 },
+            { title: "Battle Royale", year: 2000 },
+            { title: "Soul Survivors", year: 2001 },
+            { title: "Ripper: Letter from Hell", year: 2001 },
+            { title: "The Hazing", year: 2004 },
+            { title: "Cry Wolf", year: 2005 },
+            { title: "The Woods", year: 2006 },
+            { title: "Black Christmas", year: 2006 },
+            { title: "Jennifer's Body", year: 2009 },
+            { title: "Sorority Row", year: 2009 },
+            { title: "F", year: 2010 },
+            { title: "The Final", year: 2010 },
+            { title: "The Roommate", year: 2011 },
+            { title: "Excision", year: 2012 },
+            { title: "The Gallows", year: 2015 },
+            { title: "The Final Girls", year: 2015 },
+            { title: "Raw", year: 2016 },
+            { title: "Happy Death Day", year: 2017 },
+            { title: "Tragedy Girls", year: 2017 },
+            { title: "Truth or Dare", year: 2018 },
+            { title: "Pledge", year: 2019 },
+            { title: "Black Christmas", year: 2019 },
+            { title: "Ma", year: 2019 },
+            { title: "Freaky", year: 2020 },
+            { title: "Bodies Bodies Bodies", year: 2022 },
+            { title: "Totally Killer", year: 2023 },
+            { title: "Clown in a Cornfield", year: 2025 },
+            { title: "Whistle", year: 2025 },
+            { title: "Girlhouse", year: 2014 },
+            { title: "Trick", year: 2019 },
+            { title: "Astral", year: 2018 },
+            { title: "MFA", year: 2017 },
+            { title: "Haunt", year: 2019 },
+            { title: "The Midnight Man", year: 2016 },
+            { title: "The Brute Man", year: 1946 },
+            { title: "Massacre at Central High", year: 1976 },
+            { title: "Satan's School for Girls", year: 1973 },
+            { title: "The Burning", year: 1981 },
+            { title: "Madman", year: 1981 },
+            { title: "Bloody Birthday", year: 1981 },
+            { title: "Class Reunion Massacre", year: 1983 },
+            { title: "Blood Cult", year: 1985 },
+            { title: "The Mutilator", year: 1985 },
+            { title: "Cheerleader Camp", year: 1988 },
+            { title: "After Midnight", year: 1989 },
+            { title: "Whispering Corridors", year: 1998 },
+            { title: "The Rage: Carrie 2", year: 1999 },
+            { title: "Dead Man's Curve", year: 1998 },
+            { title: "The Hole", year: 2001 },
+            { title: "The Skulls", year: 2000 },
+            { title: "The Brotherhood", year: 2001 },
+            { title: "The Brotherhood II: Young Warlocks", year: 2001 },
+            { title: "The Brotherhood III: Young Demons", year: 2003 },
+            { title: "The Sisterhood", year: 2004 },
+            { title: "The Exorcism of Emily Rose", year: 2005 },
+            { title: "Wicked Little Things", year: 2006 },
+            { title: "The Hamiltons", year: 2006 },
+            { title: "The Lost", year: 2006 },
+            { title: "Sorority Sister Slaughter", year: 2007 },
+            { title: "The Haunting of Sorority Row", year: 2007 },
+            { title: "Deadgirl", year: 2008 },
+            { title: "Dance of the Dead", year: 2008 },
+            { title: "Gutterballs", year: 2008 },
+            { title: "The Loved Ones", year: 2009 },
+            { title: "1313: Haunted Frat", year: 2011 },
+            { title: "Deadly Karma", year: 2011 },
+            { title: "Face", year: 2012 },
+            { title: "Afterparty", year: 2013 },
+            { title: "The Babysitter", year: 2017 },
+            { title: "Party Hard, Die Young", year: 2018 },
+            { title: "Haunting on Fraternity Row", year: 2018 },
+            { title: "The Row", year: 2018 },
+            { title: "Initiation", year: 2020 },
+            { title: "The Unhealer", year: 2020 },
+            { title: "Vampires vs. the Bronx", year: 2020 },
+            { title: "There's Someone Inside Your House", year: 2021 },
+            { title: "Re/Member", year: 2022 },
+            { title: "It's What's Inside", year: 2024 },
+            { title: "213 Bones", year: 2025 },
+            { title: "This Is Not a Test", year: 2026 },
+            { title: "You're Dead to Me", year: 2026 },
+            { title: "Werewolf in a Girls' Dormitory", year: 1961 },
+            { title: "The Horror of Party Beach", year: 1964 },
+            { title: "Nightmare", year: 1964 },
+            { title: "Naked Evil", year: 1966 },
+            { title: "Even the Wind is Afraid", year: 1968 },
+            { title: "Mark of the Witch", year: 1970 },
+            { title: "Equinox", year: 1970 },
+            { title: "Frankenstein on Campus", year: 1970 },
+            { title: "The Dunwich Horror", year: 1970 },
+            { title: "Horror High", year: 1973 },
+            { title: "The Possessed", year: 1977 },
+            { title: "The Redeemer", year: 1978 },
+            { title: "Silent Scream", year: 1979 },
+            { title: "Happy Birthday to Me", year: 1981 },
+            { title: "Student Bodies", year: 1981 },
+            { title: "Midnight Offerings", year: 1981 },
+            { title: "The Slumber Party Massacre", year: 1982 },
+            { title: "Zombie High", year: 1987 },
+            { title: "Slumber Party Massacre II", year: 1987 },
+            { title: "Fatal Pulse", year: 1988 },
+            { title: "The Chilling", year: 1989 },
+            { title: "Fatal Exam", year: 1990 },
+            { title: "Sorority House Massacre III: Hard to Die", year: 1990 },
+            { title: "Class of 1999", year: 1990 },
+            { title: "Class of 1999 II: The Substitute", year: 1994 },
+            { title: "The Fear", year: 1995 },
+            { title: "Fear", year: 1996 },
+            { title: "Disturbing Behavior", year: 1998 },
+            { title: "Idle Hands", year: 1999 },
+            { title: "The Fear: Resurrection", year: 1999 },
+            { title: "Memento Mori", year: 1999 },
+            { title: "The Blair Witch Project", year: 1999 },
+            { title: "Final Destination", year: 2000 },
+            { title: "Final Destination 2", year: 2003 },
+            { title: "Final Destination 3", year: 2006 },
+            { title: "The Final Destination", year: 2009 },
+            { title: "Teenage Sex and Death at Camp Miasma", year: 2026 },
+            { title: "The Lurker", year: 2025 },
+            { title: "Lesson of the Evil", year: 2012 },
+            { title: "Fear Street: Prom Queen", year: 2025 },
+            { title: "Bloody Axe Wound", year: 2024 },
+            { title: "Eating Miss Campbell", year: 2022 },
+            { title: "Extracurricular", year: 2018 },
+            { title: "Titane", year: 2021 },
+            { title: "All the Boys Love Mandy Lane", year: 2006 },
+            { title: "Veronica", year: 2017 },
+            { title: "The Virgin of the Quarry Lake", year: 2025 },
+            { title: "Leviticus", year: 2026 },
+            { title: "Penny Lane is Dead", year: 2026 },
+            { title: "Foreigner", year: 2025 },
+            { title: "Red Riding", year: 2026 },
+            { title: "The Brook", year: 2026 },
+            { title: "Demons Never Die", year: 2011 },
+            { title: "Tormented", year: 2009 },
+            { title: "Unhallowed Ground", year: 2015 },
+            { title: "Evilspeak", year: 1982 },
+            { title: "Bloody Pom Poms", year: 1987 },
+            { title: "Cutting Class", year: 1989 },
+            { title: "Ghoul School", year: 1990 },
+            { title: "Eko Eko Azarak: Wizard of Darkness", year: 1995 },
+            { title: "The Club", year: 1994 },
+            { title: "The Convent", year: 2000 },
+            { title: "Cabin Fever", year: 2002 },
+            { title: "Vampire Girl vs. Frankenstein Girl", year: 2009 },
+            { title: "Attack Girls' Swim Team Versus the Undead", year: 2007 },
+            { title: "Die Die Delta Pi", year: 2013 },
+            { title: "Exeter", year: 2015 },
+            { title: "Kristy", year: 2014 },
+            { title: "Night of the Dead Sorority Babes", year: 2025 },
+            { title: "Assimilate", year: 2019 },
+            { title: "The Glass House", year: 2001 },
+            { title: "The Stepfather", year: 1987 },
+            { title: "Famine", year: 2011 },
+            { title: "The Stalker Club", year: 2017 },
+            { title: "Paintball Massacre", year: 2020 },
+            { title: "End of Term", year: 2023 },
+            { title: "Screamers", year: 1986 },
+            { title: "Hello Mary Lou: Prom Night II", year: 1987 },
+            { title: "Dead Before Dawn 3D", year: 2013 },
+            { title: "Lost After Dark", year: 2015 },
+            { title: "Killer Party", year: 1986 },
+            { title: "Study Hell", year: 2007 },
+            { title: "The Furies", year: 2019 },
+            { title: "Sissy", year: 2022 },
+            { title: "Needle", year: 2010 },
+            { title: "Cut", year: 2000 },
+            { title: "Acolytes", year: 2008 },
+            { title: "Bloodmoon", year: 1990 },
+            { title: "Kadaicha", year: 1988 },
+            { title: "Boy Eats Girl", year: 2005 },
+            { title: "Suckers", year: 2008 },
+            { title: "The Glenarma Tapes", year: 2023 },
+            { title: "Scream of the Banshee", year: 2011 },
+            { title: "Deathgasm", year: 2015 },
+            { title: "Grafted", year: 2024 },
+            { title: "Death Warmed Up", year: 1984 },
+            { title: "The Weed Eaters", year: 2025 },
+            { title: "The Stay Awake", year: 1987 },
+            { title: "Triggered", year: 2020 },
+            { title: "Killer Book Club", year: 2023 },
+            { title: "The Babysitter: Killer Queen", year: 2020 },
+            { title: "If Wishes Could Kill", year: 2026 },
+            { title: "Tarot", year: 2024 },
+            { title: "Head Count", year: 2018 },
+            { title: "Margaux", year: 2022 },
+            { title: "Grimcutty", year: 2022 },
+            { title: "Carved", year: 2024 },
+            { title: "Pure", year: 2019 },
+            { title: "School Spirit", year: 2019 },
+            { title: "Uncanny Annie", year: 2019 },
+            { title: "I'm Just F***ing With You", year: 2019 },
+            { title: "The Wretched", year: 2020 },
+            { title: "Hell of a Summer", year: 2025 },
+            { title: "The Scream Murder: A True Teen Horror Story", year: 2026 },
+            { title: "It Lives Inside", year: 2023 },
+            { title: "The Boogeyman", year: 2023 },
+            { title: "Attack the Block", year: 2011 },
+            { title: "Slash/Back", year: 2022 },
+            { title: "Pyewacket", year: 2017 },
+            { title: "Light as a Feather", year: 2018 },
+            { title: "Don't Turn Out the Lights", year: 2023 },
+            { title: "Cuckoo", year: 2024 },
+            { title: "Run", year: 2020 },
+            { title: "The Invitation", year: 2022 },
+            { title: "No One Will Save You", year: 2023 },
+            { title: "Umma", year: 2022 },
+            { title: "Climax", year: 2018 },
+            { title: "Krampus", year: 2015 },
+            { title: "Wish Upon", year: 2017 },
+            { title: "Perpetrator", year: 2023 },
+            { title: "MadS", year: 2024 },
+            { title: "Spin the Bottle", year: 2024 },
+            { title: "Confessional", year: 2020 },
+            { title: "Children of the Corn", year: 2023 },
+            { title: "The Unnamable", year: 1988 },
+            { title: "School's Out", year: 2018 },
+            { title: "Seance", year: 2021 },
+            { title: "Dark Harvest", year: 2023 },
+            { title: "New Group", year: 2025 },
+            { title: "Mother of Flies", year: 2025 },
+            { title: "Abraham's Boys", year: 2025 },
+            { title: "Trapped in Her Dorm Room", year: 2025 },
+            { title: "Danger in the Dorm", year: 2024 },
+            { title: "Killing All My Sisters", year: 2024 },
+            { title: "Devil on Campus: The Larry Ray Story", year: 2024 },
+            { title: "The Dorm", year: 2014 },
+            { title: "Death at the Dinner Party", year: 2026 },
+            { title: "Ten: Murder Island", year: 2017 },
+            { title: "Drink, Slay, Love", year: 2017 },
+            { title: "Let's Murder Like It's 1999!", year: 2026 },
+            { title: "Stalked by My Stepsister", year: 2023 },
+            { title: "The Perfect Killer", year: 2025 },
+            { title: "I've Been Waiting for You", year: 1998 },
+            { title: "The Girl Who Survived: The Alina Thompson Story", year: 2025 },
+            { title: "Abducted on Prom Night", year: 2023 },
+            { title: "The Bad Seed Returns", year: 2022 },
+            { title: "A Gift of Murder", year: 2022 },
+            { title: "Caught in His Web", year: 2022 },
+            { title: "When Mom Becomes a Murderer", year: 2024 },
+            { title: "The Girl Who Wasn't Dead", year: 2024 },
+            { title: "Who's Stalking My Family", year: 2024 },
+            { title: "Be Careful What You Say", year: 2024 },
+            { title: "Taste of His Own Poison", year: 2025 },
+            { title: "Sleeping with My Student", year: 2019 },
+            { title: "High School Possession", year: 2014 },
+            { title: "Exorcismus", year: 2010 },
+            { title: "Night of the Demons", year: 1988 },
+            { title: "Devil's Diary", year: 2007 },
+            { title: "Teenage Exorcist", year: 1991 },
+            { title: "Gates of Darkness", year: 2020 },
+            { title: "13 Exorcisms", year: 2022 },
+            { title: "The Exorcist: Believer", year: 2023 },
+            { title: "They Reach", year: 2020 },
+            { title: "The Tag-Along: The Devil Fish", year: 2020 },
+            { title: "Brainscan", year: 1994 },
+            { title: "Mirror, Mirror", year: 1990 },
+            { title: "Night of the Scarecrow", year: 1996 },
+            { title: "Wishmaster 2: Evil Never Dies", year: 1999 },
+            { title: "Campfire Tales", year: 1997 },
+            { title: "Lovers Lane", year: 1999 },
+            { title: "Shrieker", year: 1998 },
+            { title: "Night of the Dribbler", year: 1990 },
+            { title: "Prom Night IV: Deliver Us from Evil", year: 1991 },
+            { title: "Buffy the Vampire Slayer", year: 1992 },
+            { title: "Happy Hell Night", year: 1992 },
+            { title: "My Boyfriend's Back", year: 1993 },
+            { title: "Final Hour", year: 1995 },
+            { title: "Witch Academy", year: 1995 },
+            { title: "Fever Lake", year: 1997 },
+            { title: "Kolobos", year: 1999 },
+            { title: "Teaching Mrs. Tingle", year: 1999 },
+            { title: "I Was a Teenage Frankenstein", year: 1957 },
+            { title: "Monster on the Campus", year: 1958 },
+            { title: "Burn, Witch, Burn", year: 1962 },
+            { title: "The Haunted House of Horror", year: 1969 },
+            { title: "Janie", year: 1970 },
+            { title: "The Blood on Satan's Claw", year: 1971 },
+            { title: "Lemora", year: 1973 },
+            { title: "Devil Times Five", year: 1974 },
+            { title: "To All a Goodnight", year: 1980 },
+            { title: "The Last Slumber Party", year: 1988 },
+            { title: "I Was a Teenage Zombie", year: 1987 },
+            { title: "Aenigma", year: 1987 },
+            { title: "Deadly Manor", year: 1990 },
+            { title: "Fear Runs Silent", year: 2000 },
+            { title: "Sideshow", year: 2000 },
+            { title: "Devil's Prey", year: 2001 },
+            { title: "Sleepy Hollow High", year: 2000 },
+            { title: "Black Rat", year: 2010 },
+            { title: "Butchered", year: 2010 },
+            { title: "Almost Invisible", year: 2010 },
+            { title: "The Puppet Monster Massacre", year: 2010 },
+            { title: "Sunset Edge", year: 2015 },
+            { title: "Emplacement", year: 2025 },
+            { title: "What Are You Afraid Of?", year: 2025 },
+            { title: "Obsession", year: 2026 },
+            { title: "Inkblack", year: 2024 },
+            { title: "They Found Hell", year: 2015 },
+            { title: "Fear Island", year: 2009 },
+            { title: "Headless Horseman", year: 2007 },
+            { title: "The Initiation of Sarah", year: 2006 },
+            { title: "Killer Bash", year: 2005 },
+            { title: "Ring of Darkness", year: 2004 },
+            { title: "Satan's School for Girls", year: 2000 },
+            { title: "Cry Baby Lane", year: 2000 },
+            { title: "The Midnight Hour", year: 1985 },
+            { title: "Deadly Lessons", year: 1983 },
+            { title: "A Pattern of Roses", year: 1983 },
+            { title: "Are You in the House Alone?", year: 1978 },
+            { title: "The Spell", year: 1977 },
+            { title: "Found", year: 2012 },
+            { title: "Headless", year: 2015 },
+            { title: "Some Kind of Hate", year: 2015 },
+            { title: "Sweatshop", year: 2009 },
+            { title: "Final Remains", year: 2009 },
+            { title: "Cannibal Campout", year: 1988 }
         ];
 
         const GHASTLY_SERIES_TITLES = [
@@ -676,13 +951,6 @@
             "Night Patrol"
         ];
 
-        // ==================================================================
-        // BLACK HORROR — NEW TITLES with STRICT YEAR MATCHING
-        // Each entry is { title, year } and the search will ONLY accept a
-        // result whose release/first-air year matches exactly (or ±1 for
-        // release-date ambiguity). If no year match is found, the title is
-        // skipped entirely — no wrong films will ever be shown.
-        // ==================================================================
         const BLACK_HORROR_NEW_TITLES = [
             { title: "Welcome II the Terrordome", year: 1995 },
             { title: "Embalmer", year: 1996 },
@@ -781,9 +1049,6 @@
             return items.filter(Boolean);
         }
 
-        // STRICT year-matched search for the extra black horror films.
-        // Uses search/movie with primary_release_year + search/tv with first_air_date_year,
-        // then double-checks the returned year in JS to be safe.
         async function fetchExtraBlackHorrorTitles(idSet) {
             const promises = BLACK_HORROR_NEW_TITLES.map(({ title, year }) => {
                 const movieUrl = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}&primary_release_year=${year}`;
@@ -799,7 +1064,6 @@
                     if (tvData && tvData.results) {
                         tvData.results.forEach(t => candidates.push({ ...t, media_type: 'tv' }));
                     }
-                    // Double-check year in JS
                     const yearMatches = candidates.filter(m => {
                         if (!m.poster_path) return false;
                         const yearStr = ((m.release_date || m.first_air_date) || '').split('-')[0];
@@ -807,7 +1071,6 @@
                         return y === year;
                     });
                     if (yearMatches.length > 0) return yearMatches[0];
-                    // Fallback ±1 year tolerance for release-date ambiguity
                     const nearMatches = candidates.filter(m => {
                         if (!m.poster_path) return false;
                         const yearStr = ((m.release_date || m.first_air_date) || '').split('-')[0];
@@ -817,7 +1080,49 @@
                     return nearMatches[0] || null;
                 });
             });
+            const fetchedResults = await Promise.all(promises);
+            const items = [];
+            fetchedResults.forEach(m => {
+                if (m && !idSet.has(m.id)) {
+                    idSet.add(m.id);
+                    items.push({ ...m, media_type: m.media_type || (m.first_air_date ? 'tv' : 'movie') });
+                }
+            });
+            return items;
+        }
 
+        // STRICT year-matched search for TEEN HORROR — replaces the old plain-title search.
+        async function fetchTeenHorrorTitles(idSet) {
+            const promises = TEEN_HORROR_TITLES.map(({ title, year }) => {
+                const movieUrl = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}&primary_release_year=${year}`;
+                const tvUrl = `https://api.themoviedb.org/3/search/tv?api_key=${API_KEY}&query=${encodeURIComponent(title)}&first_air_date_year=${year}`;
+                return Promise.all([
+                    fetchWithRetry(movieUrl).catch(() => null),
+                    fetchWithRetry(tvUrl).catch(() => null)
+                ]).then(([movieData, tvData]) => {
+                    const candidates = [];
+                    if (movieData && movieData.results) {
+                        movieData.results.forEach(m => candidates.push({ ...m, media_type: 'movie' }));
+                    }
+                    if (tvData && tvData.results) {
+                        tvData.results.forEach(t => candidates.push({ ...t, media_type: 'tv' }));
+                    }
+                    const yearMatches = candidates.filter(m => {
+                        if (!m.poster_path) return false;
+                        const yearStr = ((m.release_date || m.first_air_date) || '').split('-')[0];
+                        const y = parseInt(yearStr, 10);
+                        return y === year;
+                    });
+                    if (yearMatches.length > 0) return yearMatches[0];
+                    const nearMatches = candidates.filter(m => {
+                        if (!m.poster_path) return false;
+                        const yearStr = ((m.release_date || m.first_air_date) || '').split('-')[0];
+                        const y = parseInt(yearStr, 10);
+                        return Math.abs(y - year) <= 1;
+                    });
+                    return nearMatches[0] || null;
+                });
+            });
             const fetchedResults = await Promise.all(promises);
             const items = [];
             fetchedResults.forEach(m => {
@@ -970,11 +1275,8 @@
                 }
             } else if (activeType === 'black_horror') {
                 if (!append) {
-                    // ORIGINAL IMDb-based hardwired list — untouched
                     const hardwiredItems = await resolveItemsFromImdbList(HARD_WIRED_IMDB_IDS, loadedBlackHorrorIds);
-                    // NEW: strict year-matched search for the 41 added films
                     const extraItems = await fetchExtraBlackHorrorTitles(loadedBlackHorrorIds);
-                    // Combine both
                     results = [...hardwiredItems, ...extraItems];
                 } else {
                     const actorIdsParam = UNIQUE_BLACK_IDS.join('|');
@@ -1023,45 +1325,31 @@
                     youthHorrorPage++;
                 }
             } else if (activeType === 'teen') {
-                const itemsPerPage = 16;
-                const start = (teenHorrorPage - 1) * itemsPerPage;
-                const end = start + itemsPerPage;
-                const pageTitles = TEEN_HORROR_TITLES.slice(start, end);
-                
-                if (pageTitles.length > 0) {
-                    const searchPromises = pageTitles.map(title => 
-                        fetchWithRetry(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
-                        .then(data => {
-                            if (data && data.results) {
-                                return data.results.find(m => {
-                                    if (!m.poster_path) return false;
-                                    if (m.media_type !== 'movie' && m.media_type !== 'tv') return false;
-                                    if (m.genre_ids && m.genre_ids.includes(16)) return false;
-                                    if (title === "Totem") {
-                                        return (m.release_date || "").startsWith("2017");
-                                    }
-                                    if (title === "Bodies Bodies Bodies") {
-                                        return (m.release_date || "").startsWith("2022");
-                                    }
-                                    if (title === "The Midnight Man") {
-                                        return (m.release_date || "").startsWith("2016");
-                                    }
-                                    return true;
-                                });
-                            }
-                            return null;
-                        })
-                    );
-                    const fetchedResults = await Promise.all(searchPromises);
-                    let unique = new Map();
-                    fetchedResults.forEach(m => {
-                        if (m && !loadedTeenHorrorIds.has(m.id)) {
-                            unique.set(m.id, { ...m, media_type: m.media_type || (m.first_air_date ? 'tv' : 'movie') });
-                            loadedTeenHorrorIds.add(m.id);
-                        }
-                    });
-                    results = Array.from(unique.values());
-                    teenHorrorPage++;
+                // NEW: strict year-matched search. If no year match found, title is skipped.
+                const allTeenItems = await fetchTeenHorrorTitles(loadedTeenHorrorIds);
+                if (allTeenItems.length > 0) {
+                    results = allTeenItems;
+                } else {
+                    // Fallback: paginate if array somehow empty
+                    const itemsPerPage = 20;
+                    const start = (teenHorrorPage - 1) * itemsPerPage;
+                    const end = start + itemsPerPage;
+                    const slice = TEEN_HORROR_TITLES.slice(start, end);
+                    if (slice.length > 0) {
+                        const idSet = new Set();
+                        const promises = slice.map(({ title, year }) => {
+                            const movieUrl = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}&primary_release_year=${year}`;
+                            return fetchWithRetry(movieUrl).then(data => {
+                                if (data && data.results) {
+                                    return data.results.find(m => m.poster_path) || null;
+                                }
+                                return null;
+                            }).catch(() => null);
+                        });
+                        const fetched = await Promise.all(promises);
+                        fetched.forEach(m => { if (m && !idSet.has(m.id)) { idSet.add(m.id); results.push({ ...m, media_type: 'movie' }); } });
+                        teenHorrorPage++;
+                    }
                 }
             } else if (activeType === 'ghastly_series') {
                 const itemsPerPage = 16;
