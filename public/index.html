@@ -268,26 +268,62 @@
             renderGrid(favs);
         }
 
+        // MULTI-ITEM CONTINUE WATCHING (up to 10 titles)
         function loadContinueWatching() {
-            const watched = JSON.parse(localStorage.getItem('fear_plus_continue') || 'null');
-            if (watched) {
-                const section = document.getElementById('continue-watching-section');
-                const grid = document.getElementById('continue-watching-grid');
-                section.classList.remove('hidden');
-                grid.innerHTML = '';
+            let watchedList = [];
+            try {
+                const raw = localStorage.getItem('fear_plus_continue');
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed)) {
+                        watchedList = parsed;
+                    } else if (parsed && parsed.id) {
+                        // Migrate from old single-object format
+                        watchedList = [parsed];
+                    }
+                }
+            } catch (e) { watchedList = []; }
+
+            if (watchedList.length === 0) return;
+
+            const section = document.getElementById('continue-watching-section');
+            const grid = document.getElementById('continue-watching-grid');
+            section.classList.remove('hidden');
+            grid.innerHTML = '';
+            watchedList.forEach(watched => {
                 const card = document.createElement('div');
-                card.className = "movie-card focusable fade-in"; card.tabIndex = 0;
-                card.onclick = () => { 
-                    currentMedia = watched; 
-                    startLuxeStream(); 
+                card.className = "movie-card focusable fade-in";
+                card.tabIndex = 0;
+                card.onclick = () => {
+                    currentMedia = watched;
+                    startLuxeStream();
                 };
-                card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${watched.poster}" class="w-full h-full object-cover"><div class="movie-info horror-font"><h3 class="text-red-600 font-bold truncate">${watched.title}</h3><p>Continue</p></div>`;
+                const epLabel = watched.type === 'tv' ? `S${watched.s} E${watched.e}` : 'Movie';
+                card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${watched.poster}" class="w-full h-full object-cover"><div class="movie-info horror-font"><h3 class="text-red-600 font-bold truncate">${watched.title}</h3><p>${epLabel}</p></div>`;
                 grid.appendChild(card);
-            }
+            });
         }
 
         function saveToContinue(media) {
-            localStorage.setItem('fear_plus_continue', JSON.stringify(media));
+            let watchedList = [];
+            try {
+                const raw = localStorage.getItem('fear_plus_continue');
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed)) {
+                        watchedList = parsed;
+                    } else if (parsed && parsed.id) {
+                        watchedList = [parsed];
+                    }
+                }
+            } catch (e) { watchedList = []; }
+
+            // Remove existing entry for the same title+type so it updates position/episode
+            watchedList = watchedList.filter(item => !(item.id === media.id && item.type === media.type));
+            watchedList.unshift(media);
+            watchedList = watchedList.slice(0, 10);
+
+            localStorage.setItem('fear_plus_continue', JSON.stringify(watchedList));
             loadContinueWatching();
         }
 
@@ -489,11 +525,6 @@
             "Monster Mutt", "My Mom's a Werewolf", "The Ghost Club", "Ghost Patrol", "Halloween High", "Ghost Trackers"
         ];
 
-        // ================================================================
-        // TEEN HORROR — REPLACED with the full hardwired list (title + year).
-        // Strict year matching via primary_release_year / first_air_date_year.
-        // If no year match is found, the title is skipped — no wrong films.
-        // ================================================================
         const TEEN_HORROR_TITLES = [
             { title: "Carrie", year: 1976 },
             { title: "The Initiation of Sarah", year: 1978 },
@@ -1078,6 +1109,278 @@
             { title: "Running Out of Time", year: 2018 }
         ];
 
+        // BLACK MAGIC — hardwired list (David Blaine + Criss Angel handled separately)
+        const BLACK_MAGIC_TITLES = [
+            { title: "Accidental Exorcist", year: 2016 },
+            { title: "American Exorcist", year: 2016 },
+            { title: "Amityville Exorcism", year: 2017 },
+            { title: "Anneliese: The Exorcist Tapes", year: 2011 },
+            { title: "Aura", year: 2018 },
+            { title: "Belief: The Possession of Janet Moses", year: 2015 },
+            { title: "Blackwater Valley Exorcism", year: 2006 },
+            { title: "The Bloody Exorcism of Coffin Joe", year: 1974 },
+            { title: "Celebrity Exorcism", year: 2021 },
+            { title: "Dark Exorcism", year: 2015 },
+            { title: "Diary of an Exorcist - Zero", year: 2016 },
+            { title: "Dominion: Prequel to the Exorcist", year: 2005 },
+            { title: "Dr. Cheon's Exorcism Lab: The Secret of Seolgyeong", year: 2023 },
+            { title: "13 Exorcisms", year: 2022 },
+            { title: "Exorcism", year: 2003 },
+            { title: "Exorcism", year: 2014 },
+            { title: "Exorcism", year: 2017 },
+            { title: "The Exorcism", year: 1972 },
+            { title: "The Exorcism", year: 2024 },
+            { title: "Exorcism at 60,000 Feet", year: 2019 },
+            { title: "Exorcism of the Dead", year: 2017 },
+            { title: "Exorcism: The Possession of Gail Bowers", year: 2006 },
+            { title: "Exorcism's Daughter", year: 1971 },
+            { title: "Exorcismus", year: 2010 },
+            { title: "The Exorcist", year: 1973 },
+            { title: "Exorcist II: The Heretic", year: 1977 },
+            { title: "The Exorcist III", year: 1990 },
+            { title: "Exorcist: The Beginning", year: 2004 },
+            { title: "The Exorcist: Believer", year: 2023 },
+            { title: "The Exorcist: Italian Style", year: 1975 },
+            { title: "The Exorcist: Martyrs", year: 2027 },
+            { title: "Exorcist Master", year: 1992 },
+            { title: "Exorcist Vengeance", year: 2022 },
+            { title: "The Exorcism of Anna Ecklund", year: 2016 },
+            { title: "The Exorcism of Carmen Farias", year: 2021 },
+            { title: "The Exorcism of Emily Rose", year: 2005 },
+            { title: "The Exorcism of God", year: 2021 },
+            { title: "The Exorcism of Hugh", year: 1972 },
+            { title: "The Exorcism of Molly Hartley", year: 2015 },
+            { title: "The Exorcism of Roland Doe", year: 2021 },
+            { title: "The Exorcism of Saint Patrick", year: 2024 },
+            { title: "Fear and Love: The Story of The Exorcist", year: 2024 },
+            { title: "For Sale by Exorcist", year: 2025 },
+            { title: "Ghosts: The Possession of Button House", year: 2026 },
+            { title: "Godless: The Eastfield Exorcism", year: 2023 },
+            { title: "GUT: Exorcism", year: 2021 },
+            { title: "The House of Exorcism", year: 1975 },
+            { title: "Islamic Exorcist", year: 2017 },
+            { title: "The Last Exorcism", year: 2010 },
+            { title: "The Last Exorcism Part II", year: 2013 },
+            { title: "Leap of Faith: William Friedkin on the Exorcist", year: 2019 },
+            { title: "Legacy of Evil", year: 1995 },
+            { title: "Lorna the Exorcist", year: 1974 },
+            { title: "My Best Friend's Exorcism", year: 2022 },
+            { title: "The Pope's Exorcist", year: 2023 },
+            { title: "The Possession of David O'Reilly", year: 2010 },
+            { title: "The Possession of Hannah Grace", year: 2018 },
+            { title: "The Possession of Joel Delaney", year: 1972 },
+            { title: "The Possession of Michael King", year: 2014 },
+            { title: "The Possession of Mrs. Hyde", year: 2018 },
+            { title: "The Possession of Sophie Love", year: 2013 },
+            { title: "Satan's Sabbath", year: 1972 },
+            { title: "The Strange Possession of Mrs. Oliver", year: 1977 },
+            { title: "The Real Exorcist", year: null },
+            { title: "Ruqyah: The Exorcism", year: 2017 },
+            { title: "Shark Exorcist", year: 2015 },
+            { title: "Teenage Exorcist", year: 1991 },
+            { title: "Tha Rae: The Exorcist", year: 2025 },
+            { title: "The Turkish Exorcist", year: 1974 },
+            { title: "The Tao Exorcist", year: 2026 },
+            { title: "The Dybbuk", year: 1937 },
+            { title: "Il Demonio", year: 1963 },
+            { title: "Abby", year: 1974 },
+            { title: "Alucarda", year: 1977 },
+            { title: "The Wailing", year: 2016 },
+            { title: "The Conjuring", year: 2013 },
+            { title: "The Rite", year: 2011 },
+            { title: "The Possession", year: 2012 },
+            { title: "Deliver Us from Evil", year: 2014 },
+            { title: "The Devil Inside", year: 2012 },
+            { title: "Requiem", year: 2006 },
+            { title: "Repossessed", year: 1990 },
+            { title: "Constantine", year: 2005 },
+            { title: "Stigmata", year: 1999 },
+            { title: "The Devil's Advocate", year: 1997 },
+            { title: "Prince of Darkness", year: 1987 },
+            { title: "The Church", year: 1989 },
+            { title: "Demonic", year: 2021 },
+            { title: "Eli", year: 2019 },
+            { title: "Errementari", year: 2017 },
+            { title: "The Golem", year: 2018 },
+            { title: "Immaculate", year: 2024 },
+            { title: "Incarnate", year: 2016 },
+            { title: "Legion", year: 2010 },
+            { title: "The Lodge", year: 2019 },
+            { title: "Martyrs", year: 2008 },
+            { title: "Midsommar", year: 2019 },
+            { title: "Noroi: The Curse", year: 2005 },
+            { title: "The Nun", year: 2018 },
+            { title: "The Nun II", year: 2023 },
+            { title: "The Omen", year: 1976 },
+            { title: "The First Omen", year: 2024 },
+            { title: "The Other Lamb", year: 2019 },
+            { title: "REC 2", year: 2009 },
+            { title: "Silent Hill: Revelation 3D", year: 2012 },
+            { title: "Sinister", year: 2012 },
+            { title: "Sinister 2", year: 2015 },
+            { title: "Thirst", year: 2009 },
+            { title: "The Vatican Tapes", year: 2015 },
+            { title: "The Wicker Man", year: 1973 },
+            { title: "The Crucifixion", year: 2017 },
+            { title: "Forsaken", year: 2016 },
+            { title: "Prey for the Devil", year: 2022 },
+            { title: "The Deliverance", year: 2024 },
+            { title: "Late Night with the Devil", year: 2023 },
+            { title: "The Old Ways", year: 2020 },
+            { title: "The Accursed", year: 2022 },
+            { title: "Shadow of God", year: 2025 },
+            { title: "The Ritual", year: 2025 },
+            { title: "The Unborn", year: 2009 },
+            { title: "1920 London", year: 2016 },
+            { title: "Raaz Reboot", year: 2016 },
+            { title: "Siccîn 6", year: 2019 },
+            { title: "Dark Nuns", year: 2024 },
+            { title: "Exhuma", year: 2024 },
+            { title: "The Shrine", year: 2010 },
+            { title: "Blood Flower", year: 2022 },
+            { title: "Luz", year: 2018 },
+            { title: "Chronicles of an Exorcism", year: 2006 },
+            { title: "The Atticus Institute", year: 2015 },
+            { title: "Ava's Possessions", year: 2015 },
+            { title: "The Awakening", year: 1980 },
+            { title: "Awoken", year: 2019 },
+            { title: "Belzebuth", year: 2017 },
+            { title: "Along Came the Devil", year: 2018 },
+            { title: "Along Came the Devil 2", year: 2019 },
+            { title: "Agnes", year: 2021 },
+            { title: "All Fun and Games", year: 2023 },
+            { title: "The Assent", year: 2019 },
+            { title: "At the Devil's Door", year: 2014 },
+            { title: "Another Soul", year: 2018 },
+            { title: "Amityville II: The Possession", year: 1982 },
+            { title: "An Angel for Satan", year: 1966 },
+            { title: "The Antichrist", year: 1974 },
+            { title: "Asylum", year: 2014 },
+            { title: "Beatriz", year: 1976 },
+            { title: "Beyond the Door", year: 1974 },
+            { title: "Deliver Us", year: 2023 },
+            { title: "The Devil's Doorway", year: 2018 },
+            { title: "The Devil's Well", year: 2018 },
+            { title: "The Exorcist: The Version You've Never Seen", year: 2000 },
+            { title: "Hellraiser: Judgment", year: 2018 },
+            { title: "The House of the Devil", year: 2009 },
+            { title: "In the Trap", year: 2019 },
+            { title: "Liberaci dal male", year: 2014 },
+            { title: "Il Sacro Male", year: 2021 },
+            { title: "Saint Maud", year: 2020 },
+            { title: "Sorella Morte", year: 2019 },
+            { title: "La Stirpe del Male", year: 2018 },
+            { title: "L'Ultimo Esorcismo", year: 2014 },
+            { title: "The Wolves of Kromer", year: 1998 },
+            { title: "Zeder", year: 1983 },
+            { title: "The Unholy", year: 1988 },
+            { title: "The Demon", year: 1963 },
+            { title: "The Other Hell", year: 1980 },
+            { title: "Exorcismo Negro", year: 1974 },
+            { title: "Witchtrap", year: 1989 },
+            { title: "El juego del diablo", year: 1975 },
+            { title: "Catacombs", year: 1988 },
+            { title: "Possession", year: 1981 },
+            { title: "The Manitou", year: 1978 },
+            { title: "The Devils", year: 1971 },
+            { title: "Sex Files: Erotic Possessions", year: 2000 },
+            { title: "The Blackcoat's Daughter", year: 2015 },
+            { title: "A Dark Song", year: 2016 },
+            { title: "Baskin", year: 2015 },
+            { title: "The Taking of Deborah Logan", year: 2014 },
+            { title: "The Dark and the Wicked", year: 2020 },
+            { title: "Fallen", year: 1998 },
+            { title: "Starry Eyes", year: 2014 },
+            { title: "Verónica", year: 2017 },
+            { title: "The Devil Rides Out", year: 1968 },
+            { title: "The Priests", year: 2015 },
+            { title: "Shaman: The Final Exorcism", year: 2025 },
+            { title: "The Possession of Anne", year: 2024 },
+            { title: "Devils Stay", year: 2024 },
+            { title: "Dominion of Darkness", year: 2024 },
+            { title: "The Puppetman", year: 2023 },
+            { title: "Mother, May I?", year: 2023 },
+            { title: "iPossessed", year: 2023 },
+            { title: "The Evil Dead", year: 1981 },
+            { title: "Evil Dead II", year: 1987 },
+            { title: "The Medium", year: 2021 },
+            { title: "The Cleansing Hour", year: 2019 },
+            { title: "Hereditary", year: 2018 },
+            { title: "Talk to Me", year: 2023 },
+            { title: "When Evil Lurks", year: 2023 },
+            { title: "Jennifer's Body", year: 2009 },
+            { title: "Evil Dead", year: 2013 },
+            { title: "Evil Dead Rise", year: 2023 },
+            { title: "Paranormal Activity", year: 2007 },
+            { title: "The Shining", year: 1980 },
+            { title: "Nefarious", year: 2023 },
+            { title: "Obsession", year: 2025 },
+            { title: "Killing Faith", year: 2025 },
+            { title: "The Devil's Light", year: 2022 },
+            { title: "The Seventh Day", year: 2021 },
+            { title: "The Possession of Alba Díaz", year: 2023 },
+            { title: "The Beyond", year: 1981 },
+            { title: "The Changeling", year: 1980 },
+            { title: "The Others", year: 2001 },
+            { title: "Warlock", year: 1989 },
+            { title: "Nightmare Alley", year: 2021 },
+            { title: "Host", year: 2020 },
+            { title: "The Orphanage", year: 2007 },
+            { title: "Séance on a Wet Afternoon", year: 1964 },
+            { title: "A Haunting in Venice", year: 2023 },
+            { title: "Night of the Demon", year: 1957 },
+            { title: "Rosemary's Baby", year: 1968 },
+            { title: "Suspiria", year: 1977 },
+            { title: "The Devil's Daughter", year: 1973 },
+            { title: "Ritual of Evil", year: 1970 },
+            { title: "Mark of the Devil", year: 1970 },
+            { title: "The City of the Dead", year: 1960 },
+            { title: "Witchboard", year: 1986 },
+            { title: "Witchboard 2: The Devil's Doorway", year: 1993 },
+            { title: "Ouija", year: 2014 },
+            { title: "Ouija: Origin of Evil", year: 2016 },
+            { title: "I Am Zozo", year: 2012 },
+            { title: "Aparichithan", year: 2004 },
+            { title: "Charlie Charlie", year: 2016 },
+            { title: "Ouija Clown", year: 2023 },
+            { title: "Ouija Shark", year: 2020 },
+            { title: "Ouija: Blood Ritual", year: 2021 },
+            { title: "La Exorcista", year: 2022 },
+            { title: "Alabama Snake", year: 2020 },
+            { title: "Dark Spell", year: 2021 },
+            { title: "The Conjuring 2", year: 2016 },
+            { title: "The Conjuring: The Devil Made Me Do It", year: 2021 },
+            { title: "Insidious", year: 2010 },
+            { title: "Annabelle", year: 2014 },
+            { title: "Annabelle: Creation", year: 2017 },
+            { title: "The Autopsy of Jane Doe", year: 2016 },
+            { title: "The Devil's Candy", year: 2015 },
+            { title: "The Devil's Rock", year: 2011 },
+            { title: "The Exorcists", year: 2023 },
+            { title: "Dark Nuns", year: 2025 },
+            { title: "The Possession of Emma Evans", year: 2010 },
+            { title: "The Haunting in Connecticut", year: 2009 },
+            { title: "The Uninvited", year: 1944 },
+            { title: "13 Ghosts", year: 1960 },
+            { title: "Blithe Spirit", year: 2020 },
+            { title: "What Lies Beneath", year: 2000 },
+            { title: "Lake Mungo", year: 2008 },
+            { title: "Nocturne", year: 2016 },
+            { title: "From Beyond the Grave", year: 1974 },
+            { title: "Witchboard", year: 2024 },
+            { title: "Ouija Experiment", year: 2022 },
+            { title: "The Ring", year: 2002 },
+            { title: "Oculus", year: 2013 },
+            { title: "Poltergeist", year: 1982 },
+            { title: "Oddity", year: 2024 },
+            { title: "Christine", year: 1983 },
+            { title: "Child's Play", year: 1988 },
+            { title: "The Monkey", year: 2025 },
+            { title: "Halloween III: Season of the Witch", year: 1982 },
+            { title: "The Similars", year: 2015 },
+            { title: "Terrified", year: 2017 }
+        ];
+
         async function fetchWithRetry(url, retries = 3) {
             for (let i = 0; i < retries; i++) {
                 try {
@@ -1174,7 +1477,6 @@
             return items;
         }
 
-        // STRICT year-matched search for TEEN HORROR — replaces the old plain-title search.
         async function fetchTeenHorrorTitles(idSet) {
             const promises = TEEN_HORROR_TITLES.map(({ title, year }) => {
                 const movieUrl = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}&primary_release_year=${year}`;
@@ -1408,7 +1710,6 @@
                     youthHorrorPage++;
                 }
             } else if (activeType === 'teen') {
-                // STRICT year-matched search for Teen Horror.
                 const allTeenItems = await fetchTeenHorrorTitles(loadedTeenHorrorIds);
                 if (allTeenItems.length > 0) {
                     results = allTeenItems;
@@ -1506,6 +1807,91 @@
             isLoading = false;
         }
 
+        // ============================================================
+        // BLACK MAGIC — hardwired titles + David Blaine & Criss Angel
+        // ============================================================
+        const BLACK_MAGIC_PAGE_SIZE = 20;
+
+        async function searchTitleYear(title, year) {
+            if (year) {
+                const movieUrl = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}&primary_release_year=${year}`;
+                const tvUrl = `https://api.themoviedb.org/3/search/tv?api_key=${API_KEY}&query=${encodeURIComponent(title)}&first_air_date_year=${year}`;
+                const [movieData, tvData] = await Promise.all([
+                    fetchWithRetry(movieUrl).catch(() => null),
+                    fetchWithRetry(tvUrl).catch(() => null)
+                ]);
+                const candidates = [];
+                if (movieData && movieData.results) movieData.results.forEach(m => candidates.push({ ...m, media_type: 'movie' }));
+                if (tvData && tvData.results) tvData.results.forEach(t => candidates.push({ ...t, media_type: 'tv' }));
+                const exact = candidates.filter(m => {
+                    if (!m.poster_path) return false;
+                    const yStr = ((m.release_date || m.first_air_date) || '').split('-')[0];
+                    return parseInt(yStr, 10) === year;
+                });
+                if (exact.length > 0) return exact[0];
+                const near = candidates.filter(m => {
+                    if (!m.poster_path) return false;
+                    const yStr = ((m.release_date || m.first_air_date) || '').split('-')[0];
+                    return Math.abs(parseInt(yStr, 10) - year) <= 1;
+                });
+                return near[0] || null;
+            } else {
+                const data = await fetchWithRetry(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(title)}`).catch(() => null);
+                if (data && data.results) {
+                    return data.results.find(m => m.poster_path && (m.media_type === 'movie' || m.media_type === 'tv')) || null;
+                }
+                return null;
+            }
+        }
+
+        async function searchMagicQuery(query) {
+            const data = await fetchWithRetry(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}`).catch(() => null);
+            if (!data || !data.results) return [];
+            return data.results.filter(m => m.poster_path && (m.media_type === 'movie' || m.media_type === 'tv') && m.media_type !== 'person');
+        }
+
+        async function fetchBlackMagicInitial() {
+            const pageTitles = BLACK_MAGIC_TITLES.slice(0, BLACK_MAGIC_PAGE_SIZE);
+            const magicQueries = ["David Blaine", "Criss Angel"];
+
+            const titlePromises = pageTitles.map(({ title, year }) => searchTitleYear(title, year));
+            const magicPromises = magicQueries.map(q => searchMagicQuery(q));
+
+            const [titleResults, magicResults] = await Promise.all([
+                Promise.all(titlePromises),
+                Promise.all(magicPromises)
+            ]);
+
+            const unique = new Map();
+            magicResults.forEach(arr => arr.forEach(m => { if (!unique.has(m.id)) unique.set(m.id, m); }));
+            titleResults.forEach(m => { if (m && !unique.has(m.id)) unique.set(m.id, m); });
+
+            const items = Array.from(unique.values());
+            items.forEach(m => loadedBlackMagicIds.add(m.id));
+            return items;
+        }
+
+        async function fetchBlackMagicMore(page) {
+            const start = (page - 1) * BLACK_MAGIC_PAGE_SIZE;
+            const end = start + BLACK_MAGIC_PAGE_SIZE;
+            if (start >= BLACK_MAGIC_TITLES.length) {
+                hasMore = false;
+                return [];
+            }
+            const pageTitles = BLACK_MAGIC_TITLES.slice(start, end);
+            const promises = pageTitles.map(({ title, year }) => searchTitleYear(title, year));
+            const fetchedResults = await Promise.all(promises);
+
+            const unique = new Map();
+            fetchedResults.forEach(m => {
+                if (m && !loadedBlackMagicIds.has(m.id)) {
+                    loadedBlackMagicIds.add(m.id);
+                    unique.set(m.id, m);
+                }
+            });
+            return Array.from(unique.values());
+        }
+
         async function fetchShudder() {
             const grid = document.getElementById('movie-grid');
             grid.innerHTML = '';
@@ -1528,52 +1914,6 @@
             });
 
             renderGrid(Array.from(unique.values()));
-        }
-
-        async function fetchBlackMagicInitial() {
-            const queries = [
-                "The Haunting of", "The Possession of", "The Exorcism of",
-                "David Blaine", "Criss Angel", "Ouija", "The Conjuring"
-            ];
-            const forbiddenGenres = [16, 35, 18, 10749, 9648, 53, 14];
-            let promises = queries.map(q => 
-                fetchWithRetry(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(q)}`)
-            );
-            const responses = await Promise.all(promises);
-            let items = [];
-            
-            responses.forEach(data => {
-                if (data && data.results) {
-                    data.results.forEach(item => {
-                        if (item.genre_ids && item.genre_ids.some(g => forbiddenGenres.includes(g))) return;
-                        if (item.media_type === 'person') return;
-                        if (item.poster_path) items.push({...item, media_type: item.media_type || (item.first_air_date ? 'tv' : 'movie')});
-                    });
-                }
-            });
-            
-            let unique = new Map();
-            items.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); loadedBlackMagicIds.add(item.id); } });
-            return Array.from(unique.values());
-        }
-
-        async function fetchBlackMagicMore(page) {
-            const excludedGenres = "16,35,18,10749,9648,53,14";
-            const magicKeywords = "11865|3254|3365|6152|10466"; 
-            
-            const urls = [
-                `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&without_genres=${excludedGenres}&with_keywords=${magicKeywords}&sort_by=popularity.desc&page=${page}`,
-                `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&without_genres=${excludedGenres}&with_keywords=${magicKeywords}&sort_by=popularity.desc&page=${page}`
-            ];
-            
-            const responses = await Promise.all(urls.map(url => fetchWithRetry(url)));
-            let items = [];
-            responses[0]?.results && responses[0].results.forEach(m => { if (m.poster_path && !loadedBlackMagicIds.has(m.id)) items.push({...m, media_type:'movie'}); });
-            responses[1]?.results && responses[1].results.forEach(t => { if (t.poster_path && !loadedBlackMagicIds.has(t.id)) items.push({...t, media_type:'tv'}); });
-            
-            let unique = new Map();
-            items.forEach(item => { if (!unique.has(item.id)) { unique.set(item.id, item); loadedBlackMagicIds.add(item.id); } });
-            return Array.from(unique.values());
         }
 
         async function fetchAfterDark() {
