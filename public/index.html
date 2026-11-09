@@ -111,7 +111,7 @@
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('shudder')">SHUDDER</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('after_dark')">AFTER DARK</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('black_horror')">BLACK HORROR</button>
-            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('youth')">YOUTH HORROR</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('youth')">YOUTH DECAY</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('teen')">TEEN HORROR</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('japanese')">JAPANESE HORROR</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('k_horror')">K-HORROR</button>
@@ -143,7 +143,9 @@
                     <button class="focusable whitespace-nowrap" onclick="setFilter('slasher')">SLASHER FILMS</button>
                     <button class="focusable whitespace-nowrap" onclick="setFilter('psychological')">PSYCHOLOGICAL HORROR</button>
                     <button class="focusable whitespace-nowrap" onclick="setFilter('black_magic')">BLACK MAGIC</button>
+                    <button class="focusable whitespace-nowrap" onclick="setFilter('possession')">POSSESSION</button>
                     <button class="focusable whitespace-nowrap" onclick="setFilter('unrated')">UNRATED</button>
+                    <button class="focusable whitespace-nowrap" onclick="setFilter('kowai_anime')">KOWAI ANIME</button>
                 </nav>
             </div>
         </div>
@@ -268,7 +270,6 @@
             renderGrid(favs);
         }
 
-        // MULTI-ITEM CONTINUE WATCHING (up to 10 titles)
         function loadContinueWatching() {
             let watchedList = [];
             try {
@@ -278,7 +279,6 @@
                     if (Array.isArray(parsed)) {
                         watchedList = parsed;
                     } else if (parsed && parsed.id) {
-                        // Migrate from old single-object format
                         watchedList = [parsed];
                     }
                 }
@@ -318,7 +318,6 @@
                 }
             } catch (e) { watchedList = []; }
 
-            // Remove existing entry for the same title+type so it updates position/episode
             watchedList = watchedList.filter(item => !(item.id === media.id && item.type === media.type));
             watchedList.unshift(media);
             watchedList = watchedList.slice(0, 10);
@@ -332,6 +331,8 @@
         let youthHorrorPage = 1, loadedYouthHorrorIds = new Set();
         let teenHorrorPage = 1, loadedTeenHorrorIds = new Set();
         let blackMagicPage = 1, loadedBlackMagicIds = new Set();
+        let possessionPage = 1, loadedPossessionIds = new Set();
+        let kowaiAnimePage = 1, loadedKowaiAnimeIds = new Set();
         let africanPage = 1, loadedAfricanIds = new Set();
         let japanesePage = 1, loadedJapaneseIds = new Set();
         let ghastlyPage = 1, loadedGhastlyIds = new Set();
@@ -471,58 +472,216 @@
         ])];
 
         const YOUTH_HORROR_TITLES = [
-            "Twitches", "Twitches Too", "Hocus Pocus", "Hocus Pocus 2", "The Addams Family", "Addams Family Values", "Wednesday",
-            "Scooby-Doo", "Scooby-Doo 2: Monsters Unleashed", "Scooby-Doo on Zombie Island", "Scooby-Doo! and the Witch's Ghost",
-            "Scooby-Doo and the Cyber Chase", "Scooby-Doo! and the Alien Invaders", "Goosebumps", "Goosebumps 2: Haunted Halloween",
-            "Goosebumps", "The Nightmare Room", "Halloweentown", "Halloweentown II: Kalabar's Revenge", "Halloweentown High",
-            "Return to Halloweentown", "Beetlejuice", "Beetlejuice Beetlejuice", "Courage the Cowardly Dog", "Are You Afraid of the Dark?",
-            "Monster House", "Little Shop of Horrors", "The Haunted Mansion", "Haunted Mansion", "Ghostbusters", "Ghostbusters II",
-            "Ghostbusters: Afterlife", "Ghostbusters: Frozen Empire", "Coraline", "The Witches", "The Nightmare Before Christmas",
-            "Corpse Bride", "Frankenweenie", "ParaNorman", "Casper", "Casper Meets Wendy", "Casper: A Spirited Beginning",
-            "Gremlins", "Gremlins 2: The New Batch", "E.T. the Extra-Terrestrial", "The Dark Crystal", "Labyrinth",
-            "The NeverEnding Story", "The Spiderwick Chronicles", "Spirited Away", "Hotel Transylvania", "Hotel Transylvania 2",
-            "Hotel Transylvania 3: Summer Vacation", "Hotel Transylvania: Transformania", "The House with a Clock in Its Walls",
-            "A Quiet Place", "A Quiet Place Part II", "A Quiet Place: Day One", "Monster High: The Movie", "Toy Story of Terror!",
-            "Scared Shrekless", "It's the Great Pumpkin, Charlie Brown", "Mom's Got a Date with a Vampire", "Phantom of the Megaplex",
-            "Don't Look Under the Bed", "Girl vs. Monster", "Invisible Sister", "Cry Baby Lane", "The Boy Who Cried Werewolf",
-            "Liar, Liar, Vampire", "R.L. Stine's The Haunting Hour", "Mostly Ghostly", "Mostly Ghostly: Have You Met My Ghoulfriend?",
-            "Mostly Ghostly: One Night in Doom House", "R.L. Stine's Cabinet of Souls", "Eerie, Indiana", "Gravity Falls",
-            "Over the Garden Wall", "The Owl House", "Invader Zim", "Danny Phantom", "Aaahh!!! Real Monsters",
-            "The Grim Adventures of Billy & Mandy", "Beetlejuice", "The Real Ghostbusters", "Extreme Ghostbusters",
-            "Casper the Friendly Ghost", "Scooby-Doo, Where Are You!", "What's New, Scooby-Doo?", "Scooby-Doo! Mystery Incorporated",
-            "A Pup Named Scooby-Doo", "Be Cool, Scooby-Doo!", "Shaggy & Scooby-Doo Get a Clue!", "Scooby-Doo and Guess Who?",
-            "The 13 Ghosts of Scooby-Doo", "Scooby's All-Star Laff-A-Lympics", "The New Scooby-Doo Movies", "Scooby-Doo Meets Batman",
-            "Scooby-Doo Meets the Boo Brothers", "Scooby-Doo and the Ghost School", "Scooby-Doo and the Reluctant Werewolf",
-            "Scooby-Doo! in Arabian Nights", "The Addams Family", "Addams Family Reunion", "Halloween Is Grinch Night",
-            "The Halloween Tree", "Something Wicked This Way Comes", "The Watcher in the Woods", "The Hole", "The Gate",
-            "The Monster Squad", "Return to Oz", "The Mummy", "The Mummy Returns", "The Mummy: Tomb of the Dragon Emperor",
-            "Jumanji", "Zathura: A Space Adventure", "Goosebumps", "Secrets of Sulphur Springs", "Locke & Key", "Just Beyond",
-            "Creeped Out", "Deadtime Stories", "Tales from the Cryptkeeper", "The Secret of Crickley Hall", "House of Anubis",
-            "So Weird", "Scaredy Camp", "My Babysitter's a Vampire", "The Vampire's Assistant", "The Little Vampire",
-            "Vampire Dog", "Best Friends Whenever", "Avalon High", "Wizards of Waverly Place", "Sabrina the Teenage Witch",
-            "Sabrina: The Animated Series", "Sabrina, Down Under", "Sabrina Goes to Rome", "Archie's Weird Mysteries",
-            "Martin Mystery", "Tales from the Darkside", "Bone Chillers", "Ghostwriter", "The Ghost and Molly McGee",
-            "Amphibia", "Kipo and the Age of Wonderbeasts", "Infinity Train", "Trollhunters: Tales of Arcadia",
-            "Star vs. the Forces of Evil", "The Secret of NIMH", "Willy Wonka & the Chocolate Factory", "Matilda",
-            "The BFG", "James and the Giant Peach", "City of Ember", "The Sorcerer's Apprentice", "Bedknobs and Broomsticks",
-            "Escape to Witch Mountain", "Blackbeard's Ghost", "Mr. Boogedy", "The Ghosts of Buxley Hall", "Child of Glass",
-            "The Canterville Ghost", "The Halloween That Almost Wasn't", "Mad Monster Party?", "Frankenweenie", "Vincent",
-            "The Legend of Sleepy Hollow", "The Paul Lynde Halloween Special", "Witch's Night Out", "The Worst Witch",
-            "Double, Double, Toil and Trouble", "A Simple Wish", "Under Wraps", "Can of Worms", "The Scream Team",
-            "Tower of Terror", "Smart House", "Stepsister from Planet Weird", "Up, Up, and Away!", "The Luck of the Irish",
-            "The Famous Jett Jackson", "Zenon: Girl of the 21st Century", "Zenon: The Zequel", "Zenon: Z3", "Now You See It...",
-            "Read It and Weep", "Minutemen", "Wendy Wu: Homecoming Warrior", "Cadet Kelly", "The Color of Friendship",
-            "Rip Girls", "Alvin and the Chipmunks Meet Frankenstein", "Alvin and the Chipmunks Meet the Wolfman",
-            "Mickey's House of Villains", "Pooh's Heffalump Halloween Movie", "The Black Cauldron", "Pete's Dragon",
-            "Harry Potter and the Sorcerer's Stone", "Harry Potter and the Chamber of Secrets", "Harry Potter and the Prisoner of Azkaban",
-            "Monster High: Ghouls Rule!", "Monster High: Frights, Camera, Action!", "Monster High: Haunted", "Monster High: Boo York, Boo York",
-            "Vampirina", "Super Monsters", "Kiki's Delivery Service", "Howl's Moving Castle", "My Neighbor Totoro",
-            "Ponyo", "Mary and the Witch's Flower", "The Willoughbys", "Nightbooks", "Ruby Gloom", "Mona the Vampire",
-            "Growing Up Creepie", "Toonsylvania", "The Secret Saturdays", "Camp Lakebottom", "Detentionaire",
-            "Monster Allergy", "School for Vampires", "Zombie Hotel", "Creepschool", "Igor", "Monster Family",
-            "Monster Family 2", "Gnome Alone", "The House of Magic", "Spookley the Square Pumpkin", "Dear Dracula",
-            "Daddy, I'm a Zombie", "Dixie and the Zombie Rebellion", "The Canterville Ghost", "The Boy Who Cried Werewolf",
-            "Monster Mutt", "My Mom's a Werewolf", "The Ghost Club", "Ghost Patrol", "Halloween High", "Ghost Trackers"
+            { title: "The Bad Seed", year: 1956 },
+            { title: "Village of the Damned", year: 1960 },
+            { title: "The Omen", year: 1976 },
+            { title: "Who Can Kill a Child?", year: 1976 },
+            { title: "The Children", year: 1980 },
+            { title: "Children of the Corn", year: 1984 },
+            { title: "Mikey", year: 1992 },
+            { title: "The Good Son", year: 1993 },
+            { title: "Joshua", year: 2007 },
+            { title: "Orphan", year: 2009 },
+            { title: "The Children", year: 2008 },
+            { title: "Goodnight Mommy", year: 2014 },
+            { title: "The Boy", year: 2016 },
+            { title: "The Prodigy", year: 2019 },
+            { title: "Brightburn", year: 2019 },
+            { title: "The Hole in the Ground", year: 2019 },
+            { title: "The Turning", year: 2020 },
+            { title: "The Boy Behind the Door", year: 2020 },
+            { title: "Orphan: First Kill", year: 2022 },
+            { title: "The Watchers", year: 2024 },
+            { title: "Abigail", year: 2024 },
+            { title: "Other Mommy", year: 2025 },
+            { title: "Night of the Living Dead", year: 1968 },
+            { title: "The Exorcist", year: 1973 },
+            { title: "Jaws", year: 1975 },
+            { title: "The Shining", year: 1980 },
+            { title: "Poltergeist", year: 1982 },
+            { title: "Pet Sematary", year: 1989 },
+            { title: "The Sixth Sense", year: 1999 },
+            { title: "The Ring", year: 2002 },
+            { title: "Dark Water", year: 2002 },
+            { title: "Silent Hill", year: 2006 },
+            { title: "Eden Lake", year: 2008 },
+            { title: "The Babadook", year: 2014 },
+            { title: "The Witch", year: 2015 },
+            { title: "Hereditary", year: 2018 },
+            { title: "Doctor Sleep", year: 2019 },
+            { title: "Skinamarink", year: 2022 },
+            { title: "When Evil Lurks", year: 2023 },
+            { title: "Evil Dead Rise", year: 2023 },
+            { title: "The Lady in White", year: 1988 },
+            { title: "The Devil's Backbone", year: 2001 },
+            { title: "The Others", year: 2001 },
+            { title: "Let the Right One In", year: 2008 },
+            { title: "Before I Wake", year: 2016 },
+            { title: "The Girl with All the Gifts", year: 2016 },
+            { title: "A Quiet Place", year: 2018 },
+            { title: "The Innocents", year: 2021 },
+            { title: "Kids vs. Aliens", year: 2022 },
+            { title: "Marshmallow", year: 2025 },
+            { title: "The Child", year: 1977 },
+            { title: "Don't Deliver Us from Evil", year: 1971 },
+            { title: "The Paperboy", year: 1994 },
+            { title: "Milo", year: 1998 },
+            { title: "Cathy's Curse", year: 1977 },
+            { title: "Beware! Children at Play", year: 1989 },
+            { title: "Suffer, Little Children", year: 1983 },
+            { title: "The Pit", year: 1981 },
+            { title: "The Reflecting Skin", year: 1990 },
+            { title: "Laurin", year: 1989 },
+            { title: "Rita", year: 2024 },
+            { title: "The Woman in Black", year: 2012 },
+            { title: "The Children Under the House", year: 2025 },
+            { title: "Buddy", year: 2024 },
+            { title: "The Willies", year: 1990 },
+            { title: "Don't Look Under the Bed", year: 1999 },
+            { title: "Moloch", year: 2000 },
+            { title: "Horror Hotline... Big Head Monster", year: 2001 },
+            { title: "666: The Child", year: 2006 },
+            { title: "Cry Baby Lane", year: 2000 },
+            { title: "The Snake Girl and The Silver-Haired Witch", year: 1968 },
+            { title: "The Gate", year: 1987 },
+            { title: "The Weird Kidz", year: 2026 },
+            { title: "The Monster Squad", year: 1987 },
+            { title: "Tigers Are Not Afraid", year: 2017 },
+            { title: "Little Monsters", year: 1989 },
+            { title: "The Wasteland", year: 2021 },
+            { title: "Rodrigo D: No futuro", year: 1990 },
+            { title: "The Grudge", year: 2004 },
+            { title: "The Brood", year: 1979 },
+            { title: "Demon Witch Child", year: 1975 },
+            { title: "The Godsend", year: 1980 },
+            { title: "The Imp", year: 1981 },
+            { title: "Manhattan Baby", year: 1982 },
+            { title: "Amityville: The Evil Escapes", year: 1989 },
+            { title: "Beyond Darkness", year: 1990 },
+            { title: "Dolly Dearest", year: 1991 },
+            { title: "The Possession", year: 2012 },
+            { title: "Children of the Corn", year: 2020 },
+            { title: "Karem, la posesión", year: 2020 },
+            { title: "Bloat", year: 2025 },
+            { title: "Shaman", year: 2025 },
+            { title: "Traumatika", year: 2025 },
+            { title: "Dark Nuns", year: 2025 },
+            { title: "June", year: 2026 },
+            { title: "The Confession", year: 2026 },
+            { title: "Black Devil Doll from Hell", year: 1984 },
+            { title: "Doll Graveyard", year: 2005 },
+            { title: "Dollhouse", year: 2025 },
+            { title: "Pin", year: 1988 },
+            { title: "The Curse of Robert the Doll", year: 2016 },
+            { title: "Demonic Toys", year: 1992 },
+            { title: "Devil Doll", year: 1964 },
+            { title: "Dead of Night", year: 1945 },
+            { title: "Jeffrey Dollmer", year: 2025 },
+            { title: "Herencia Diabolica", year: 2006 },
+            { title: "The Great Gabbo", year: 1929 },
+            { title: "Magic", year: 1978 },
+            { title: "Puppet Master", year: 1989 },
+            { title: "Lights Out", year: 1972 },
+            { title: "Trilogy of Terror", year: 1975 },
+            { title: "Good Against Evil", year: 1977 },
+            { title: "Stranger in Our House", year: 1978 },
+            { title: "The Babysitter", year: 1980 },
+            { title: "Living Dolls", year: 1980 },
+            { title: "The Dummy", year: 1982 },
+            { title: "Charlie Boy", year: 1980 },
+            { title: "Vacations of Terror", year: 1989 },
+            { title: "Curse, Death & Spirit", year: 1992 },
+            { title: "Finders Keepers", year: 2014 },
+            { title: "Secrets in the Attic", year: 1992 },
+            { title: "Muñecos Infernales", year: 1961 },
+            { title: "Suddenly in the Dark", year: 1981 },
+            { title: "Pinocchio's Revenge", year: 1996 },
+            { title: "The Fear", year: 1995 },
+            { title: "The Fear: Resurrection", year: 1999 },
+            { title: "Love Object", year: 2003 },
+            { title: "Vampire Clay", year: 2018 },
+            { title: "Little Cory Gory", year: 1993 },
+            { title: "See-Saw", year: 2025 },
+            { title: "Barnaby Kills", year: 2025 },
+            { title: "Rob1n", year: 2025 },
+            { title: "The Monkey", year: 2025 },
+            { title: "Exhibit A", year: 2007 },
+            { title: "Man Finds Tape", year: 2026 },
+            { title: "The Kiss", year: 1988 },
+            { title: "Butcher, Baker, Nightmare Maker", year: 1981 },
+            { title: "Let's Kill Uncle", year: 1966 },
+            { title: "Possum", year: 2018 },
+            { title: "Daddy's Head", year: 2024 },
+            { title: "Hatching", year: 2022 },
+            { title: "Nightborn", year: 2026 },
+            { title: "Mutter: The Diary of a Mother", year: 2026 },
+            { title: "Coming Soon", year: 2008 },
+            { title: "Grandmother's House", year: 1988 },
+            { title: "Weapons", year: 2025 },
+            { title: "Flowers in the Attic", year: 1987 },
+            { title: "Hide and Seek", year: 2005 },
+            { title: "Other Mommy", year: 2026 },
+            { title: "Bloody Birthday", year: 1981 },
+            { title: "Bad Ronald", year: 1974 },
+            { title: "Look What's Happened to Rosemary's Baby", year: 1976 },
+            { title: "The Devil's Child", year: 1997 },
+            { title: "Hive", year: 2026 },
+            { title: "Cub", year: 2014 },
+            { title: "Little Otik", year: 2000 },
+            { title: "The Orphan", year: 1979 },
+            { title: "Devil Times Five", year: 1974 },
+            { title: "The Brotherhood of Satan", year: 1971 },
+            { title: "Devil Fetus", year: 1983 },
+            { title: "Something Wicked This Way Comes", year: 1983 },
+            { title: "Damien: Omen II", year: 1978 },
+            { title: "Omen IV: The Awakening", year: 1991 },
+            { title: "The Omen", year: 2006 },
+            { title: "Child's Play", year: 1988 },
+            { title: "Child's Play 2", year: 1990 },
+            { title: "The Visit", year: 2015 },
+            { title: "Parents", year: 1989 },
+            { title: "Cobweb", year: 2023 },
+            { title: "A Doll's House", year: 1996 },
+            { title: "Don't Go to Sleep", year: 1982 },
+            { title: "Case 39", year: 2009 },
+            { title: "Firestarter", year: 1984 },
+            { title: "Tin & Tina", year: 2023 },
+            { title: "Home Movie", year: 2008 },
+            { title: "Sinister", year: 2012 },
+            { title: "Sinister 2", year: 2015 },
+            { title: "Better Watch Out", year: 2016 },
+            { title: "We Need to Talk About Kevin", year: 2011 },
+            { title: "Village of the Damned", year: 1995 },
+            { title: "Xtro", year: 1982 },
+            { title: "Sick Boy", year: 2011 },
+            { title: "Cooties", year: 2014 },
+            { title: "Little Evil", year: 2017 },
+            { title: "Poison for the Fairies", year: 1986 },
+            { title: "Here Comes the Devil", year: 2012 },
+            { title: "Wake Wood", year: 2009 },
+            { title: "Whisper", year: 2007 },
+            { title: "Citadel", year: 2012 },
+            { title: "Them", year: 2006 },
+            { title: "Wicked Little Things", year: 2006 },
+            { title: "The Orphanage", year: 2007 },
+            { title: "Trick 'r Treat", year: 2007 },
+            { title: "Vivarium", year: 2019 },
+            { title: "Eli", year: 2019 },
+            { title: "Phenomena", year: 1985 },
+            { title: "The Killing of a Sacred Deer", year: 2017 },
+            { title: "Bring Her Back", year: 2025 },
+            { title: "Come Out and Play", year: 2013 },
+            { title: "The Visitor", year: 1979 },
+            { title: "Offspring", year: 2009 },
+            { title: "Torture Chamber", year: 2013 },
+            { title: "Julie Darling", year: 1983 },
+            { title: "From a Whisper to a Scream", year: 1987 },
+            { title: "Whoever Slew Auntie Roo?", year: 1972 },
+            { title: "Strange Behavior", year: 1981 },
+            { title: "The Nightcomers", year: 1971 },
+            { title: "Please Don't Feed the Children", year: 2025 },
+            { title: "In a Glass Cage", year: 1986 },
+            { title: "Slaughter of the Innocents", year: 1993 }
         ];
 
         const TEEN_HORROR_TITLES = [
@@ -1109,8 +1268,11 @@
             { title: "Running Out of Time", year: 2018 }
         ];
 
-        // BLACK MAGIC — hardwired list (David Blaine + Criss Angel handled separately)
-        const BLACK_MAGIC_TITLES = [
+        // BLACK MAGIC — emptied (now only David Blaine & Criss Angel are fetched in fetchBlackMagicInitial)
+        const BLACK_MAGIC_TITLES = [];
+
+        // POSSESSION — moved all former black magic exorcist/possession titles here
+        const POSSESSION_TITLES = [
             { title: "Accidental Exorcist", year: 2016 },
             { title: "American Exorcist", year: 2016 },
             { title: "Amityville Exorcism", year: 2017 },
@@ -1381,6 +1543,107 @@
             { title: "Terrified", year: 2017 }
         ];
 
+        // KOWAI ANIME — anime horror (deduped, strict year matching)
+        const KOWAI_ANIME_TITLES = [
+            { title: "Akira", year: 1988 },
+            { title: "Belladonna of Sadness", year: 1973 },
+            { title: "Demon City Shinjuku", year: 1988 },
+            { title: "The End of Evangelion", year: 1997 },
+            { title: "Paprika", year: 2006 },
+            { title: "Perfect Blue", year: 1997 },
+            { title: "Blood Reign: Curse of the Yoma", year: 1989 },
+            { title: "Cyborg 009 Vs. Devilman", year: 2015 },
+            { title: "Demon Slayer: Mugen Train", year: 2020 },
+            { title: "The Garden of Sinners", year: 2007 },
+            { title: "Princess Mononoke", year: 1997 },
+            { title: "Tokyo Ghoul", year: 2014 },
+            { title: "Attack on Titan", year: 2013 },
+            { title: "Death Note", year: 2006 },
+            { title: "Gantz", year: 2004 },
+            { title: "Devilman: Crybaby", year: 2018 },
+            { title: "Corpse Party: Tortured Souls", year: 2013 },
+            { title: "Berserk", year: 1997 },
+            { title: "Genocyber", year: 1994 },
+            { title: "Blood-C", year: 2011 },
+            { title: "Another", year: 2012 },
+            { title: "Violence Jack", year: 1986 },
+            { title: "Parasyte", year: 2014 },
+            { title: "Future Diary", year: 2011 },
+            { title: "Dark Gathering", year: 2023 },
+            { title: "Deadman Wonderland", year: 2011 },
+            { title: "Chainsaw Man", year: 2022 },
+            { title: "Hellsing Ultimate", year: 2006 },
+            { title: "Elfen Lied", year: 2004 },
+            { title: "Higurashi", year: 2006 },
+            { title: "Paranoia Agent", year: 2004 },
+            { title: "School-Live!", year: 2015 },
+            { title: "Re:Zero", year: 2016 },
+            { title: "Black Lagoon", year: 2006 },
+            { title: "Made in Abyss", year: 2017 },
+            { title: "Shiki", year: 2010 },
+            { title: "School Days", year: 2007 },
+            { title: "Ninja Scroll", year: 1993 },
+            { title: "Urotsukidoji", year: 1987 },
+            { title: "Angel Cop", year: 1989 },
+            { title: "M.D. Geist", year: 1986 },
+            { title: "Apocalypse Zero", year: 1996 },
+            { title: "Pupa", year: 2014 },
+            { title: "Cyberpunk: Edgerunners", year: 2022 },
+            { title: "Fist of the North Star", year: 1984 },
+            { title: "Highschool of the Dead", year: 2010 },
+            { title: "Kabaneri of the Iron Fortress", year: 2016 },
+            { title: "Jigoku Shoujo", year: 2005 },
+            { title: "Gakkou no Kaidan", year: 2000 },
+            { title: "Kagewani", year: 2015 },
+            { title: "Shigurui", year: 2007 },
+            { title: "Bastard!! Heavy Metal", year: 1992 },
+            { title: "Hell's Paradise: Jigokuraku", year: 2023 },
+            { title: "Neon Genesis Evangelion", year: 1995 },
+            { title: "Vampire Hunter D: Bloodlust", year: 2000 },
+            { title: "Wicked City", year: 1987 },
+            { title: "Kizumonogatari", year: 2016 },
+            { title: "Gyo: Tokyo Fish Attack", year: 2012 },
+            { title: "Pet Shop of Horrors", year: 1999 },
+            { title: "Mononoke", year: 2007 },
+            { title: "Ayakashi: Samurai Horror Tales", year: 2006 },
+            { title: "Housing Complex C", year: 2022 },
+            { title: "Castlevania", year: 2017 },
+            { title: "Goblin Slayer", year: 2018 },
+            { title: "The Junji Ito Collection", year: 2018 },
+            { title: "Yamishibai: Japanese Ghost Stories", year: 2013 },
+            { title: "The Grimm Variations", year: 2024 },
+            { title: "Inuyashiki", year: 2017 },
+            { title: "Dorohedoro", year: 2020 },
+            { title: "Boogiepop Phantom", year: 2000 },
+            { title: "Mushi-Shi", year: 2005 },
+            { title: "Monster", year: 2004 },
+            { title: "Zom 100: Bucket List of the Dead", year: 2023 },
+            { title: "Mieruko-chan", year: 2021 },
+            { title: "Happy Sugar Life", year: 2018 },
+            { title: "Grave of the Fireflies", year: 1988 },
+            { title: "Claymore", year: 2007 },
+            { title: "Dororo", year: 2019 },
+            { title: "Jujutsu Kaisen", year: 2020 },
+            { title: "Fullmetal Alchemist", year: 2003 },
+            { title: "Magical Girl Site", year: 2018 },
+            { title: "Talentless Nana", year: 2020 },
+            { title: "Summer Time Rendering", year: 2022 },
+            { title: "Alien 9", year: 2001 },
+            { title: "High School Mystery", year: 1997 },
+            { title: "The Curse of Kazuo Umezu", year: 1990 },
+            { title: "Evil Town", year: 1990 },
+            { title: "Blood+", year: 2005 },
+            { title: "Devilman", year: 1972 },
+            { title: "Blood-C: The Last Dark", year: 2012 },
+            { title: "Vampire Hunter D", year: 1985 },
+            { title: "Fist of the North Star: The Anime Movie", year: 1986 },
+            { title: "Kite", year: 1998 },
+            { title: "The Cursed One-Piece", year: 1990 },
+            { title: "Ghost in the Shell", year: 1995 },
+            { title: "Jujutsu Kaisen 0", year: 2021 },
+            { title: "Berserk", year: 2016 }
+        ];
+
         async function fetchWithRetry(url, retries = 3) {
             for (let i = 0; i < retries; i++) {
                 try {
@@ -1397,6 +1660,42 @@
                 }
             }
             return null;
+        }
+
+        async function searchTitleYearStrict(title, year) {
+            if (year) {
+                const movieUrl = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}&primary_release_year=${year}`;
+                const tvUrl = `https://api.themoviedb.org/3/search/tv?api_key=${API_KEY}&query=${encodeURIComponent(title)}&first_air_date_year=${year}`;
+                const [movieData, tvData] = await Promise.all([
+                    fetchWithRetry(movieUrl).catch(() => null),
+                    fetchWithRetry(tvUrl).catch(() => null)
+                ]);
+                const candidates = [];
+                if (movieData && movieData.results) movieData.results.forEach(m => candidates.push({ ...m, media_type: 'movie' }));
+                if (tvData && tvData.results) tvData.results.forEach(t => candidates.push({ ...t, media_type: 'tv' }));
+                const exact = candidates.filter(m => {
+                    if (!m.poster_path) return false;
+                    const yStr = ((m.release_date || m.first_air_date) || '').split('-')[0];
+                    return parseInt(yStr, 10) === year;
+                });
+                if (exact.length > 0) return exact[0];
+                const near = candidates.filter(m => {
+                    if (!m.poster_path) return false;
+                    const yStr = ((m.release_date || m.first_air_date) || '').split('-')[0];
+                    return Math.abs(parseInt(yStr, 10) - year) <= 1;
+                });
+                return near[0] || null;
+            } else {
+                const data = await fetchWithRetry(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(title)}`).catch(() => null);
+                if (data && data.results) {
+                    return data.results.find(m => m.poster_path && (m.media_type === 'movie' || m.media_type === 'tv')) || null;
+                }
+                return null;
+            }
+        }
+
+        async function searchTitleYear(title, year) {
+            return searchTitleYearStrict(title, year);
         }
 
         const imdbCache = new Map();
@@ -1538,6 +1837,10 @@
                 teenHorrorPage = 1;
                 loadedBlackMagicIds.clear();
                 blackMagicPage = 1;
+                loadedPossessionIds.clear();
+                possessionPage = 1;
+                loadedKowaiAnimeIds.clear();
+                kowaiAnimePage = 1;
                 loadedAfricanIds.clear();
                 africanPage = 1;
                 loadedJapaneseIds.clear();
@@ -1559,7 +1862,7 @@
                 isLoading = false;
                 return;
             } else if (activeType === 'trending_theaters') {
-                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&primary_release_date.gte=2024-01-01&with_release_type=2%7C3&sort_by=popularity.desc&page=${currentPage}`;
+                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=27&primary_release_date.gte=2024-01-01&with_release_type=2%7C3&vote_count.gte=100&vote_average.gte=5.5&sort_by=popularity.desc&page=${currentPage}`;
                 const data = await fetchWithRetry(url);
                 results = data?.results || [];
             } else if (activeType === 'cult_classic') {
@@ -1583,6 +1886,20 @@
                     results = await fetchBlackMagicMore(blackMagicPage);
                 }
                 if (results && results.length > 0) blackMagicPage++;
+            } else if (activeType === 'possession') {
+                if (!append) {
+                    results = await fetchPossessionInitial();
+                } else {
+                    results = await fetchPossessionMore(possessionPage);
+                }
+                if (results && results.length > 0) possessionPage++;
+            } else if (activeType === 'kowai_anime') {
+                if (!append) {
+                    results = await fetchKowaiAnimeInitial();
+                } else {
+                    results = await fetchKowaiAnimeMore(kowaiAnimePage);
+                }
+                if (results && results.length > 0) kowaiAnimePage++;
             } else if (activeType === 'japanese') {
                 const itemsPerPage = 16;
                 const start = (japanesePage - 1) * itemsPerPage;
@@ -1689,15 +2006,7 @@
                 const pageTitles = YOUTH_HORROR_TITLES.slice(start, end);
                 
                 if (pageTitles.length > 0) {
-                    const searchPromises = pageTitles.map(title => 
-                        fetchWithRetry(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(title)}`)
-                        .then(data => {
-                            if (data && data.results) {
-                                return data.results.find(m => m.poster_path && (m.media_type === 'movie' || m.media_type === 'tv'));
-                            }
-                            return null;
-                        })
-                    );
+                    const searchPromises = pageTitles.map(({ title, year }) => searchTitleYearStrict(title, year));
                     const fetchedResults = await Promise.all(searchPromises);
                     let unique = new Map();
                     fetchedResults.forEach(m => {
@@ -1803,46 +2112,13 @@
             }
 
             renderGrid(results);
-            if (!['black_magic', 'african', 'japanese', 'unrated', 'youth', 'teen', 'ghastly_series', 'k_horror', 'shudder'].includes(activeType)) currentPage++;
+            if (!['black_magic', 'possession', 'kowai_anime', 'african', 'japanese', 'unrated', 'youth', 'teen', 'ghastly_series', 'k_horror', 'shudder'].includes(activeType)) currentPage++;
             isLoading = false;
         }
 
-        // ============================================================
-        // BLACK MAGIC — hardwired titles + David Blaine & Criss Angel
-        // ============================================================
         const BLACK_MAGIC_PAGE_SIZE = 20;
-
-        async function searchTitleYear(title, year) {
-            if (year) {
-                const movieUrl = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}&primary_release_year=${year}`;
-                const tvUrl = `https://api.themoviedb.org/3/search/tv?api_key=${API_KEY}&query=${encodeURIComponent(title)}&first_air_date_year=${year}`;
-                const [movieData, tvData] = await Promise.all([
-                    fetchWithRetry(movieUrl).catch(() => null),
-                    fetchWithRetry(tvUrl).catch(() => null)
-                ]);
-                const candidates = [];
-                if (movieData && movieData.results) movieData.results.forEach(m => candidates.push({ ...m, media_type: 'movie' }));
-                if (tvData && tvData.results) tvData.results.forEach(t => candidates.push({ ...t, media_type: 'tv' }));
-                const exact = candidates.filter(m => {
-                    if (!m.poster_path) return false;
-                    const yStr = ((m.release_date || m.first_air_date) || '').split('-')[0];
-                    return parseInt(yStr, 10) === year;
-                });
-                if (exact.length > 0) return exact[0];
-                const near = candidates.filter(m => {
-                    if (!m.poster_path) return false;
-                    const yStr = ((m.release_date || m.first_air_date) || '').split('-')[0];
-                    return Math.abs(parseInt(yStr, 10) - year) <= 1;
-                });
-                return near[0] || null;
-            } else {
-                const data = await fetchWithRetry(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(title)}`).catch(() => null);
-                if (data && data.results) {
-                    return data.results.find(m => m.poster_path && (m.media_type === 'movie' || m.media_type === 'tv')) || null;
-                }
-                return null;
-            }
-        }
+        const POSSESSION_PAGE_SIZE = 20;
+        const KOWAI_ANIME_PAGE_SIZE = 16;
 
         async function searchMagicQuery(query) {
             const data = await fetchWithRetry(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}`).catch(() => null);
@@ -1851,41 +2127,83 @@
         }
 
         async function fetchBlackMagicInitial() {
-            const pageTitles = BLACK_MAGIC_TITLES.slice(0, BLACK_MAGIC_PAGE_SIZE);
             const magicQueries = ["David Blaine", "Criss Angel"];
-
-            const titlePromises = pageTitles.map(({ title, year }) => searchTitleYear(title, year));
             const magicPromises = magicQueries.map(q => searchMagicQuery(q));
-
-            const [titleResults, magicResults] = await Promise.all([
-                Promise.all(titlePromises),
-                Promise.all(magicPromises)
-            ]);
-
+            const magicResults = await Promise.all(magicPromises);
             const unique = new Map();
             magicResults.forEach(arr => arr.forEach(m => { if (!unique.has(m.id)) unique.set(m.id, m); }));
-            titleResults.forEach(m => { if (m && !unique.has(m.id)) unique.set(m.id, m); });
-
             const items = Array.from(unique.values());
             items.forEach(m => loadedBlackMagicIds.add(m.id));
             return items;
         }
 
         async function fetchBlackMagicMore(page) {
-            const start = (page - 1) * BLACK_MAGIC_PAGE_SIZE;
-            const end = start + BLACK_MAGIC_PAGE_SIZE;
-            if (start >= BLACK_MAGIC_TITLES.length) {
+            hasMore = false;
+            return [];
+        }
+
+        async function fetchPossessionInitial() {
+            const pageTitles = POSSESSION_TITLES.slice(0, POSSESSION_PAGE_SIZE);
+            const promises = pageTitles.map(({ title, year }) => searchTitleYear(title, year));
+            const fetchedResults = await Promise.all(promises);
+            const unique = new Map();
+            fetchedResults.forEach(m => {
+                if (m && !loadedPossessionIds.has(m.id)) {
+                    loadedPossessionIds.add(m.id);
+                    unique.set(m.id, m);
+                }
+            });
+            return Array.from(unique.values());
+        }
+
+        async function fetchPossessionMore(page) {
+            const start = (page - 1) * POSSESSION_PAGE_SIZE;
+            const end = start + POSSESSION_PAGE_SIZE;
+            if (start >= POSSESSION_TITLES.length) {
                 hasMore = false;
                 return [];
             }
-            const pageTitles = BLACK_MAGIC_TITLES.slice(start, end);
+            const pageTitles = POSSESSION_TITLES.slice(start, end);
             const promises = pageTitles.map(({ title, year }) => searchTitleYear(title, year));
             const fetchedResults = await Promise.all(promises);
-
             const unique = new Map();
             fetchedResults.forEach(m => {
-                if (m && !loadedBlackMagicIds.has(m.id)) {
-                    loadedBlackMagicIds.add(m.id);
+                if (m && !loadedPossessionIds.has(m.id)) {
+                    loadedPossessionIds.add(m.id);
+                    unique.set(m.id, m);
+                }
+            });
+            return Array.from(unique.values());
+        }
+
+        async function fetchKowaiAnimeInitial() {
+            const pageTitles = KOWAI_ANIME_TITLES.slice(0, KOWAI_ANIME_PAGE_SIZE);
+            const promises = pageTitles.map(({ title, year }) => searchTitleYearStrict(title, year));
+            const fetchedResults = await Promise.all(promises);
+            const unique = new Map();
+            fetchedResults.forEach(m => {
+                if (m && !loadedKowaiAnimeIds.has(m.id)) {
+                    loadedKowaiAnimeIds.add(m.id);
+                    unique.set(m.id, m);
+                }
+            });
+            return Array.from(unique.values());
+        }
+
+        async function fetchKowaiAnimeMore(page) {
+            const start = (page - 1) * KOWAI_ANIME_PAGE_SIZE;
+            const end = start + KOWAI_ANIME_PAGE_SIZE;
+            if (start >= KOWAI_ANIME_TITLES.length) {
+                hasMore = false;
+                return [];
+            }
+            const pageTitles = KOWAI_ANIME_TITLES.slice(start, end);
+            const promises = pageTitles.map(({ title, year }) => searchTitleYearStrict(title, year));
+            const fetchedResults = await Promise.all(promises);
+            const unique = new Map();
+            fetchedResults.forEach(m => {
+                if (m && !loadedKowaiAnimeIds.has(m.id)) {
+                    loadedKowaiAnimeIds.add(m.id);
                     unique.set(m.id, m);
                 }
             });
