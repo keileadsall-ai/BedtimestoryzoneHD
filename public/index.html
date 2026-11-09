@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+   <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -111,6 +111,7 @@
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('shudder')">SHUDDER</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('after_dark')">AFTER DARK</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('black_horror')">BLACK HORROR</button>
+            <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('kidlit_horror')">KidLit Horror</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('youth')">YOUTH DECAY</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('teen')">TEEN HORROR</button>
             <button class="focusable text-left py-3 border-b border-zinc-900" onclick="setFilter('japanese')">JAPANESE HORROR</button>
@@ -337,6 +338,7 @@
         let japanesePage = 1, loadedJapaneseIds = new Set();
         let ghastlyPage = 1, loadedGhastlyIds = new Set();
         let kHorrorPage = 1, loadedKHorrorIds = new Set();
+        let kidlitHorrorPage = 1, loadedKidlitHorrorIds = new Set();
 
         const EXTREME_UNRATED_TITLES = [
             "Terrifier", "Terrifier 2", "Terrifier 3", "All Hallows' Eve", "Seed", "Inside", "Martyrs", "Grotesque", 
@@ -682,6 +684,191 @@
             { title: "Please Don't Feed the Children", year: 2025 },
             { title: "In a Glass Cage", year: 1986 },
             { title: "Slaughter of the Innocents", year: 1993 }
+        ];
+
+        const KIDLIT_HORROR_TITLES = [
+            { title: "Halloweentown", year: 1998 },
+            { title: "Halloweentown II: Kalabar's Revenge", year: 2001 },
+            { title: "Halloweentown High", year: 2004 },
+            { title: "Return to Halloweentown", year: 2006 },
+            { title: "Twitches", year: 2005 },
+            { title: "Twitches Too", year: 2007 },
+            { title: "Beetlejuice", year: 1988 },
+            { title: "Beetlejuice", year: 1989 },
+            { title: "Scooby-Doo, Where Are You!", year: 1969 },
+            { title: "The New Scooby-Doo Movies", year: 1972 },
+            { title: "The Scooby-Doo Show", year: 1976 },
+            { title: "Scooby-Doo and Scrappy-Doo", year: 1979 },
+            { title: "The Richie Rich/Scooby-Doo Show", year: 1980 },
+            { title: "The Scooby & Scrappy-Doo/Puppy Hour", year: 1982 },
+            { title: "The All-New Scooby and Scrappy-Doo Show", year: 1983 },
+            { title: "The 13 Ghosts of Scooby-Doo", year: 1985 },
+            { title: "A Pup Named Scooby-Doo", year: 1988 },
+            { title: "What's New, Scooby-Doo?", year: 2002 },
+            { title: "Shaggy & Scooby-Doo Get a Clue!", year: 2006 },
+            { title: "Scooby-Doo! Mystery Incorporated", year: 2010 },
+            { title: "Be Cool, Scooby-Doo!", year: 2015 },
+            { title: "Scooby-Doo and Guess Who?", year: 2019 },
+            { title: "Scooby-Doo on Zombie Island", year: 1998 },
+            { title: "Scooby-Doo! and the Witch's Ghost", year: 1999 },
+            { title: "Scooby-Doo and the Alien Invaders", year: 2000 },
+            { title: "Scooby-Doo and the Cyber Chase", year: 2001 },
+            { title: "Scooby-Doo", year: 2002 },
+            { title: "Scooby-Doo 2: Monsters Unleashed", year: 2004 },
+            { title: "Scooby-Doo! and the Legend of the Vampire", year: 2003 },
+            { title: "Scooby-Doo! and the Monster of Mexico", year: 2003 },
+            { title: "Scooby-Doo! and the Loch Ness Monster", year: 2004 },
+            { title: "Aloha, Scooby-Doo!", year: 2005 },
+            { title: "Scooby-Doo! in Where's My Mummy?", year: 2005 },
+            { title: "Scooby-Doo! Pirates Ahoy!", year: 2006 },
+            { title: "Chill Out, Scooby-Doo!", year: 2007 },
+            { title: "Scooby-Doo! and the Goblin King", year: 2008 },
+            { title: "Scooby-Doo! and the Samurai Sword", year: 2009 },
+            { title: "Scooby-Doo! Abracadabra-Doo", year: 2010 },
+            { title: "Scooby-Doo! Camp Scare", year: 2010 },
+            { title: "Scooby-Doo! Legend of the Phantosaur", year: 2011 },
+            { title: "Scooby-Doo! Music of the Vampire", year: 2012 },
+            { title: "Big Top Scooby-Doo!", year: 2012 },
+            { title: "Scooby-Doo! Mask of the Blue Falcon", year: 2012 },
+            { title: "Scooby-Doo! Adventures: The Mystery Map", year: 2013 },
+            { title: "Scooby-Doo! Stage Fright", year: 2013 },
+            { title: "Scooby-Doo! WrestleMania Mystery", year: 2014 },
+            { title: "Scooby-Doo! Frankencreepy", year: 2014 },
+            { title: "Scooby-Doo! Moon Monster Madness", year: 2015 },
+            { title: "Scooby-Doo! and Kiss: Rock and Roll Mystery", year: 2015 },
+            { title: "Scooby-Doo! Shaggy's Showdown", year: 2017 },
+            { title: "Scooby-Doo! & Batman: The Brave and the Bold", year: 2018 },
+            { title: "Scooby-Doo! and the Gourmet Ghost", year: 2018 },
+            { title: "Scooby-Doo! and the Curse of the 13th Ghost", year: 2019 },
+            { title: "Scooby-Doo! Return to Zombie Island", year: 2019 },
+            { title: "Happy Halloween, Scooby-Doo!", year: 2020 },
+            { title: "Scooby-Doo! The Sword and the Scoob", year: 2021 },
+            { title: "Straight Outta Nowhere: Scooby-Doo! Meets Courage the Cowardly Dog", year: 2021 },
+            { title: "Trick or Treat Scooby-Doo!", year: 2022 },
+            { title: "Scooby-Doo! and Krypto, Too!", year: 2023 },
+            { title: "Courage the Cowardly Dog", year: 1999 },
+            { title: "Under Wraps", year: 1997 },
+            { title: "Don't Look Under the Bed", year: 1999 },
+            { title: "Can of Worms", year: 1999 },
+            { title: "Mom's Got a Date with a Vampire", year: 2000 },
+            { title: "Phantom of the Megaplex", year: 2000 },
+            { title: "The Scream Team", year: 2002 },
+            { title: "Girl vs. Monster", year: 2012 },
+            { title: "Invisible Sister", year: 2015 },
+            { title: "Are You Afraid of the Dark?", year: 1990 },
+            { title: "The Nightmare Room", year: 2001 },
+            { title: "Goosebumps", year: 1995 },
+            { title: "R.L. Stine's The Haunting Hour", year: 2010 },
+            { title: "Creeped Out", year: 2017 },
+            { title: "Over the Garden Wall", year: 2014 },
+            { title: "So Weird", year: 1999 },
+            { title: "Round the Twist", year: 1990 },
+            { title: "Grizzly Tales for Gruesome Kids", year: 2000 },
+            { title: "The Grim Adventures of Billy & Mandy", year: 2003 },
+            { title: "The Real Ghostbusters", year: 1986 },
+            { title: "The Addams Family", year: 1992 },
+            { title: "SpongeBob SquarePants: Scaredy Pants", year: 1999 },
+            { title: "Rugrats: Curse of the Werewuff", year: 2002 },
+            { title: "Hey Arnold!: Arnold's Halloween", year: 1996 },
+            { title: "The Fairly OddParents: Scary Godparents", year: 2002 },
+            { title: "The Nightmare Before Christmas", year: 1993 },
+            { title: "Hocus Pocus", year: 1993 },
+            { title: "Casper", year: 1995 },
+            { title: "The Witches", year: 1990 },
+            { title: "The Little Vampire", year: 2000 },
+            { title: "Coraline", year: 2009 },
+            { title: "ParaNorman", year: 2012 },
+            { title: "Monster House", year: 2006 },
+            { title: "Frankenweenie", year: 2012 },
+            { title: "Corpse Bride", year: 2005 },
+            { title: "Hotel Transylvania", year: 2012 },
+            { title: "Hotel Transylvania 2", year: 2015 },
+            { title: "Hotel Transylvania 3: Summer Vacation", year: 2018 },
+            { title: "Hotel Transylvania: Transformania", year: 2022 },
+            { title: "The Addams Family", year: 1991 },
+            { title: "Addams Family Values", year: 1993 },
+            { title: "The Addams Family", year: 2019 },
+            { title: "The Addams Family 2", year: 2021 },
+            { title: "Goosebumps", year: 2015 },
+            { title: "Goosebumps 2: Haunted Halloween", year: 2018 },
+            { title: "The Curse of Bridge Hollow", year: 2022 },
+            { title: "Wendell & Wild", year: 2022 },
+            { title: "A Monster Calls", year: 2016 },
+            { title: "Kubo and the Two Strings", year: 2016 },
+            { title: "The Secret of NIMH", year: 1982 },
+            { title: "The Last Unicorn", year: 1982 },
+            { title: "Wallace & Gromit: The Curse of the Were-Rabbit", year: 2005 },
+            { title: "Ghostbusters", year: 1984 },
+            { title: "Ghostbusters II", year: 1989 },
+            { title: "The Sixth Sense", year: 1999 },
+            { title: "The Others", year: 2001 },
+            { title: "A Quiet Place", year: 2018 },
+            { title: "Five Nights at Freddy's", year: 2023 },
+            { title: "Poltergeist", year: 1982 },
+            { title: "Gremlins", year: 1984 },
+            { title: "Gremlins 2: The New Batch", year: 1990 },
+            { title: "Critters", year: 1986 },
+            { title: "Tremors", year: 1990 },
+            { title: "The Hole", year: 2009 },
+            { title: "The Halloween Tree", year: 1993 },
+            { title: "Pooh's Heffalump Halloween Movie", year: 2005 },
+            { title: "Curious George: A Halloween Boo Fest", year: 2013 },
+            { title: "The Adventures of Ichabod and Mr. Toad", year: 1949 },
+            { title: "Coco", year: 2017 },
+            { title: "The Book of Life", year: 2014 },
+            { title: "The Boxtrolls", year: 2014 },
+            { title: "James and the Giant Peach", year: 1996 },
+            { title: "The Witches", year: 2020 },
+            { title: "The House with a Clock in Its Walls", year: 2018 },
+            { title: "A Series of Unfortunate Events", year: 2004 },
+            { title: "Lemony Snicket's A Series of Unfortunate Events", year: 2017 },
+            { title: "Miss Peregrine's Home for Peculiar Children", year: 2016 },
+            { title: "The Spiderwick Chronicles", year: 2008 },
+            { title: "Bridge to Terabithia", year: 2007 },
+            { title: "The City of Ember", year: 2008 },
+            { title: "The Golden Compass", year: 2007 },
+            { title: "The Chronicles of Narnia: The Lion, the Witch and the Wardrobe", year: 2005 },
+            { title: "The Chronicles of Narnia: Prince Caspian", year: 2008 },
+            { title: "The Chronicles of Narnia: The Voyage of the Dawn Treader", year: 2010 },
+            { title: "Harry Potter and the Sorcerer's Stone", year: 2001 },
+            { title: "Harry Potter and the Chamber of Secrets", year: 2002 },
+            { title: "Harry Potter and the Prisoner of Azkaban", year: 2004 },
+            { title: "Harry Potter and the Goblet of Fire", year: 2005 },
+            { title: "Harry Potter and the Order of the Phoenix", year: 2007 },
+            { title: "Harry Potter and the Half-Blood Prince", year: 2009 },
+            { title: "Harry Potter and the Deathly Hallows – Part 1", year: 2010 },
+            { title: "Harry Potter and the Deathly Hallows – Part 2", year: 2011 },
+            { title: "Fantastic Beasts and Where to Find Them", year: 2016 },
+            { title: "Fantastic Beasts: The Crimes of Grindelwald", year: 2018 },
+            { title: "Fantastic Beasts: The Secrets of Dumbledore", year: 2022 },
+            { title: "Matilda", year: 1996 },
+            { title: "The BFG", year: 2016 },
+            { title: "The Indian in the Cupboard", year: 1995 },
+            { title: "Jumanji", year: 1995 },
+            { title: "Zathura: A Space Adventure", year: 2005 },
+            { title: "The Seeker: The Dark Is Rising", year: 2007 },
+            { title: "The Dark Crystal", year: 1982 },
+            { title: "Labyrinth", year: 1986 },
+            { title: "The NeverEnding Story", year: 1984 },
+            { title: "The Princess Bride", year: 1987 },
+            { title: "Willow", year: 1988 },
+            { title: "Return to Oz", year: 1985 },
+            { title: "Something Wicked This Way Comes", year: 1983 },
+            { title: "The Watcher in the Woods", year: 1980 },
+            { title: "Little Monsters", year: 1989 },
+            { title: "Ernest Scared Stupid", year: 1991 },
+            { title: "The Monster Squad", year: 1987 },
+            { title: "Fright Night", year: 1985 },
+            { title: "The Lost Boys", year: 1987 },
+            { title: "Teen Wolf", year: 1985 },
+            { title: "Buffy the Vampire Slayer", year: 1992 },
+            { title: "The Craft", year: 1996 },
+            { title: "Practical Magic", year: 1998 },
+            { title: "It's the Great Pumpkin, Charlie Brown", year: 1966 },
+            { title: "The Legend of Sleepy Hollow", year: 1949 },
+            { title: "Toy Story of Terror!", year: 2013 },
+            { title: "Monsters, Inc.", year: 2001 },
+            { title: "Monsters University", year: 2013 }
         ];
 
         const TEEN_HORROR_TITLES = [
@@ -1849,6 +2036,8 @@
                 ghastlyPage = 1;
                 loadedKHorrorIds.clear();
                 kHorrorPage = 1;
+                loadedKidlitHorrorIds.clear();
+                kidlitHorrorPage = 1;
             }
 
             let results = [];
@@ -1999,6 +2188,25 @@
                     results = Array.from(unique.values());
                     blackHorrorPage++;
                 }
+            } else if (activeType === 'kidlit_horror') {
+                const itemsPerPage = 16;
+                const start = (kidlitHorrorPage - 1) * itemsPerPage;
+                const end = start + itemsPerPage;
+                const pageTitles = KIDLIT_HORROR_TITLES.slice(start, end);
+                
+                if (pageTitles.length > 0) {
+                    const searchPromises = pageTitles.map(({ title, year }) => searchTitleYearStrict(title, year));
+                    const fetchedResults = await Promise.all(searchPromises);
+                    let unique = new Map();
+                    fetchedResults.forEach(m => {
+                        if (m && !loadedKidlitHorrorIds.has(m.id)) {
+                            unique.set(m.id, { ...m, media_type: m.media_type || (m.first_air_date ? 'tv' : 'movie') });
+                            loadedKidlitHorrorIds.add(m.id);
+                        }
+                    });
+                    results = Array.from(unique.values());
+                    kidlitHorrorPage++;
+                }
             } else if (activeType === 'youth') {
                 const itemsPerPage = 16;
                 const start = (youthHorrorPage - 1) * itemsPerPage;
@@ -2112,7 +2320,7 @@
             }
 
             renderGrid(results);
-            if (!['black_magic', 'possession', 'kowai_anime', 'african', 'japanese', 'unrated', 'youth', 'teen', 'ghastly_series', 'k_horror', 'shudder'].includes(activeType)) currentPage++;
+            if (!['black_magic', 'possession', 'kowai_anime', 'african', 'japanese', 'unrated', 'youth', 'teen', 'ghastly_series', 'k_horror', 'shudder', 'kidlit_horror'].includes(activeType)) currentPage++;
             isLoading = false;
         }
 
